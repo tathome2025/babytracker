@@ -50,7 +50,6 @@
         
         h2 { font-size: 1.4rem; margin-top: 0; margin-bottom: 15px; border-bottom: 2px solid var(--border-color); padding-bottom: 12px; color: var(--text-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         
-        /* 🔥 新版放大突出時間標籤 */
         .time-wrapper { display: flex; align-items: center; gap: 8px; }
         .time-label { font-size: 1rem; font-weight: bold; color: var(--text-muted); }
         .time-display { 
@@ -347,23 +346,11 @@
     </div>
 
     <div id="growth-card" class="card">
-        <h2>
-            <span data-i18n="growthTitle">📏 身高體重紀錄</span>
-            <div class="time-wrapper">
-                <span class="time-label" data-i18n="currentTime">現在時間：</span>
-                <span id="time-growth" class="time-display">--:--</span>
-            </div>
-        </h2>
+        <h2><span data-i18n="growthTitle">📏 身高體重紀錄</span></h2>
         
-        <div class="row section">
-            <div class="col split-divider" style="flex: 1.2;">
-                <label class="label" data-i18n="labelTimeAdjust">記錄時間微調</label>
-                <div class="btn-group" style="grid-template-columns: repeat(3, 1fr);">
-                    <button class="btn active" onclick="setTime('growth', 0, this)" data-i18n="now">現在</button>
-                    <button class="btn" onclick="setTime('growth', 10, this)" data-i18n="min10">-10分</button>
-                    <button class="btn" onclick="setTime('growth', 60, this)" data-i18n="min60">-60分</button>
-                </div>
-            </div>
+        <div class="section">
+            <label class="label" data-i18n="labelGrowthDate">記錄日期</label>
+            <input type="date" id="growth-date" class="input-date">
         </div>
 
         <div class="section">
@@ -504,7 +491,7 @@ const firebaseConfig = {
             otherColorPlaceholder: "請填寫顏色", labelPooAmount: "大便量", saveDiaper: "儲存尿片紀錄",
             sleepTitle: "💤 睡眠紀錄", labelEventTime: "時間", labelSleepStatus: "狀態",
             sleepStart: "開始睡眠 (入睡) 🌙", sleepEnd: "結束睡眠 (醒來) ☀️", saveSleep: "儲存睡眠紀錄",
-            growthTitle: "📏 身高體重紀錄", labelHeight: "身高 (cm)", labelWeight: "體重 (kg)", saveGrowth: "儲存成長紀錄",
+            growthTitle: "📏 身高體重紀錄", labelGrowthDate: "記錄日期", labelHeight: "身高 (cm)", labelWeight: "體重 (kg)", saveGrowth: "儲存成長紀錄",
             settingsTitle: "⚙️ 設定寶寶名稱", firstBaby: "第一位寶寶", secondBaby: "第二位寶寶", thirdBaby: "第三位寶寶",
             settingsPlaceholder1: "例如：大寶", settingsPlaceholder2: "例如：二寶", settingsPlaceholder3: "例如：三寶", saveSettingsBtn: "💾 儲存 (同步雲端)", cancelBtn: "取消",
             alertSettingsSaved: "✅ 設定已同步到雲端！", saving: "儲存中...", alertSuccess: "✅ 成功儲存", alertError: "❌ 錯誤：",
@@ -534,7 +521,7 @@ const firebaseConfig = {
             otherColorPlaceholder: "Custom color", labelPooAmount: "Amount", saveDiaper: "Save Diaper",
             sleepTitle: "💤 Sleep", labelEventTime: "Time", labelSleepStatus: "Status",
             sleepStart: "Asleep 🌙", sleepEnd: "Awake ☀️", saveSleep: "Save Sleep",
-            growthTitle: "📏 Growth Record", labelHeight: "Height (cm)", labelWeight: "Weight (kg)", saveGrowth: "Save Growth Record",
+            growthTitle: "📏 Growth Record", labelGrowthDate: "Record Date", labelHeight: "Height (cm)", labelWeight: "Weight (kg)", saveGrowth: "Save Growth Record",
             settingsTitle: "⚙️ Set Baby Name", firstBaby: "First Baby", secondBaby: "Second Baby", thirdBaby: "Third Baby",
             settingsPlaceholder1: "e.g., Baby 1", settingsPlaceholder2: "e.g., Baby 2", settingsPlaceholder3: "e.g., Baby 3", saveSettingsBtn: "💾 Save (Sync)", cancelBtn: "Cancel",
             alertSettingsSaved: "✅ Saved to cloud!", saving: "Saving...", alertSuccess: "✅ Saved", alertError: "❌ Error: ",
@@ -666,10 +653,18 @@ const firebaseConfig = {
     function toggleTheme() { applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
     function applyTheme(t) { document.documentElement.setAttribute('data-theme', t); if(historyCharts.milk) loadDashboardData(); }
 
-    let recordTimes = { 'feeding': new Date(), 'diaper': new Date(), 'sleep': new Date(), 'growth': new Date() }; let isTimeFrozen = { 'feeding': false, 'diaper': false, 'sleep': false, 'growth': false };
-    function renderTimeDisplay(cat) { let h = recordTimes[cat].getHours().toString().padStart(2, '0'); let m = recordTimes[cat].getMinutes().toString().padStart(2, '0'); document.getElementById('time-' + cat).innerText = `${h}:${m}`; }
+    function setLocalDate(inputId) {
+        let tzoffset = (new Date()).getTimezoneOffset() * 60000;
+        let localISOTime = (new Date(Date.now() - tzoffset)).toISOString().split('T')[0];
+        let el = document.getElementById(inputId);
+        if(el) el.value = localISOTime;
+    }
+
+    // 🔥 移除成長紀錄自動更新時間 (改為指定日期)
+    let recordTimes = { 'feeding': new Date(), 'diaper': new Date(), 'sleep': new Date() }; let isTimeFrozen = { 'feeding': false, 'diaper': false, 'sleep': false };
+    function renderTimeDisplay(cat) { let h = recordTimes[cat].getHours().toString().padStart(2, '0'); let m = recordTimes[cat].getMinutes().toString().padStart(2, '0'); let el = document.getElementById('time-' + cat); if(el) el.innerText = `${h}:${m}`; }
     function setTime(cat, minsAgo, btn) { btn.parentElement.querySelectorAll('.btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); let t = new Date(); t.setMinutes(t.getMinutes() - minsAgo); recordTimes[cat] = t; isTimeFrozen[cat] = (minsAgo !== 0); renderTimeDisplay(cat); }
-    setInterval(() => { ['feeding', 'diaper', 'sleep', 'growth'].forEach(cat => { if (!isTimeFrozen[cat]) { recordTimes[cat] = new Date(); renderTimeDisplay(cat); }}); }, 1000);
+    setInterval(() => { ['feeding', 'diaper', 'sleep'].forEach(cat => { if (!isTimeFrozen[cat]) { recordTimes[cat] = new Date(); renderTimeDisplay(cat); }}); }, 1000);
 
     function switchTab(tab, btn, colorHex) {
         document.documentElement.style.setProperty('--theme-color', colorHex);
@@ -679,6 +674,7 @@ const firebaseConfig = {
         document.querySelectorAll('.card').forEach(c => c.classList.remove('active')); document.getElementById(tab + '-card').classList.add('active');
         
         if (tab === 'log' || tab === 'history') { loadDashboardData(); }
+        else if (tab === 'growth') { setLocalDate('growth-date'); } // 打開成長分頁預設為今天
         else if (tab !== 'redpacket') { let firstBtn = document.getElementById(tab + '-card').querySelector('.btn-group button'); if(firstBtn) setTime(tab, 0, firstBtn); }
         if(window.innerWidth <= 850) toggleSidebar();
     }
@@ -719,7 +715,21 @@ const firebaseConfig = {
         if(!db) return alert("Please set firebaseConfig"); if(!auth.currentUser) return alert("Please Login!");
         let submitBtn = document.getElementById('btn-submit-' + category); let originalText = submitBtn.innerText; submitBtn.innerText = translations[currentLang].saving; submitBtn.disabled = true;
 
-        let dataToSave = { userId: auth.currentUser.uid, babyId: currentBabyId, babyName: babies[currentBabyId], category: category, recordTime: recordTimes[category], createdAt: firebase.firestore.FieldValue.serverTimestamp() };
+        let recordTime;
+        if (category === 'growth') {
+            let dateVal = document.getElementById('growth-date').value;
+            if(!dateVal) {
+                submitBtn.innerText = originalText; submitBtn.disabled = false;
+                return alert(currentLang==='zh'?"請選擇日期！":"Please select a date!");
+            }
+            recordTime = new Date(dateVal);
+            let now = new Date();
+            recordTime.setHours(now.getHours(), now.getMinutes(), now.getSeconds());
+        } else {
+            recordTime = recordTimes[category];
+        }
+
+        let dataToSave = { userId: auth.currentUser.uid, babyId: currentBabyId, babyName: babies[currentBabyId], category: category, recordTime: recordTime, createdAt: firebase.firestore.FieldValue.serverTimestamp() };
 
         if (category === 'feeding') {
             let activeType = document.querySelector('.type-btn.active').getAttribute('data-value'); dataToSave.feedingType = activeType;
@@ -747,9 +757,13 @@ const firebaseConfig = {
 
         try {
             await db.collection("baby_records").add(dataToSave); alert(`${translations[currentLang].alertSuccess} 【${babies[currentBabyId]}】!`);
-            document.querySelectorAll('input').forEach(input => { if(input.id !== 'auth-email' && input.id !== 'auth-password') input.value = ''; });
+            // 🔥 清除輸入框時，忽略日期選擇器
+            document.querySelectorAll('input').forEach(input => { if(input.id !== 'auth-email' && input.id !== 'auth-password' && input.type !== 'date') input.value = ''; });
             document.getElementById('poo-color-other').classList.add('hidden'); restoreLastBrand(); fetchRecentBrands();
-            let firstBtn = document.getElementById(category + '-card').querySelector('.btn-group button'); if(firstBtn) setTime(category, 0, firstBtn);
+            
+            if (category !== 'growth') {
+                let firstBtn = document.getElementById(category + '-card').querySelector('.btn-group button'); if(firstBtn) setTime(category, 0, firstBtn);
+            }
         } catch (error) { alert(translations[currentLang].alertError + error.message); } finally { submitBtn.innerText = originalText; submitBtn.disabled = false; }
     }
 
@@ -842,6 +856,7 @@ const firebaseConfig = {
                         if (r.height) arr.push(`${translations[currentLang].lblHeight}: ${r.height}cm`);
                         if (r.weight) arr.push(`${translations[currentLang].lblWeight}: ${r.weight}kg`);
                         desc = arr.join(', ');
+                        h = '--'; m = '--'; // 成長不顯示具體時間
                     }
 
                     listHtml = `
@@ -869,7 +884,6 @@ const firebaseConfig = {
                 renderSingleBarChart('sleepChart', 'sleep', labels, Object.values(dailyStats).map(d => (d.sleepMins/60).toFixed(1)), '#673AB7', translations[currentLang].lblHours);
                 renderSingleBarChart('diaperChart', 'diaper', labels, Object.values(dailyStats).map(d => d.diaper), '#FF9800', translations[currentLang].unitTimes);
                 
-                // 畫折線圖
                 renderLineChart('weightChart', 'weight', labels, Object.values(dailyStats).map(d => d.weight), '#9C27B0', 'kg');
                 renderLineChart('heightChart', 'height', labels, Object.values(dailyStats).map(d => d.height), '#00BCD4', 'cm');
             }
@@ -892,7 +906,7 @@ const firebaseConfig = {
 
             records.forEach(r => {
                 let dateStr = `${r.time.getFullYear()}/${String(r.time.getMonth()+1).padStart(2,'0')}/${String(r.time.getDate()).padStart(2,'0')}`;
-                let timeStr = `${String(r.time.getHours()).padStart(2,'0')}:${String(r.time.getMinutes()).padStart(2,'0')}`;
+                let timeStr = r.category==='growth' ? "--:--" : `${String(r.time.getHours()).padStart(2,'0')}:${String(r.time.getMinutes()).padStart(2,'0')}`;
                 let cat = r.category === 'feeding' ? (currentLang==='zh'?'吃奶':'Feeding') : 
                           (r.category === 'diaper' ? (currentLang==='zh'?'換尿片':'Diaper') : 
                           (r.category === 'sleep' ? (currentLang==='zh'?'睡眠':'Sleep') : (currentLang==='zh'?'成長紀錄':'Growth')));
@@ -987,7 +1001,7 @@ const firebaseConfig = {
                     pointBackgroundColor: color, 
                     pointRadius: 4, 
                     fill: true, 
-                    spanGaps: true // 允許跨越空缺數據連線
+                    spanGaps: true
                 }] 
             },
             options: {
@@ -1005,10 +1019,10 @@ const firebaseConfig = {
 
     window.onload = function() {
         initTheme(); updateLanguage(); 
+        setLocalDate('growth-date');
         setTime('feeding', 0, document.querySelector('#feeding-card .btn-group button')); 
         setTime('diaper', 0, document.querySelector('#diaper-card .btn-group button')); 
         setTime('sleep', 0, document.querySelector('#sleep-card .btn-group button'));
-        setTime('growth', 0, document.querySelector('#growth-card .btn-group button'));
         restoreLastBrand(); if(window.innerWidth <= 850) document.getElementById('desktop-title').style.display = 'none';
     };
 </script>

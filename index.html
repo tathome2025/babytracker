@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>嬰幼兒生活紀錄 (專業雙語版)</title>
+    <title>Baby Tracker 嬰幼兒生活紀錄</title>
     <style>
         :root {
             --bg-color: #f4f7f6; --sidebar-bg: #ffffff; --card-bg: #ffffff; --text-color: #333333;
@@ -406,7 +406,6 @@ const firebaseConfig = {
         googleProvider = new firebase.auth.GoogleAuthProvider();
     }
 
-    // ===== 雙語字典設定 =====
     const translations = {
         zh: {
             appTitle: "👶 寶寶紀錄", emailPlaceholder: "電子郵件 Email", pwPlaceholder: "密碼 Password",
@@ -417,4 +416,461 @@ const firebaseConfig = {
             feedingTitle: "🍼 吃奶紀錄", labelTimeAdjust: "時間微調", now: "現在",
             min10: "-10分", min20: "-20分", min30: "-30分", min45: "-45分", min60: "-60分",
             labelFeedType: "吃奶種類", formula: "配方奶", breastmilk: "人奶(樽)", direct: "親餵", pump: "泵奶",
-            labelBrand: "牌子及型號", brandPlaceholder: "例如：Illuma 1段", labelRecent
+            labelBrand: "牌子及型號", brandPlaceholder: "例如：Illuma 1段", labelRecent: "最近使用：",
+            mlPlaceholder: "或手動輸入 ML", labelQuickMl: "快速選擇奶量", labelMl: "奶量 (ML)", manualMlPlaceholder: "請手動輸入 ML",
+            labelDuration: "親餵時長(分)", durationPlaceholder: "手動輸入分鐘", labelQuickSelect: "快速選擇", saveFeeding: "儲存吃奶紀錄",
+            diaperTitle: "🧻 換尿片紀錄", labelBasicStatus: "基本狀態", pee: "有小便 💦", noPoo: "沒大便", poo: "有大便 💩",
+            labelPooColor: "大便顏色", colorYellow: "🟡 黃", colorBrown: "🟤 啡", colorGreen: "🟢 綠", colorOther: "⚪ 其他",
+            otherColorPlaceholder: "請填寫顏色", labelPooAmount: "大便量", saveDiaper: "儲存尿片紀錄",
+            sleepTitle: "💤 睡眠紀錄", labelEventTime: "時間", labelSleepStatus: "狀態",
+            sleepStart: "開始睡眠 (入睡) 🌙", sleepEnd: "結束睡眠 (醒來) ☀️", saveSleep: "儲存睡眠紀錄",
+            settingsTitle: "⚙️ 設定名稱", firstBaby: "第一位寶寶", secondBaby: "第二位寶寶", thirdBaby: "第三位寶寶",
+            settingsPlaceholder1: "例如：大寶", settingsPlaceholder2: "例如：二寶", settingsPlaceholder3: "例如：三寶", saveSettingsBtn: "💾 儲存 (同步雲端)", cancelBtn: "取消",
+            alertSettingsSaved: "✅ 設定已同步到雲端！", saving: "儲存中...", alertSuccess: "✅ 成功儲存", alertError: "❌ 錯誤：",
+            historyTitle: "📊 統計趨勢圖表", sumMilk: "總奶量", sumDiaper: "換尿片", sumSleep: "睡眠動態", timelineTitle: "📅 24小時日誌",
+            logDesc: "顯示從此刻起，往前推算 24 小時內的所有紀錄。", unitTimes: "次",
+            deleteConfirm: "確定要刪除這筆紀錄嗎？", emptyHistory: "過去 24 小時內沒有任何紀錄喔！",
+            range7: "最近 7 天", range14: "最近 14 天", range30: "最近 1 個月", range90: "最近 3 個月", range180: "最近半年", range365: "最近一年",
+            chartTitleMilk: "🍼 每日總奶量與親餵時間", chartTitlePump: "🤱 每日泵奶量 (ml)", chartTitleSleep: "💤 每日總睡眠時數 (小時)", chartTitleDiaper: "🧻 每日換尿片次數",
+            lblFormula: "配方奶", lblBreast: "人奶樽", lblDirect: "親餵", lblPump: "泵奶", lblTimeMin: "時間(分)", lblMilkMl: "奶量(ml)", lblHours: "小時"
+        },
+        en: {
+            appTitle: "👶 Baby Tracker", emailPlaceholder: "Email", pwPlaceholder: "Password",
+            btnLogin: "Login", btnRegister: "Register", orText: "OR", btnGoogleLogin: "Google Login",
+            navFeeding: "🍼 Feeding", navDiaper: "🧻 Diaper", navSleep: "💤 Sleep", navLog: "📅 24h Log", navHistory: "📊 Charts", navRedPacket: "🧧 Red Packet",
+            btnExportCSV: "📥 Export CSV", btnSettings: "⚙️ Settings", btnLogout: "🚪 Logout", btnThemeDark: "🌙 Dark", btnThemeLight: "☀️ Light",
+            tabBaby1: "Baby 1", tabBaby2: "Baby 2", tabBaby3: "Baby 3",
+            feedingTitle: "🍼 Feeding", labelTimeAdjust: "Time", now: "Now",
+            min10: "-10m", min20: "-20m", min30: "-30m", min45: "-45m", min60: "-60m",
+            labelFeedType: "Type", formula: "Formula", breastmilk: "Breastmilk", direct: "Nursing", pump: "Pump",
+            labelBrand: "Brand", brandPlaceholder: "e.g., Illuma", labelRecent: "Recent:",
+            mlPlaceholder: "Enter ML", labelQuickMl: "Quick Vol (ML)", labelMl: "Volume (ML)", manualMlPlaceholder: "Enter ML",
+            labelDuration: "Duration(min)", durationPlaceholder: "Minutes", labelQuickSelect: "Quick Select", saveFeeding: "Save Feeding",
+            diaperTitle: "🧻 Diaper", labelBasicStatus: "Status", pee: "Pee 💦", noPoo: "No Poo", poo: "Poo 💩",
+            labelPooColor: "Color", colorYellow: "🟡 Yel", colorBrown: "🟤 Brn", colorGreen: "🟢 Grn", colorOther: "⚪ Oth",
+            otherColorPlaceholder: "Custom color", labelPooAmount: "Amount", saveDiaper: "Save Diaper",
+            sleepTitle: "💤 Sleep", labelEventTime: "Time", labelSleepStatus: "Status",
+            sleepStart: "Asleep 🌙", sleepEnd: "Awake ☀️", saveSleep: "Save Sleep",
+            settingsTitle: "⚙️ Settings", firstBaby: "First Baby", secondBaby: "Second Baby", thirdBaby: "Third Baby",
+            settingsPlaceholder1: "e.g., Baby 1", settingsPlaceholder2: "e.g., Baby 2", settingsPlaceholder3: "e.g., Baby 3", saveSettingsBtn: "💾 Save (Sync)", cancelBtn: "Cancel",
+            alertSettingsSaved: "✅ Saved to cloud!", saving: "Saving...", alertSuccess: "✅ Saved", alertError: "❌ Error: ",
+            historyTitle: "📊 History Trend", sumMilk: "Total Milk", sumDiaper: "Diapers", sumSleep: "Sleep Logs", timelineTitle: "📅 24-Hour Log",
+            logDesc: "Showing all records within the past 24 hours from now.", unitTimes: "times",
+            deleteConfirm: "Delete this record?", emptyHistory: "No records in the last 24 hours!",
+            range7: "Last 7 Days", range14: "Last 14 Days", range30: "Last 1 Month", range90: "Last 3 Months", range180: "Last 6 Months", range365: "Last 1 Year",
+            chartTitleMilk: "🍼 Daily Total Milk & Nursing", chartTitlePump: "🤱 Daily Pump Vol (ml)", chartTitleSleep: "💤 Daily Sleep (Hours)", chartTitleDiaper: "🧻 Daily Diapers",
+            lblFormula: "Formula", lblBreast: "Breastmilk", lblDirect: "Nursing", lblPump: "Pump", lblTimeMin: "Time(min)", lblMilkMl: "Vol(ml)", lblHours: "Hours"
+        }
+    };
+
+    let currentLang = localStorage.getItem('appLang') || 'zh';
+    let babies = { baby1: "", baby2: "", baby3: "" };
+    let currentBabyId = "baby1";
+    let historyCharts = { milk: null, pump: null, diaper: null, sleep: null }; 
+
+    function updateLanguage() {
+        document.querySelectorAll('[data-i18n]').forEach(el => el.innerText = translations[currentLang][el.getAttribute('data-i18n')]);
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => el.placeholder = translations[currentLang][el.getAttribute('data-i18n-placeholder')]);
+        document.getElementById('lang-toggle-btn').innerText = currentLang === 'zh' ? '🌐 English' : '🌐 中文';
+        let isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        document.getElementById('theme-toggle-btn').innerText = isDark ? translations[currentLang].btnThemeLight : translations[currentLang].btnThemeDark;
+        updateBabyUI();
+        if(document.getElementById('log-card').classList.contains('active') || document.getElementById('history-card').classList.contains('active')) loadDashboardData(); 
+    }
+
+    function toggleLanguage() { currentLang = currentLang === 'zh' ? 'en' : 'zh'; localStorage.setItem('appLang', currentLang); updateLanguage(); }
+
+    // ==============================================
+    // 🛠️ BUG FIXED: 安全的設定讀取與寫入機制
+    // ==============================================
+    async function loadBabySettingsFromDB() {
+        if(!db || !auth.currentUser) return;
+        try {
+            const doc = await db.collection("user_settings").doc(auth.currentUser.uid).get();
+            if(doc.exists) {
+                let data = doc.data();
+                // 💡 防呆：如果欄位為空(例如剛寫入Email時)，就塞入預設翻譯文字
+                babies.baby1 = data.baby1 ? data.baby1 : translations[currentLang].tabBaby1;
+                babies.baby2 = data.baby2 ? data.baby2 : translations[currentLang].tabBaby2;
+                babies.baby3 = data.baby3 ? data.baby3 : translations[currentLang].tabBaby3;
+            } else {
+                babies.baby1 = translations[currentLang].tabBaby1;
+                babies.baby2 = translations[currentLang].tabBaby2;
+                babies.baby3 = translations[currentLang].tabBaby3;
+            }
+            updateBabyUI();
+        } catch(e) { console.error("Error loading settings", e); }
+    }
+
+    async function saveBabyNames() {
+        let n1 = document.getElementById('input-baby1-name').value.trim(); 
+        let n2 = document.getElementById('input-baby2-name').value.trim();
+        let n3 = document.getElementById('input-baby3-name').value.trim();
+        if(n1) babies.baby1 = n1; 
+        if(n2) babies.baby2 = n2; 
+        if(n3) babies.baby3 = n3;
+        
+        if(auth.currentUser) {
+            try { 
+                // 🚨 加上 { merge: true } 保證不會洗掉後台要看的 Email
+                await db.collection("user_settings").doc(auth.currentUser.uid).set({
+                    baby1: babies.baby1,
+                    baby2: babies.baby2,
+                    baby3: babies.baby3
+                }, { merge: true }); 
+                
+                alert(translations[currentLang].alertSettingsSaved);
+            } catch(e) { alert("儲存失敗，Error: " + e.message); }
+        }
+        updateBabyUI(); closeSettingsModal();
+    }
+    // ==============================================
+
+    function updateBabyUI() {
+        document.getElementById('tab-baby1').innerText = `👶 ${babies.baby1 || translations[currentLang].tabBaby1}`;
+        document.getElementById('tab-baby2').innerText = `👶 ${babies.baby2 || translations[currentLang].tabBaby2}`;
+        document.getElementById('tab-baby3').innerText = `👶 ${babies.baby3 || translations[currentLang].tabBaby3}`;
+    }
+
+    function switchBaby(babyId) {
+        currentBabyId = babyId;
+        document.querySelectorAll('.baby-tab').forEach(t => t.classList.remove('active'));
+        document.getElementById(`tab-${babyId}`).classList.add('active'); restoreLastBrand();
+        if(document.getElementById('log-card').classList.contains('active') || document.getElementById('history-card').classList.contains('active')) loadDashboardData();
+    }
+
+    function openSettingsModal() {
+        document.getElementById('input-baby1-name').value = babies.baby1; 
+        document.getElementById('input-baby2-name').value = babies.baby2;
+        document.getElementById('input-baby3-name').value = babies.baby3;
+        document.getElementById('settings-modal').classList.add('active'); 
+        if(window.innerWidth <= 850) toggleSidebar(); 
+    }
+    function closeSettingsModal() { document.getElementById('settings-modal').classList.remove('active'); }
+    
+    function showError(msg) { document.getElementById('auth-error-msg').innerText = msg; }
+    function registerUser() { let e = document.getElementById('auth-email').value; let p = document.getElementById('auth-password').value; if(e&&p) auth.createUserWithEmailAndPassword(e, p).catch(err => showError(err.message)); else showError('Please enter Email & Password'); }
+    function loginUser() { let e = document.getElementById('auth-email').value; let p = document.getElementById('auth-password').value; if(e&&p) auth.signInWithEmailAndPassword(e, p).catch(err => showError(err.message)); else showError('Please enter Email & Password'); }
+    function loginWithGoogle() { auth.signInWithPopup(googleProvider).catch(err => showError(err.message)); }
+    function logoutUser() { auth.signOut().then(() => { if(window.innerWidth <= 850) toggleSidebar(); }); }
+
+    if(auth) {
+        auth.onAuthStateChanged(user => {
+            let overlay = document.getElementById('auth-overlay');
+            if (user) { 
+                overlay.style.display = 'none'; 
+                document.getElementById('user-info').innerText = `👤 ${user.email}`; 
+                
+                // 💡 登入流程優化：保證先寫入 Email，完成後再讀取設定
+                db.collection("user_settings").doc(user.uid).set({
+                    email: user.email
+                }, { merge: true })
+                .then(() => loadBabySettingsFromDB())
+                .catch(e => {
+                    console.error("Email sync error", e);
+                    loadBabySettingsFromDB(); // 即使出錯也試著載入
+                });
+
+                fetchRecentBrands(); 
+            } else { 
+                overlay.style.display = 'flex'; document.getElementById('user-info').innerText = ''; 
+            }
+        });
+    }
+
+    function toggleSidebar() {
+        let sidebar = document.getElementById('sidebar'); let overlay = document.getElementById('sidebar-overlay');
+        if (sidebar.classList.contains('open')) { sidebar.classList.remove('open'); overlay.style.opacity = '0'; setTimeout(() => overlay.style.display = 'none', 300); } 
+        else { sidebar.classList.add('open'); overlay.style.display = 'block'; setTimeout(() => overlay.style.opacity = '1', 10); }
+    }
+
+    function initTheme() { let h = new Date().getHours(); applyTheme((h >= 18 || h < 6) ? 'dark' : 'light'); }
+    function toggleTheme() { applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
+    function applyTheme(t) { document.documentElement.setAttribute('data-theme', t); if(historyCharts.milk) loadDashboardData(); }
+
+    let recordTimes = { 'feeding': new Date(), 'diaper': new Date(), 'sleep': new Date() }; let isTimeFrozen = { 'feeding': false, 'diaper': false, 'sleep': false };
+    function renderTimeDisplay(cat) { let h = recordTimes[cat].getHours().toString().padStart(2, '0'); let m = recordTimes[cat].getMinutes().toString().padStart(2, '0'); document.getElementById('time-' + cat).innerText = `${h}:${m}`; }
+    function setTime(cat, minsAgo, btn) { btn.parentElement.querySelectorAll('.btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); let t = new Date(); t.setMinutes(t.getMinutes() - minsAgo); recordTimes[cat] = t; isTimeFrozen[cat] = (minsAgo !== 0); renderTimeDisplay(cat); }
+    setInterval(() => { ['feeding', 'diaper', 'sleep'].forEach(cat => { if (!isTimeFrozen[cat]) { recordTimes[cat] = new Date(); renderTimeDisplay(cat); }}); }, 1000);
+
+    function switchTab(tab, btn, colorHex) {
+        document.documentElement.style.setProperty('--theme-color', colorHex);
+        let rgb = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(colorHex);
+        document.documentElement.style.setProperty('--theme-light', `rgba(${parseInt(rgb[1],16)}, ${parseInt(rgb[2],16)}, ${parseInt(rgb[3],16)}, 0.15)`);
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
+        document.querySelectorAll('.card').forEach(c => c.classList.remove('active')); document.getElementById(tab + '-card').classList.add('active');
+        
+        if (tab === 'log' || tab === 'history') { loadDashboardData(); }
+        else if (tab !== 'redpacket') { let firstBtn = document.getElementById(tab + '-card').querySelector('.btn-group button'); if(firstBtn) setTime(tab, 0, firstBtn); }
+        if(window.innerWidth <= 850) toggleSidebar();
+    }
+
+    function setType(type, btn) {
+        document.querySelectorAll('#type-btns .btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
+        ['formula-section', 'milk-volume-section', 'direct-section'].forEach(id => document.getElementById(id).classList.add('hidden'));
+        if(type === 'formula') document.getElementById('formula-section').classList.remove('hidden');
+        else if(type === 'breastmilk' || type === 'pump') document.getElementById('milk-volume-section').classList.remove('hidden');
+        else if(type === 'direct') document.getElementById('direct-section').classList.remove('hidden');
+    }
+    function singleSelectBtn(btn, groupId) { document.querySelectorAll(`#${groupId} .btn`).forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
+    function selectPooColor(btn) { singleSelectBtn(btn, 'poo-color-btns'); let otherInput = document.getElementById('poo-color-other'); if (btn.getAttribute('data-value') === 'other') otherInput.classList.remove('hidden'); else otherInput.classList.add('hidden'); }
+    function toggleActive(btn) { btn.classList.toggle('active'); }
+    function setPoo(status, btn) { document.querySelectorAll('#poo-toggle-btns .btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); if(status === 'yes') document.getElementById('poo-details').classList.remove('hidden'); else document.getElementById('poo-details').classList.add('hidden'); }
+    function restoreLastBrand() { let lastBrand = localStorage.getItem('lastFormulaBrand'); if (lastBrand) document.getElementById('formula-brand').value = lastBrand; }
+
+    async function fetchRecentBrands() {
+        if(!db || !auth.currentUser) return;
+        try {
+            const snapshot = await db.collection("baby_records").where("userId", "==", auth.currentUser.uid).get();
+            let records = []; snapshot.forEach(doc => records.push(doc.data())); records.sort((a, b) => b.createdAt - a.createdAt);
+            let recentBrands = new Set();
+            for(let data of records) { if (data.category === 'feeding' && data.feedingType === 'formula' && data.brand && data.brand !== '未填寫') recentBrands.add(data.brand); }
+            let brandArray = Array.from(recentBrands).slice(0, 2); let list = document.getElementById('recent-brand-list');
+            if(brandArray.length > 0) {
+                list.innerHTML = '';
+                brandArray.forEach(brand => {
+                    let btn = document.createElement('button'); btn.className = 'btn'; btn.style.padding = '6px 4px'; btn.style.fontSize = '0.85rem'; btn.innerText = brand;
+                    btn.onclick = function() { document.getElementById('formula-brand').value = brand; }; list.appendChild(btn);
+                });
+                document.getElementById('recent-brand-area').style.display = 'block';
+            }
+        } catch (error) {}
+    }
+
+    async function submitData(category) {
+        if(!db) return alert("Please set firebaseConfig"); if(!auth.currentUser) return alert("Please Login!");
+        let submitBtn = document.getElementById('btn-submit-' + category); let originalText = submitBtn.innerText; submitBtn.innerText = translations[currentLang].saving; submitBtn.disabled = true;
+
+        let dataToSave = { userId: auth.currentUser.uid, babyId: currentBabyId, babyName: babies[currentBabyId], category: category, recordTime: recordTimes[category], createdAt: firebase.firestore.FieldValue.serverTimestamp() };
+
+        if (category === 'feeding') {
+            let activeType = document.querySelector('.type-btn.active').getAttribute('data-value'); dataToSave.feedingType = activeType;
+            if (activeType === 'formula') {
+                let brandInput = document.getElementById('formula-brand').value; dataToSave.brand = brandInput || '未填寫'; dataToSave.volumeML = Number(document.getElementById('formula-volume').value) || 0; if (brandInput) localStorage.setItem('lastFormulaBrand', brandInput);
+            } else if (activeType === 'direct') { dataToSave.durationMins = Number(document.getElementById('direct-duration').value) || 0;
+            } else { dataToSave.volumeML = Number(document.getElementById('breastmilk-volume').value) || 0; }
+        } else if (category === 'diaper') {
+            dataToSave.hasPee = document.querySelector('.pee-btn').classList.contains('active'); let hasPoo = document.querySelector('.poo-choice.active').getAttribute('data-value') === 'yes'; dataToSave.hasPoo = hasPoo;
+            if (hasPoo) {
+                let colorBtn = document.querySelector('.poo-color.active'); let amountBtn = document.querySelector('.poo-amount.active'); let pooColorValue = 'none';
+                if (colorBtn) { pooColorValue = colorBtn.getAttribute('data-value'); if (pooColorValue === 'other') { let customColor = document.getElementById('poo-color-other').value.trim(); pooColorValue = customColor !== '' ? customColor : 'other'; } }
+                dataToSave.pooColor = pooColorValue; dataToSave.pooAmount = amountBtn ? amountBtn.getAttribute('data-value') : 'none'; 
+            }
+        } else if (category === 'sleep') { dataToSave.sleepStatus = document.querySelector('.sleep-action.active').getAttribute('data-value'); }
+
+        try {
+            await db.collection("baby_records").add(dataToSave); alert(`${translations[currentLang].alertSuccess} 【${babies[currentBabyId]}】!`);
+            document.querySelectorAll('input').forEach(input => { if(input.id !== 'auth-email' && input.id !== 'auth-password') input.value = ''; });
+            document.getElementById('poo-color-other').classList.add('hidden'); restoreLastBrand(); fetchRecentBrands();
+            let firstBtn = document.getElementById(category + '-card').querySelector('.btn-group button'); if(firstBtn) setTime(category, 0, firstBtn);
+        } catch (error) { alert(translations[currentLang].alertError + error.message); } finally { submitBtn.innerText = originalText; submitBtn.disabled = false; }
+    }
+
+    async function loadDashboardData() {
+        if(!db || !auth.currentUser) return;
+        const isLogTab = document.getElementById('log-card').classList.contains('active');
+        const isHistoryTab = document.getElementById('history-card').classList.contains('active');
+        if (!isLogTab && !isHistoryTab) return; 
+
+        const range = parseInt(document.getElementById('stats-range').value) || 7;
+        const listDiv = document.getElementById('log-list');
+        if(isLogTab) listDiv.innerHTML = '<div style="text-align:center;">Loading...</div>';
+
+        const now = new Date();
+        const past24h = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
+        let labels = [];
+        let dailyStats = {};
+        for(let i = range - 1; i >= 0; i--) {
+            let d = new Date(); d.setDate(d.getDate() - i);
+            let k = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+            labels.push(k.slice(5)); 
+            dailyStats[k] = { formula: 0, breastmilk: 0, direct: 0, pump: 0, diaper: 0, sleepMins: 0 };
+        }
+
+        try {
+            const snapshot = await db.collection("baby_records").where("userId", "==", auth.currentUser.uid).where("babyId", "==", currentBabyId).get();
+            let allRecords = [];
+            snapshot.forEach(doc => {
+                let data = doc.data(); data.id = doc.id;
+                data.time = (data.recordTime && data.recordTime.toDate) ? data.recordTime.toDate() : new Date(data.recordTime);
+                allRecords.push(data);
+            });
+
+            allRecords.sort((a, b) => a.time - b.time);
+            
+            let lastSleepStart = null;
+            let dayTotalMilk = 0; let dayDiaperCount = 0; let daySleepCount = 0;
+            let listHtml = '';
+
+            allRecords.forEach(r => {
+                let rDate = `${r.time.getFullYear()}-${String(r.time.getMonth()+1).padStart(2,'0')}-${String(r.time.getDate()).padStart(2,'0')}`;
+                
+                if (r.category === 'sleep') {
+                    if (r.sleepStatus === 'start_sleep') {
+                        lastSleepStart = r.time;
+                    } else if (r.sleepStatus === 'end_sleep' && lastSleepStart) {
+                        let diffMins = (r.time - lastSleepStart) / 1000 / 60;
+                        if (dailyStats[rDate]) dailyStats[rDate].sleepMins += diffMins;
+                        lastSleepStart = null;
+                    }
+                }
+                if (dailyStats[rDate]) {
+                    if (r.category === 'feeding') {
+                        if (r.feedingType === 'formula') dailyStats[rDate].formula += (r.volumeML || 0);
+                        else if (r.feedingType === 'breastmilk') dailyStats[rDate].breastmilk += (r.volumeML || 0);
+                        else if (r.feedingType === 'direct') dailyStats[rDate].direct += (r.durationMins || 0);
+                        else if (r.feedingType === 'pump') dailyStats[rDate].pump += (r.volumeML || 0);
+                    }
+                    if (r.category === 'diaper') dailyStats[rDate].diaper += 1;
+                }
+
+                if (isLogTab && r.time >= past24h && r.time <= now) {
+                    let icon = ''; let desc = ''; let h = String(r.time.getHours()).padStart(2,'0'); let m = String(r.time.getMinutes()).padStart(2,'0');
+                    let displayDate = `${r.time.getMonth()+1}/${r.time.getDate()}`;
+                    
+                    if (r.category === 'feeding') {
+                        icon = '🍼';
+                        if(r.feedingType === 'direct') { desc = `${translations[currentLang].lblDirect} (${r.durationMins} min)`; }
+                        else if(r.feedingType === 'pump') { desc = `${translations[currentLang].lblPump} ${r.volumeML}ml`; }
+                        else { desc = `${r.feedingType==='formula'?translations[currentLang].lblFormula:translations[currentLang].lblBreast} ${r.volumeML}ml`; if(r.brand && r.brand !== '未填寫') desc += ` [${r.brand}]`; dayTotalMilk += r.volumeML; }
+                    } 
+                    else if (r.category === 'diaper') {
+                        icon = '🧻'; dayDiaperCount++; let arr = [];
+                        let txtPee = currentLang==='zh'?"小便":"Pee"; let txtPoo = currentLang==='zh'?"大便":"Poo"; let txtNoPoo = currentLang==='zh'?"沒大便":"No Poo";
+                        if(r.hasPee) arr.push(txtPee);
+                        if(r.hasPoo) { let p = txtPoo; if(r.pooColor !== 'none') p += `(${r.pooColor}, ${r.pooAmount})`; arr.push(p); }
+                        if(arr.length===0) arr.push(txtNoPoo); desc = arr.join(' / ');
+                    } 
+                    else if (r.category === 'sleep') {
+                        icon = '💤'; daySleepCount++; desc = (r.sleepStatus === 'start_sleep') ? translations[currentLang].sleepStart : translations[currentLang].sleepEnd;
+                    }
+
+                    listHtml = `
+                        <div class="history-item">
+                            <div class="history-info">
+                                <div class="history-time"><span style="font-size:0.8rem; color:#888;">${displayDate}</span> ${h}:${m} ${icon}</div>
+                                <div class="history-detail">${desc}</div>
+                            </div>
+                            <button class="delete-btn" onclick="deleteRecord('${r.id}')">Del</button>
+                        </div>` + listHtml;
+                }
+            });
+
+            if(isLogTab) {
+                if(listHtml === '') listDiv.innerHTML = `<div style="text-align:center; color: var(--text-muted); padding: 20px;">${translations[currentLang].emptyHistory}</div>`;
+                else listDiv.innerHTML = listHtml; 
+                document.getElementById('sum-milk-val').innerText = dayTotalMilk;
+                document.getElementById('sum-diaper-val').innerText = dayDiaperCount;
+                document.getElementById('sum-sleep-val').innerText = daySleepCount;
+            }
+
+            if(isHistoryTab) {
+                renderFeedingStackedChart('milkChart', labels, dailyStats);
+                renderSingleBarChart('pumpChart', 'pump', labels, Object.values(dailyStats).map(d => d.pump), '#E91E63', translations[currentLang].lblMilkMl);
+                renderSingleBarChart('sleepChart', 'sleep', labels, Object.values(dailyStats).map(d => (d.sleepMins/60).toFixed(1)), '#673AB7', translations[currentLang].lblHours);
+                renderSingleBarChart('diaperChart', 'diaper', labels, Object.values(dailyStats).map(d => d.diaper), '#FF9800', translations[currentLang].unitTimes);
+            }
+
+        } catch(e) { console.error(e); if(isLogTab) listDiv.innerHTML = "Error loading"; }
+    }
+
+    async function exportCSV() {
+        if(!db || !auth.currentUser) return alert("Please Login!");
+        try {
+            const snap = await db.collection("baby_records").where("userId", "==", auth.currentUser.uid).get();
+            let csv = '\uFEFF'; 
+            csv += (currentLang === 'zh' ? "日期,時間,寶寶名稱,紀錄類別,紀錄內容\n" : "Date,Time,Baby Name,Category,Details\n");
+            
+            let records = [];
+            snap.forEach(doc => {
+                let d = doc.data(); d.time = (d.recordTime && d.recordTime.toDate) ? d.recordTime.toDate() : new Date(d.recordTime); records.push(d);
+            });
+            records.sort((a,b) => b.time - a.time);
+
+            records.forEach(r => {
+                let dateStr = `${r.time.getFullYear()}/${String(r.time.getMonth()+1).padStart(2,'0')}/${String(r.time.getDate()).padStart(2,'0')}`;
+                let timeStr = `${String(r.time.getHours()).padStart(2,'0')}:${String(r.time.getMinutes()).padStart(2,'0')}`;
+                let cat = r.category === 'feeding' ? (currentLang==='zh'?'吃奶':'Feeding') : (r.category === 'diaper' ? (currentLang==='zh'?'換尿片':'Diaper') : (currentLang==='zh'?'睡眠':'Sleep'));
+                let detail = "";
+                
+                if(r.category === 'feeding') {
+                    let t = r.feedingType==='formula'?translations[currentLang].lblFormula:(r.feedingType==='breastmilk'?translations[currentLang].lblBreast:(r.feedingType==='pump'?translations[currentLang].lblPump:translations[currentLang].lblDirect));
+                    detail = `${t} ${r.volumeML ? r.volumeML+'ml' : r.durationMins+(currentLang==='zh'?'分鐘':'min')} ${r.brand && r.brand!=='未填寫'?r.brand:''}`;
+                } else if(r.category === 'diaper') {
+                    detail = `${r.hasPee?(currentLang==='zh'?'有小便':'Pee'):''} ${r.hasPoo?(currentLang==='zh'?'有大便':'Poo'):''} ${r.pooColor&&r.pooColor!=='none'?'('+r.pooColor+')':''} ${r.pooAmount&&r.pooAmount!=='none'?'('+r.pooAmount+')':''}`;
+                } else if(r.category === 'sleep') {
+                    detail = r.sleepStatus === 'start_sleep' ? translations[currentLang].sleepStart : translations[currentLang].sleepEnd;
+                }
+                csv += `${dateStr},${timeStr},${r.babyName || ''},${cat},"${detail.trim()}"\n`;
+            });
+
+            const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url); link.setAttribute("download", currentLang==='zh'?"寶寶完整紀錄.csv":"Baby_Records.csv");
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        } catch(e) { alert("Error: " + e.message); }
+    }
+
+    function renderFeedingStackedChart(canvasId, labels, stats) {
+        const ctx = document.getElementById(canvasId).getContext('2d');
+        if(historyCharts['milk']) historyCharts['milk'].destroy();
+        let isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        let textColor = isDark ? '#aaaaaa' : '#666666'; let gridColor = isDark ? '#444444' : '#eeeeee';
+
+        historyCharts['milk'] = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    { label: translations[currentLang].lblFormula, data: Object.values(stats).map(d => d.formula), backgroundColor: '#2196F3', stack: 'Stack 0', yAxisID: 'y' },
+                    { label: translations[currentLang].lblBreast, data: Object.values(stats).map(d => d.breastmilk), backgroundColor: '#4CAF50', stack: 'Stack 0', yAxisID: 'y' },
+                    { label: translations[currentLang].lblDirect, data: Object.values(stats).map(d => d.direct), backgroundColor: '#FF9800', stack: 'Stack 1', yAxisID: 'y1' }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: true, labels: { color: textColor } } },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: textColor, maxTicksLimit: 15 } },
+                    y: { type: 'linear', display: true, position: 'left', title: { display: true, text: translations[currentLang].lblMilkMl, color: textColor }, grid: { color: gridColor }, ticks: { color: textColor } },
+                    y1: { type: 'linear', display: true, position: 'right', title: { display: true, text: translations[currentLang].lblTimeMin, color: textColor }, grid: { drawOnChartArea: false }, ticks: { color: textColor } }
+                }
+            }
+        });
+    }
+
+    function renderSingleBarChart(canvasId, chartKey, labels, data, color, yTitle) {
+        const ctx = document.getElementById(canvasId).getContext('2d');
+        if(historyCharts[chartKey]) historyCharts[chartKey].destroy();
+        let isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        let textColor = isDark ? '#aaaaaa' : '#666666'; let gridColor = isDark ? '#444444' : '#eeeeee';
+
+        historyCharts[chartKey] = new Chart(ctx, {
+            type: 'bar',
+            data: { labels: labels, datasets: [{ data: data, backgroundColor: color, borderRadius: 4 }] },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: textColor, maxTicksLimit: 15 } },
+                    y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor }, title: { display: true, text: yTitle, color: textColor } }
+                }
+            }
+        });
+    }
+
+    async function deleteRecord(docId) { if(confirm(translations[currentLang].deleteConfirm)) { try { await db.collection("baby_records").doc(docId).delete(); loadDashboardData(); } catch(e) { alert("Error: " + e.message); } } }
+
+    window.onload = function() {
+        initTheme(); updateLanguage(); 
+        setTime('feeding', 0, document.querySelector('#feeding-card .btn-group button')); 
+        setTime('diaper', 0, document.querySelector('#diaper-card .btn-group button')); 
+        setTime('sleep', 0, document.querySelector('#sleep-card .btn-group button'));
+        restoreLastBrand(); if(window.innerWidth <= 850) document.getElementById('desktop-title').style.display = 'none';
+    };
+</script>
+
+</body>
+</html>

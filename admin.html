@@ -84,14 +84,15 @@
         // ==========================================
         // 🚨 1. 在此填寫你的 Firebase Config 🚨
         // ==========================================
-        const firebaseConfig = {
-          // apiKey: "AIzaSyBAEx...",
-          // authDomain: "...",
-          // projectId: "...",
-          // storageBucket: "...",
-          // messagingSenderId: "...",
-          // appId: "..."
-        };
+const firebaseConfig = {
+  apiKey: "AIzaSyBAExf2aDgBP8UrCMKlpB4C8US-fCuf4Xg",
+  authDomain: "babytrackerweb-c6a26.firebaseapp.com",
+  projectId: "babytrackerweb-c6a26",
+  storageBucket: "babytrackerweb-c6a26.firebasestorage.app",
+  messagingSenderId: "297032381661",
+  appId: "1:297032381661:web:a583efe8c9abb1f68dd734",
+  measurementId: "G-YRLJW2P55F"
+};
         
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
@@ -100,7 +101,7 @@
         // ==========================================
         // 🚨 2. 在此填寫你設定的「超級管理員 Email」 🚨
         // ==========================================
-        const ADMIN_EMAIL = "your-email@gmail.com"; 
+        const ADMIN_EMAIL = "tathome2025@gmail.com"; 
 
         auth.onAuthStateChanged(user => {
             if (user) {

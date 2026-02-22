@@ -541,7 +541,7 @@ const firebaseConfig = {
     function loginWithGoogle() { auth.signInWithPopup(googleProvider).catch(err => showError(err.message)); }
     function logoutUser() { auth.signOut().then(() => { if(window.innerWidth <= 850) toggleSidebar(); }); }
 
-if(auth) {
+    if(auth) {
         auth.onAuthStateChanged(user => {
             let overlay = document.getElementById('auth-overlay');
             if (user) { 

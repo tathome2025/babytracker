@@ -52,9 +52,11 @@
         
         .time-wrapper { display: flex; align-items: center; gap: 8px; }
         .time-label { font-size: 1rem; font-weight: bold; color: var(--text-muted); }
+        
+        /* 🔥 微調時間顯示大小以適應完整日期 */
         .time-display { 
             color: var(--theme-color); 
-            font-size: 1.6rem; 
+            font-size: 1.15rem; 
             font-weight: 900; 
             font-variant-numeric: tabular-nums; 
             background: var(--theme-light); 
@@ -85,7 +87,6 @@
         .modal-content { background: var(--card-bg); padding: 25px; border-radius: 15px; width: 90%; max-width: 350px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transform: translateY(-20px); transition: transform 0.3s; }
         .modal.active .modal-content { transform: translateY(0); }
 
-        /* 🔥 更新 summary-grid 為 5 格 */
         .summary-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 20px; }
         .summary-box { background: var(--btn-bg); padding: 10px; border-radius: 10px; text-align: center; border: 1px solid var(--border-color); }
         .summary-title { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px; }
@@ -111,8 +112,10 @@
             .row { flex-direction: column; gap: 12px; }
             .split-divider { border-right: none; padding-right: 0; border-bottom: 2px dashed var(--border-color); padding-bottom: 12px; }
             .btn-group[style] { grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)) !important; }
-            /* 手機版改為一排3個，共兩排 */
             .summary-grid { grid-template-columns: repeat(3, 1fr); }
+            
+            /* 手機版時間顯示再稍微調整 */
+            .time-display { font-size: 1rem; padding: 4px 10px; }
         }
     </style>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
@@ -124,6 +127,8 @@
 
 <div id="auth-overlay">
     <div class="auth-card">
+        <img src="https://drive.google.com/uc?export=view&id=1Pvj2kg3xR-F5LlgaBYzQ-rYCZamCn3nd" alt="Welcome to Baby Tracker" style="width: 100%; max-width: 220px; border-radius: 20px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); object-fit: cover;">
+        
         <div class="auth-title" data-i18n="appTitle">👶 寶寶紀錄</div>
         <div id="auth-error-msg" class="auth-error"></div>
         <input type="email" id="auth-email" class="auth-input" data-i18n-placeholder="emailPlaceholder" placeholder="電子郵件 Email">
@@ -482,30 +487,23 @@
             <button id="mode-btn-bath" class="btn outline" style="width: auto; padding: 6px 12px; font-size: 0.9rem;" onclick="toggleManualMode('bath')" data-i18n="btnManualMode">📅 補登過去紀錄</button>
         </h2>
         
-        <div class="row section">
-            <div class="col split-divider">
-                <label class="label" data-i18n="labelEventTime">發生時間</label>
-                <div id="quick-time-bath" class="btn-group" style="grid-template-columns: repeat(3, 1fr);">
-                    <button class="btn active" onclick="setTime('bath', 0, this)" data-i18n="now">現在</button>
-                    <button class="btn" onclick="setTime('bath', 10, this)" data-i18n="min10">-10分</button>
-                    <button class="btn" onclick="setTime('bath', 20, this)" data-i18n="min20">-20分</button>
-                    <button class="btn" onclick="setTime('bath', 30, this)" data-i18n="min30">-30分</button>
-                    <button class="btn" onclick="setTime('bath', 45, this)" data-i18n="min45">-45分</button>
-                    <button class="btn" onclick="setTime('bath', 60, this)" data-i18n="min60">-60分</button>
-                </div>
-                <div id="manual-time-bath" class="hidden">
-                    <input type="datetime-local" id="input-manual-bath" class="input-date" onchange="setManualTime('bath', this.value)">
-                    <p style="font-size: 0.85rem; color: #E91E63; margin-top: 5px;" data-i18n="manualNotice">* 您正在補登過去的紀錄</p>
-                </div>
+        <div class="section">
+            <label class="label" data-i18n="labelEventTime">發生時間</label>
+            <div id="quick-time-bath" class="btn-group" style="grid-template-columns: repeat(3, 1fr);">
+                <button class="btn active" onclick="setTime('bath', 0, this)" data-i18n="now">現在</button>
+                <button class="btn" onclick="setTime('bath', 10, this)" data-i18n="min10">-10分</button>
+                <button class="btn" onclick="setTime('bath', 20, this)" data-i18n="min20">-20分</button>
+                <button class="btn" onclick="setTime('bath', 30, this)" data-i18n="min30">-30分</button>
+                <button class="btn" onclick="setTime('bath', 45, this)" data-i18n="min45">-45分</button>
+                <button class="btn" onclick="setTime('bath', 60, this)" data-i18n="min60">-60分</button>
             </div>
-            <div class="col">
-                <label class="label" data-i18n="labelBathStatus">沖涼打卡</label>
-                <div class="btn-group" id="bath-action-btns" style="grid-template-columns: 1fr;">
-                    <button class="btn bath-action active" data-value="bath" onclick="singleSelectBtn(this, 'bath-action-btns')" data-i18n="bathRecord" style="padding: 15px; border-color: #00ACC1; color: #00ACC1;">紀錄沖涼 🛀</button>
-                </div>
+            <div id="manual-time-bath" class="hidden">
+                <input type="datetime-local" id="input-manual-bath" class="input-date" onchange="setManualTime('bath', this.value)">
+                <p style="font-size: 0.85rem; color: #E91E63; margin-top: 5px;" data-i18n="manualNotice">* 您正在補登過去的紀錄</p>
             </div>
         </div>
-        <button class="submit-btn" id="btn-submit-bath" onclick="submitData('bath')" data-i18n="saveBath" style="background:#00ACC1">儲存沖涼紀錄</button>
+        
+        <button class="submit-btn" id="btn-submit-bath" onclick="submitData('bath')" data-i18n="saveBath" style="background:#00ACC1; font-size: 1.4rem; padding: 20px;">🛀 一鍵儲存沖涼紀錄</button>
     </div>
 
     <div id="tummy-card" class="card">
@@ -683,7 +681,7 @@ const firebaseConfig = {
             otherColorPlaceholder: "請填寫顏色", labelPooAmount: "大便量", labelRash: "尿布疹 (Diaper Rash)", rashNone: "無", rashMild: "輕微", rashMod: "中度", rashSevere: "嚴重", saveDiaper: "儲存尿片紀錄",
             sleepTitle: "💤 睡眠紀錄", labelEventTime: "發生時間", labelSleepStatus: "睡眠狀態",
             sleepStart: "開始睡眠 (入睡) 🌙", sleepEnd: "結束睡眠 (醒來) ☀️", saveSleep: "儲存睡眠紀錄",
-            bathTitle: "🛀 沖涼紀錄", labelBathStatus: "沖涼打卡", bathRecord: "紀錄沖涼 🛀", saveBath: "儲存沖涼紀錄",
+            bathTitle: "🛀 沖涼紀錄", labelBathStatus: "沖涼打卡", bathRecord: "紀錄沖涼 🛀", saveBath: "🛀 一鍵儲存沖涼紀錄",
             tummyTitle: "🐢 趴撐紀錄", labelTummyStatus: "趴撐狀態", tummyStart: "開始趴撐 🐢", tummyEnd: "結束趴撐 🛌", saveTummy: "儲存趴撐紀錄",
             birthProfile: "👶 出生資料", labelBirthDate: "出生日期", labelBirthTime: "出生時間", labelBirthLoc: "出生地點", placeholderLoc: "醫院或診所名稱",
             labelBirthWeight: "出生體重", labelBirthHeight: "出生身高", saveProfile: "💾 儲存出生資料", profileSaved: "✅ 出生資料已更新！",
@@ -718,7 +716,7 @@ const firebaseConfig = {
             otherColorPlaceholder: "Custom color", labelPooAmount: "Amount", labelRash: "Diaper Rash", rashNone: "None", rashMild: "Mild", rashMod: "Mod", rashSevere: "Severe", saveDiaper: "Save Diaper",
             sleepTitle: "💤 Sleep", labelEventTime: "Time", labelSleepStatus: "Status",
             sleepStart: "Asleep 🌙", sleepEnd: "Awake ☀️", saveSleep: "Save Sleep",
-            bathTitle: "🛀 Bath", labelBathStatus: "Status", bathRecord: "Record Bath 🛀", saveBath: "Save Bath",
+            bathTitle: "🛀 Bath", labelBathStatus: "Status", bathRecord: "Record Bath 🛀", saveBath: "🛀 One-Click Save Bath",
             tummyTitle: "🐢 Tummy Time", labelTummyStatus: "Status", tummyStart: "Start Tummy 🐢", tummyEnd: "End Tummy 🛌", saveTummy: "Save Tummy",
             birthProfile: "👶 Birth Profile", labelBirthDate: "Birth Date", labelBirthTime: "Birth Time", labelBirthLoc: "Location", placeholderLoc: "Hospital/Clinic",
             labelBirthWeight: "Birth Wt", labelBirthHeight: "Birth Ht", saveProfile: "💾 Save Profile", profileSaved: "✅ Profile saved!",
@@ -889,10 +887,25 @@ const firebaseConfig = {
     let recordTimes = { 'feeding': new Date(), 'diaper': new Date(), 'sleep': new Date(), 'bath': new Date(), 'tummy': new Date() }; 
     let isTimeFrozen = { 'feeding': false, 'diaper': false, 'sleep': false, 'bath': false, 'tummy': false };
     
+    // 🔥 詳細日期格式顯示
     function renderTimeDisplay(cat) { 
-        let mm = String(recordTimes[cat].getMonth() + 1).padStart(2, '0'); let dd = String(recordTimes[cat].getDate()).padStart(2, '0');
-        let h = String(recordTimes[cat].getHours()).padStart(2, '0'); let m = String(recordTimes[cat].getMinutes()).padStart(2, '0'); 
-        let el = document.getElementById('time-' + cat); if(el) el.innerText = `${mm}/${dd} ${h}:${m}`; 
+        let t = recordTimes[cat];
+        let year = t.getFullYear();
+        let mm = String(t.getMonth() + 1).padStart(2, '0');
+        let dd = String(t.getDate()).padStart(2, '0');
+        let h = String(t.getHours()).padStart(2, '0'); 
+        let m = String(t.getMinutes()).padStart(2, '0'); 
+        
+        let daysZh = ['日', '一', '二', '三', '四', '五', '六'];
+        let daysEn = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        let dayStr = currentLang === 'zh' ? `星期${daysZh[t.getDay()]}` : `${daysEn[t.getDay()]}`;
+
+        let displayStr = currentLang === 'zh' ? 
+            `${year}年${mm}月${dd}日 (${dayStr}) ${h}:${m}` : 
+            `${mm}/${dd}/${year} (${dayStr}) ${h}:${m}`;
+            
+        let el = document.getElementById('time-' + cat); 
+        if(el) el.innerText = displayStr; 
     }
     
     function setTime(cat, minsAgo, btn) { 
@@ -1008,7 +1021,8 @@ const firebaseConfig = {
             let rashBtn = document.querySelector('.rash-btn.active');
             dataToSave.rash = rashBtn ? Number(rashBtn.getAttribute('data-value')) : 0;
         } else if (category === 'sleep') { dataToSave.sleepStatus = document.querySelector('.sleep-action.active').getAttribute('data-value'); 
-        } else if (category === 'bath') { dataToSave.bathStatus = document.querySelector('.bath-action.active').getAttribute('data-value'); 
+        } else if (category === 'bath') { 
+            dataToSave.bathStatus = 'start_bath'; // 🔥 一鍵儲存永遠只送 start_bath
         } else if (category === 'tummy') { dataToSave.tummyStatus = document.querySelector('.tummy-action.active').getAttribute('data-value'); 
         } else if (category === 'growth') {
             dataToSave.height = Number(document.getElementById('growth-height').value) || null; dataToSave.weight = Number(document.getElementById('growth-weight').value) || null;
@@ -1178,7 +1192,6 @@ const firebaseConfig = {
 
             if(isHistoryTab) {
                 let lblL = translations[currentLang].lblLeft; let lblR = translations[currentLang].lblRight;
-                // 圖表繪製：高反差顏色對比
                 renderStackedBarChart('milkChart', labels, Object.values(dailyStats).map(d => d.formula), Object.values(dailyStats).map(d => d.breastmilk), translations[currentLang].lblFormula, translations[currentLang].lblBreast, '#2196F3', '#4CAF50', translations[currentLang].lblMilkMl);
                 renderStackedBarChart('directChart', labels, Object.values(dailyStats).map(d => d.directLeft), Object.values(dailyStats).map(d => d.directRight), lblL, lblR, '#FF6D00', '#00ACC1', translations[currentLang].lblTimeMin);
                 renderStackedBarChart('pumpChart', labels, Object.values(dailyStats).map(d => d.pumpLeft), Object.values(dailyStats).map(d => d.pumpRight), lblL, lblR, '#E91E63', '#1A237E', translations[currentLang].lblMilkMl);

@@ -73,7 +73,7 @@
         .summary-box { background: var(--btn-bg); padding: 10px; border-radius: 10px; text-align: center; border: 1px solid var(--border-color); }
         .summary-title { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px; }
         .summary-value { font-size: 1.3rem; font-weight: bold; color: var(--theme-color); }
-        .chart-container { position: relative; height: 200px; width: 100%; margin-bottom: 20px; }
+        .chart-container { position: relative; width: 100%; margin-bottom: 15px; }
         .history-list { display: flex; flex-direction: column; gap: 10px; }
         .history-item { background: var(--btn-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; display: flex; justify-content: space-between; align-items: center; }
         .history-info { display: flex; flex-direction: column; gap: 4px; }
@@ -308,9 +308,29 @@
     <div id="history-card" class="card">
         <h2>
             <span data-i18n="historyTitle">📊 統計與紀錄</span>
-            <input type="date" id="history-date" class="input-date" style="width: 150px; padding: 6px; font-size: 0.9rem;" onchange="loadHistory()">
+            <select id="stats-range" class="input-date" style="width: auto; padding: 5px; font-size: 0.9rem;" onchange="loadHistory()">
+                <option value="7">最近 7 天</option>
+                <option value="14">最近 14 天</option>
+                <option value="30">最近 30 天</option>
+            </select>
         </h2>
         
+        <div style="margin-bottom: 20px;">
+            <label class="label" style="font-size:0.95rem;">🍼 每日總奶量趨勢 (ml)</label>
+            <div class="chart-container" style="height: 160px; margin-bottom: 20px;"><canvas id="milkChart"></canvas></div>
+            
+            <label class="label" style="font-size:0.95rem;">💤 每日睡眠時數 (小時)</label>
+            <div class="chart-container" style="height: 160px; margin-bottom: 20px;"><canvas id="sleepChart"></canvas></div>
+            
+            <label class="label" style="font-size:0.95rem;">🧻 每日換片次數</label>
+            <div class="chart-container" style="height: 160px;"><canvas id="diaperChart"></canvas></div>
+        </div>
+
+        <h3 style="margin-top: 10px; margin-bottom: 10px; font-size: 1.1rem; color: var(--text-color); border-top: 1px solid var(--border-color); padding-top: 15px; display: flex; justify-content: space-between; align-items: center;">
+            <span data-i18n="timelineTitle">📝 單日詳細紀錄</span>
+            <input type="date" id="history-date" class="input-date" style="width: 140px; padding: 5px; font-size: 0.9rem;" onchange="loadHistory()">
+        </h3>
+
         <div class="summary-grid">
             <div class="summary-box">
                 <div class="summary-title" data-i18n="sumMilk">總奶量</div>
@@ -326,13 +346,7 @@
             </div>
         </div>
 
-        <div class="chart-container">
-            <canvas id="historyChart"></canvas>
-        </div>
-
-        <h3 style="margin-top: 10px; margin-bottom: 10px; font-size: 1.1rem; color: var(--text-color);" data-i18n="timelineTitle">📝 今日時間軸</h3>
-        <div id="history-list" class="history-list">
-            </div>
+        <div id="history-list" class="history-list"></div>
     </div>
 </div>
 
@@ -353,18 +367,15 @@
 </div>
 
 <script>
-    // ==========================================
-    // 🚨 記得再次把你的 firebaseConfig 貼回來！ 🚨
-    // ==========================================
-const firebaseConfig = {
-  apiKey: "AIzaSyBAExf2aDgBP8UrCMKlpB4C8US-fCuf4Xg",
-  authDomain: "babytrackerweb-c6a26.firebaseapp.com",
-  projectId: "babytrackerweb-c6a26",
-  storageBucket: "babytrackerweb-c6a26.firebasestorage.app",
-  messagingSenderId: "297032381661",
-  appId: "1:297032381661:web:a583efe8c9abb1f68dd734",
-  measurementId: "G-YRLJW2P55F"
-};
+    const firebaseConfig = {
+      apiKey: "AIzaSyBAExf2aDgBP8UrCMKlpB4C8US-fCuf4Xg",
+      authDomain: "babytrackerweb-c6a26.firebaseapp.com",
+      projectId: "babytrackerweb-c6a26",
+      storageBucket: "babytrackerweb-c6a26.firebasestorage.app",
+      messagingSenderId: "297032381661",
+      appId: "1:297032381661:web:a583efe8c9abb1f68dd734",
+      measurementId: "G-YRLJW2P55F"
+    };
     
     let db, auth, googleProvider;
     if(firebaseConfig.apiKey) {
@@ -396,8 +407,8 @@ const firebaseConfig = {
             settingsTitle: "⚙️ 設定名稱", firstBaby: "第一位寶寶", secondBaby: "第二位寶寶",
             settingsPlaceholder1: "例如：大寶", settingsPlaceholder2: "例如：二寶", saveSettingsBtn: "💾 儲存", cancelBtn: "取消",
             alertSettingsSaved: "✅ 設定完成！", saving: "儲存中...", alertSuccess: "✅ 成功儲存", alertError: "❌ 錯誤：",
-            historyTitle: "📊 統計與紀錄", sumMilk: "總奶量", sumDiaper: "換尿片", sumSleep: "睡眠動態", timelineTitle: "📝 今日時間軸",
-            deleteConfirm: "確定要刪除這筆紀錄嗎？", emptyHistory: "今天還沒有任何紀錄喔！"
+            historyTitle: "📊 統計與紀錄", sumMilk: "單日奶量", sumDiaper: "單日尿片", sumSleep: "單日睡眠動態", timelineTitle: "📝 單日詳細紀錄",
+            deleteConfirm: "確定要刪除這筆紀錄嗎？", emptyHistory: "這天沒有任何紀錄喔！"
         },
         en: {
             appTitle: "👶 Baby Tracker", emailPlaceholder: "Email", pwPlaceholder: "Password",
@@ -420,15 +431,15 @@ const firebaseConfig = {
             settingsTitle: "⚙️ Settings", firstBaby: "First Baby", secondBaby: "Second Baby",
             settingsPlaceholder1: "e.g., Baby 1", settingsPlaceholder2: "e.g., Baby 2", saveSettingsBtn: "💾 Save", cancelBtn: "Cancel",
             alertSettingsSaved: "✅ Saved!", saving: "Saving...", alertSuccess: "✅ Saved", alertError: "❌ Error: ",
-            historyTitle: "📊 History", sumMilk: "Total Milk", sumDiaper: "Diapers", sumSleep: "Sleep Logs", timelineTitle: "📝 Timeline",
-            deleteConfirm: "Delete this record?", emptyHistory: "No records for today!"
+            historyTitle: "📊 History Trend", sumMilk: "Daily Milk", sumDiaper: "Daily Diapers", sumSleep: "Sleep Logs", timelineTitle: "📝 Daily Timeline",
+            deleteConfirm: "Delete this record?", emptyHistory: "No records for this day!"
         }
     };
 
     let currentLang = localStorage.getItem('appLang') || 'zh';
     let babies = { baby1: "", baby2: "" };
     let currentBabyId = "baby1";
-    let historyChartInstance = null; // 儲存圖表實例
+    let historyCharts = { milk: null, diaper: null, sleep: null }; // 儲存多個圖表實例
 
     function updateLanguage() {
         document.querySelectorAll('[data-i18n]').forEach(el => el.innerText = translations[currentLang][el.getAttribute('data-i18n')]);
@@ -437,7 +448,7 @@ const firebaseConfig = {
         let isDark = document.documentElement.getAttribute('data-theme') === 'dark';
         document.getElementById('theme-toggle-btn').innerText = isDark ? translations[currentLang].btnThemeLight : translations[currentLang].btnThemeDark;
         loadBabySettings(); 
-        if(document.getElementById('history-card').classList.contains('active')) loadHistory(); // 重新整理語言
+        if(document.getElementById('history-card').classList.contains('active')) loadHistory(); 
     }
 
     function toggleLanguage() { currentLang = currentLang === 'zh' ? 'en' : 'zh'; localStorage.setItem('appLang', currentLang); updateLanguage(); }
@@ -452,7 +463,7 @@ const firebaseConfig = {
         currentBabyId = babyId;
         document.querySelectorAll('.baby-tab').forEach(t => t.classList.remove('active'));
         document.getElementById(`tab-${babyId}`).classList.add('active'); restoreLastBrand();
-        if(document.getElementById('history-card').classList.contains('active')) loadHistory(); // 切換寶寶時重新讀取紀錄
+        if(document.getElementById('history-card').classList.contains('active')) loadHistory();
     }
 
     function openSettingsModal() {
@@ -490,7 +501,7 @@ const firebaseConfig = {
     function initTheme() { let h = new Date().getHours(); applyTheme((h >= 18 || h < 6) ? 'dark' : 'light'); }
     function toggleTheme() { applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
     function applyTheme(t) { document.documentElement.setAttribute('data-theme', t); document.getElementById('theme-toggle-btn').innerText = (t === 'dark') ? translations[currentLang].btnThemeLight : translations[currentLang].btnThemeDark; 
-        if(historyChartInstance) loadHistory(); // 切換主題時重繪圖表顏色
+        if(historyCharts.milk) loadHistory(); // 切換主題時重繪圖表顏色
     }
 
     let recordTimes = { 'feeding': new Date(), 'diaper': new Date(), 'sleep': new Date() }; let isTimeFrozen = { 'feeding': false, 'diaper': false, 'sleep': false };
@@ -505,7 +516,7 @@ const firebaseConfig = {
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
         document.querySelectorAll('.card').forEach(c => c.classList.remove('active')); document.getElementById(tab + '-card').classList.add('active');
         
-        if (tab === 'history') { loadHistory(); } // 載入歷史資料
+        if (tab === 'history') { loadHistory(); }
         else { let firstBtn = document.getElementById(tab + '-card').querySelector('.btn-group button'); if(firstBtn) setTime(tab, 0, firstBtn); }
         
         if(window.innerWidth <= 850) toggleSidebar();
@@ -574,84 +585,142 @@ const firebaseConfig = {
     }
 
     // ==========================================
-    // 歷史紀錄與圖表專用邏輯
+    // 歷史紀錄與圖表專用邏輯 (新版直方圖)
     // ==========================================
     async function loadHistory() {
         if(!db || !auth.currentUser) return;
         const listDiv = document.getElementById('history-list'); listDiv.innerHTML = '<div style="text-align:center;">載入中...</div>';
+        
+        const range = parseInt(document.getElementById('stats-range').value) || 7;
         const selectedDate = document.getElementById('history-date').value; // YYYY-MM-DD
         if(!selectedDate) return;
 
+        // 建立直方圖的 X 軸日期清單
+        let labels = [];
+        let dailyStats = {};
+        for(let i = range - 1; i >= 0; i--) {
+            let d = new Date(); d.setDate(d.getDate() - i);
+            let k = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+            labels.push(k.slice(5)); // 只顯示 MM-DD
+            dailyStats[k] = { milk: 0, diaper: 0, sleepMins: 0 };
+        }
+
         try {
-            // 從 Firebase 抓取當前寶寶的所有資料 (避免複雜的複合索引)
             const snapshot = await db.collection("baby_records")
                 .where("userId", "==", auth.currentUser.uid)
                 .where("babyId", "==", currentBabyId)
                 .get();
 
-            let records = [];
+            let allRecords = [];
             snapshot.forEach(doc => {
                 let data = doc.data(); data.id = doc.id;
-                // 轉換 Firestore 時間為 JS Date
                 if (data.recordTime && data.recordTime.toDate) { data.time = data.recordTime.toDate(); } 
                 else { data.time = new Date(data.recordTime); }
-                
-                // 過濾出符合選擇日期的資料
-                let rDate = `${data.time.getFullYear()}-${String(data.time.getMonth()+1).padStart(2,'0')}-${String(data.time.getDate()).padStart(2,'0')}`;
-                if (rDate === selectedDate) records.push(data);
+                allRecords.push(data);
             });
 
-            // 依時間排序 (由新到舊)
-            records.sort((a, b) => b.time - a.time);
+            // 必須先從小到大排序，為了正確計算跨日睡眠的時間差
+            allRecords.sort((a, b) => a.time - b.time);
             
-            // 計算統計數據
-            let totalMilk = 0; let diaperCount = 0; let sleepCount = 0; let chartData = [0, 0, 0]; // 奶, 尿布, 睡眠
+            let lastSleepStart = null;
+            let dayTotalMilk = 0; let dayDiaperCount = 0; let daySleepCount = 0;
             listDiv.innerHTML = '';
 
-            if(records.length === 0) { listDiv.innerHTML = `<div style="text-align:center; color: var(--text-muted); padding: 20px;">${translations[currentLang].emptyHistory}</div>`; }
-            
-            records.forEach(r => {
-                let icon = ''; let desc = ''; let h = String(r.time.getHours()).padStart(2,'0'); let m = String(r.time.getMinutes()).padStart(2,'0');
+            allRecords.forEach(r => {
+                let rDate = `${r.time.getFullYear()}-${String(r.time.getMonth()+1).padStart(2,'0')}-${String(r.time.getDate()).padStart(2,'0')}`;
                 
-                if (r.category === 'feeding') {
-                    icon = '🍼'; chartData[0]++;
-                    let typeText = translations[currentLang][r.feedingType] || r.feedingType;
-                    if(r.feedingType === 'direct') { desc = `${typeText} (${r.durationMins} 分鐘)`; }
-                    else { desc = `${typeText} ${r.volumeML}ml`; if(r.brand && r.brand !== '未填寫') desc += ` [${r.brand}]`; totalMilk += r.volumeML; }
-                } 
-                else if (r.category === 'diaper') {
-                    icon = '🧻'; chartData[1]++; diaperCount++;
-                    let arr = [];
-                    if(r.hasPee) arr.push(translations[currentLang].pee);
-                    if(r.hasPoo) { let pooDesc = translations[currentLang].poo; if(r.pooColor !== 'none') pooDesc += ` (色:${translations[currentLang]['color'+r.pooColor.charAt(0).toUpperCase() + r.pooColor.slice(1)] || r.pooColor}, 量:${r.pooAmount})`; arr.push(pooDesc); }
-                    else { arr.push(translations[currentLang].noPoo); }
-                    desc = arr.join(' / ');
-                } 
-                else if (r.category === 'sleep') {
-                    icon = '💤'; chartData[2]++; sleepCount++;
-                    desc = (r.sleepStatus === 'start_sleep') ? translations[currentLang].sleepStart : translations[currentLang].sleepEnd;
+                // 1. 處理所有日期的統計圖表數據
+                if (r.category === 'sleep') {
+                    if (r.sleepStatus === 'start_sleep') {
+                        lastSleepStart = r.time;
+                    } else if (r.sleepStatus === 'end_sleep' && lastSleepStart) {
+                        let diffMins = (r.time - lastSleepStart) / 1000 / 60;
+                        if (dailyStats[rDate]) dailyStats[rDate].sleepMins += diffMins;
+                        lastSleepStart = null;
+                    }
+                }
+                if (dailyStats[rDate]) {
+                    if (r.category === 'feeding') dailyStats[rDate].milk += (r.volumeML || 0);
+                    if (r.category === 'diaper') dailyStats[rDate].diaper += 1;
                 }
 
-                // 產生 HTML
-                listDiv.innerHTML += `
-                    <div class="history-item">
-                        <div class="history-info">
-                            <div class="history-time">${h}:${m} ${icon}</div>
-                            <div class="history-detail">${desc}</div>
-                        </div>
-                        <button class="delete-btn" onclick="deleteRecord('${r.id}')">刪除</button>
-                    </div>`;
+                // 2. 處理當前選定日期 (單日總結與歷史明細清單)
+                if (rDate === selectedDate) {
+                    let icon = ''; let desc = ''; let h = String(r.time.getHours()).padStart(2,'0'); let m = String(r.time.getMinutes()).padStart(2,'0');
+                    
+                    if (r.category === 'feeding') {
+                        icon = '🍼';
+                        let typeText = translations[currentLang][r.feedingType] || r.feedingType;
+                        if(r.feedingType === 'direct') { desc = `${typeText} (${r.durationMins} 分鐘)`; }
+                        else { desc = `${typeText} ${r.volumeML}ml`; if(r.brand && r.brand !== '未填寫') desc += ` [${r.brand}]`; dayTotalMilk += r.volumeML; }
+                    } 
+                    else if (r.category === 'diaper') {
+                        icon = '🧻'; dayDiaperCount++;
+                        let arr = [];
+                        if(r.hasPee) arr.push(translations[currentLang].pee);
+                        if(r.hasPoo) { let pooDesc = translations[currentLang].poo; if(r.pooColor !== 'none') pooDesc += ` (色:${translations[currentLang]['color'+r.pooColor.charAt(0).toUpperCase() + r.pooColor.slice(1)] || r.pooColor}, 量:${r.pooAmount})`; arr.push(pooDesc); }
+                        else { arr.push(translations[currentLang].noPoo); }
+                        desc = arr.join(' / ');
+                    } 
+                    else if (r.category === 'sleep') {
+                        icon = '💤'; daySleepCount++;
+                        desc = (r.sleepStatus === 'start_sleep') ? translations[currentLang].sleepStart : translations[currentLang].sleepEnd;
+                    }
+
+                    // 越新的排在清單越上方
+                    listDiv.innerHTML = `
+                        <div class="history-item">
+                            <div class="history-info">
+                                <div class="history-time">${h}:${m} ${icon}</div>
+                                <div class="history-detail">${desc}</div>
+                            </div>
+                            <button class="delete-btn" onclick="deleteRecord('${r.id}')">刪除</button>
+                        </div>` + listDiv.innerHTML;
+                }
             });
 
-            // 更新儀表板
-            document.getElementById('sum-milk-val').innerText = totalMilk;
-            document.getElementById('sum-diaper-val').innerText = diaperCount;
-            document.getElementById('sum-sleep-val').innerText = sleepCount;
+            if(listDiv.innerHTML === '') { listDiv.innerHTML = `<div style="text-align:center; color: var(--text-muted); padding: 20px;">${translations[currentLang].emptyHistory}</div>`; }
 
-            // 繪製圖表
-            renderChart(chartData);
+            // 更新單日總結
+            document.getElementById('sum-milk-val').innerText = dayTotalMilk;
+            document.getElementById('sum-diaper-val').innerText = dayDiaperCount;
+            document.getElementById('sum-sleep-val').innerText = daySleepCount;
+
+            // 繪製三個獨立直方圖
+            renderBarChart('milkChart', 'milk', labels, Object.values(dailyStats).map(d => d.milk), '#2196F3');
+            renderBarChart('sleepChart', 'sleep', labels, Object.values(dailyStats).map(d => (d.sleepMins/60).toFixed(1)), '#673AB7');
+            renderBarChart('diaperChart', 'diaper', labels, Object.values(dailyStats).map(d => d.diaper), '#FF9800');
 
         } catch(e) { console.error(e); listDiv.innerHTML = "載入失敗"; }
+    }
+
+    function renderBarChart(canvasId, chartKey, labels, data, color) {
+        const ctx = document.getElementById(canvasId).getContext('2d');
+        if(historyCharts[chartKey]) historyCharts[chartKey].destroy();
+        
+        let isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        let textColor = isDark ? '#aaaaaa' : '#666666';
+        let gridColor = isDark ? '#444444' : '#eeeeee';
+
+        historyCharts[chartKey] = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: color,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: textColor } },
+                    y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor } }
+                }
+            }
+        });
     }
 
     async function deleteRecord(docId) {
@@ -659,32 +728,6 @@ const firebaseConfig = {
             try { await db.collection("baby_records").doc(docId).delete(); loadHistory(); } 
             catch(e) { alert("刪除失敗：" + e.message); }
         }
-    }
-
-    function renderChart(dataArr) {
-        const ctx = document.getElementById('historyChart').getContext('2d');
-        if(historyChartInstance) historyChartInstance.destroy(); // 避免重疊繪製
-        
-        let isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        let textColor = isDark ? '#e0e0e0' : '#333333';
-
-        historyChartInstance = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: [translations[currentLang].navFeeding, translations[currentLang].navDiaper, translations[currentLang].navSleep],
-                datasets: [{
-                    data: dataArr,
-                    backgroundColor: ['#2196F3', '#FF9800', '#673AB7'],
-                    borderWidth: 2, borderColor: isDark ? '#242424' : '#ffffff'
-                }]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'right', labels: { color: textColor, font: { size: 14 } } }
-                }
-            }
-        });
     }
 
     window.onload = function() {

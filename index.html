@@ -327,8 +327,8 @@
                 <div class="summary-value"><span id="sum-diaper-val">0</span> <span style="font-size: 0.8rem" data-i18n="unitTimes">次</span></div>
             </div>
             <div class="summary-box">
-                <div class="summary-title" data-i18n="sumSleep">睡眠動態</div>
-                <div class="summary-value"><span id="sum-sleep-val">0</span> <span style="font-size: 0.8rem" data-i18n="unitTimes">次</span></div>
+                <div class="summary-title" data-i18n="sumSleep">睡眠時數</div>
+                <div class="summary-value"><span id="sum-sleep-val">0.0</span> <span style="font-size: 0.8rem" data-i18n="unitHours">小時</span></div>
             </div>
         </div>
 
@@ -427,8 +427,8 @@ const firebaseConfig = {
             settingsTitle: "⚙️ 設定名稱", firstBaby: "第一位寶寶", secondBaby: "第二位寶寶", thirdBaby: "第三位寶寶",
             settingsPlaceholder1: "例如：大寶", settingsPlaceholder2: "例如：二寶", settingsPlaceholder3: "例如：三寶", saveSettingsBtn: "💾 儲存 (同步雲端)", cancelBtn: "取消",
             alertSettingsSaved: "✅ 設定已同步到雲端！", saving: "儲存中...", alertSuccess: "✅ 成功儲存", alertError: "❌ 錯誤：",
-            historyTitle: "📊 統計趨勢圖表", sumMilk: "總奶量", sumDiaper: "換尿片", sumSleep: "睡眠動態", timelineTitle: "📅 24小時日誌",
-            logDesc: "顯示從此刻起，往前推算 24 小時內的所有紀錄。", unitTimes: "次",
+            historyTitle: "📊 統計趨勢圖表", sumMilk: "總奶量", sumDiaper: "換尿片", sumSleep: "睡眠時數", timelineTitle: "📅 24小時日誌",
+            logDesc: "顯示從此刻起，往前推算 24 小時內的所有紀錄。", unitTimes: "次", unitHours: "小時",
             deleteConfirm: "確定要刪除這筆紀錄嗎？", emptyHistory: "過去 24 小時內沒有任何紀錄喔！",
             range7: "最近 7 天", range14: "最近 14 天", range30: "最近 1 個月", range90: "最近 3 個月", range180: "最近半年", range365: "最近一年",
             chartTitleMilk: "🍼 每日總奶量與親餵時間", chartTitlePump: "🤱 每日泵奶量 (ml)", chartTitleSleep: "💤 每日總睡眠時數 (小時)", chartTitleDiaper: "🧻 每日換尿片次數",
@@ -454,8 +454,8 @@ const firebaseConfig = {
             settingsTitle: "⚙️ Settings", firstBaby: "First Baby", secondBaby: "Second Baby", thirdBaby: "Third Baby",
             settingsPlaceholder1: "e.g., Baby 1", settingsPlaceholder2: "e.g., Baby 2", settingsPlaceholder3: "e.g., Baby 3", saveSettingsBtn: "💾 Save (Sync)", cancelBtn: "Cancel",
             alertSettingsSaved: "✅ Saved to cloud!", saving: "Saving...", alertSuccess: "✅ Saved", alertError: "❌ Error: ",
-            historyTitle: "📊 History Trend", sumMilk: "Total Milk", sumDiaper: "Diapers", sumSleep: "Sleep Logs", timelineTitle: "📅 24-Hour Log",
-            logDesc: "Showing all records within the past 24 hours from now.", unitTimes: "times",
+            historyTitle: "📊 History Trend", sumMilk: "Total Milk", sumDiaper: "Diapers", sumSleep: "Sleep Duration", timelineTitle: "📅 24-Hour Log",
+            logDesc: "Showing all records within the past 24 hours from now.", unitTimes: "times", unitHours: "hrs",
             deleteConfirm: "Delete this record?", emptyHistory: "No records in the last 24 hours!",
             range7: "Last 7 Days", range14: "Last 14 Days", range30: "Last 1 Month", range90: "Last 3 Months", range180: "Last 6 Months", range365: "Last 1 Year",
             chartTitleMilk: "🍼 Daily Total Milk & Nursing", chartTitlePump: "🤱 Daily Pump Vol (ml)", chartTitleSleep: "💤 Daily Sleep (Hours)", chartTitleDiaper: "🧻 Daily Diapers",
@@ -480,16 +480,12 @@ const firebaseConfig = {
 
     function toggleLanguage() { currentLang = currentLang === 'zh' ? 'en' : 'zh'; localStorage.setItem('appLang', currentLang); updateLanguage(); }
 
-    // ==============================================
-    // 🛠️ BUG FIXED: 安全的設定讀取與寫入機制
-    // ==============================================
     async function loadBabySettingsFromDB() {
         if(!db || !auth.currentUser) return;
         try {
             const doc = await db.collection("user_settings").doc(auth.currentUser.uid).get();
             if(doc.exists) {
                 let data = doc.data();
-                // 💡 防呆：如果欄位為空(例如剛寫入Email時)，就塞入預設翻譯文字
                 babies.baby1 = data.baby1 ? data.baby1 : translations[currentLang].tabBaby1;
                 babies.baby2 = data.baby2 ? data.baby2 : translations[currentLang].tabBaby2;
                 babies.baby3 = data.baby3 ? data.baby3 : translations[currentLang].tabBaby3;
@@ -512,7 +508,6 @@ const firebaseConfig = {
         
         if(auth.currentUser) {
             try { 
-                // 🚨 加上 { merge: true } 保證不會洗掉後台要看的 Email
                 await db.collection("user_settings").doc(auth.currentUser.uid).set({
                     baby1: babies.baby1,
                     baby2: babies.baby2,
@@ -524,7 +519,6 @@ const firebaseConfig = {
         }
         updateBabyUI(); closeSettingsModal();
     }
-    // ==============================================
 
     function updateBabyUI() {
         document.getElementById('tab-baby1').innerText = `👶 ${babies.baby1 || translations[currentLang].tabBaby1}`;
@@ -561,14 +555,13 @@ const firebaseConfig = {
                 overlay.style.display = 'none'; 
                 document.getElementById('user-info').innerText = `👤 ${user.email}`; 
                 
-                // 💡 登入流程優化：保證先寫入 Email，完成後再讀取設定
                 db.collection("user_settings").doc(user.uid).set({
                     email: user.email
                 }, { merge: true })
                 .then(() => loadBabySettingsFromDB())
                 .catch(e => {
                     console.error("Email sync error", e);
-                    loadBabySettingsFromDB(); // 即使出錯也試著載入
+                    loadBabySettingsFromDB(); 
                 });
 
                 fetchRecentBrands(); 
@@ -700,7 +693,7 @@ const firebaseConfig = {
             allRecords.sort((a, b) => a.time - b.time);
             
             let lastSleepStart = null;
-            let dayTotalMilk = 0; let dayDiaperCount = 0; let daySleepCount = 0;
+            let dayTotalMilk = 0; let dayDiaperCount = 0; let daySleepMins = 0; // 改為紀錄分鐘數
             let listHtml = '';
 
             allRecords.forEach(r => {
@@ -712,6 +705,11 @@ const firebaseConfig = {
                     } else if (r.sleepStatus === 'end_sleep' && lastSleepStart) {
                         let diffMins = (r.time - lastSleepStart) / 1000 / 60;
                         if (dailyStats[rDate]) dailyStats[rDate].sleepMins += diffMins;
+                        
+                        // 計算過去 24 小時內的睡眠時長
+                        if (r.time >= past24h && r.time <= now) {
+                            daySleepMins += diffMins;
+                        }
                         lastSleepStart = null;
                     }
                 }
@@ -743,7 +741,7 @@ const firebaseConfig = {
                         if(arr.length===0) arr.push(txtNoPoo); desc = arr.join(' / ');
                     } 
                     else if (r.category === 'sleep') {
-                        icon = '💤'; daySleepCount++; desc = (r.sleepStatus === 'start_sleep') ? translations[currentLang].sleepStart : translations[currentLang].sleepEnd;
+                        icon = '💤'; desc = (r.sleepStatus === 'start_sleep') ? translations[currentLang].sleepStart : translations[currentLang].sleepEnd;
                     }
 
                     listHtml = `
@@ -762,7 +760,8 @@ const firebaseConfig = {
                 else listDiv.innerHTML = listHtml; 
                 document.getElementById('sum-milk-val').innerText = dayTotalMilk;
                 document.getElementById('sum-diaper-val').innerText = dayDiaperCount;
-                document.getElementById('sum-sleep-val').innerText = daySleepCount;
+                // 更新睡眠時數顯示
+                document.getElementById('sum-sleep-val').innerText = (daySleepMins / 60).toFixed(1);
             }
 
             if(isHistoryTab) {

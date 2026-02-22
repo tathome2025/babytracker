@@ -14,76 +14,75 @@
             --bg-color: #121212; --sidebar-bg: #1e1e1e; --card-bg: #242424; --text-color: #e0e0e0;
             --text-muted: #aaaaaa; --border-color: #444444; --btn-bg: #2c2c2c; --red-packet-bg: #3b1a1a; --red-packet-border: #5c2b2b; --red-packet-text: #ff8a8a;
         }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; display: flex; height: 100vh; overflow: hidden; transition: 0.3s; }
+        /* 改用 100dvh 適應手機瀏覽器動態高度 */
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; display: flex; height: 100dvh; overflow: hidden; transition: 0.3s; }
         
-        /* 登入畫面覆蓋層 */
-        #auth-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--bg-color); z-index: 3000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
-        .auth-card { background: var(--card-bg); padding: 40px 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; border-top: 6px solid var(--theme-color); }
-        .auth-title { font-size: 1.8rem; font-weight: bold; margin-bottom: 20px; color: var(--text-color); }
-        .auth-input { width: 100%; padding: 15px; border: 2px solid var(--border-color); border-radius: 12px; font-size: 1.1rem; box-sizing: border-box; background: var(--btn-bg); color: var(--text-color); margin-bottom: 15px; }
-        .auth-btn { width: 100%; padding: 15px; background: var(--theme-color); color: white; border: none; border-radius: 12px; font-size: 1.2rem; font-weight: bold; cursor: pointer; margin-bottom: 15px; transition: 0.2s; box-shadow: 0 4px 10px var(--theme-light); }
+        #auth-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--bg-color); z-index: 3000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
+        .auth-card { background: var(--card-bg); padding: 30px 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; border-top: 6px solid var(--theme-color); }
+        .auth-title { font-size: 1.6rem; font-weight: bold; margin-bottom: 15px; color: var(--text-color); }
+        .auth-input { width: 100%; padding: 12px; border: 2px solid var(--border-color); border-radius: 10px; font-size: 1rem; box-sizing: border-box; background: var(--btn-bg); color: var(--text-color); margin-bottom: 12px; }
+        .auth-btn { width: 100%; padding: 12px; background: var(--theme-color); color: white; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-bottom: 12px; transition: 0.2s; box-shadow: 0 4px 10px var(--theme-light); }
         .auth-btn.outline { background: transparent; color: var(--theme-color); border: 2px solid var(--theme-color); box-shadow: none; }
         .auth-btn.google { background: #ffffff; color: #444; border: 1px solid #ccc; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 0; }
-        .auth-btn.google:hover { background: #f1f1f1; }
-        .auth-divider { margin: 20px 0; color: var(--text-muted); font-size: 0.9rem; display: flex; align-items: center; }
+        .auth-divider { margin: 15px 0; color: var(--text-muted); font-size: 0.9rem; display: flex; align-items: center; }
         .auth-divider::before, .auth-divider::after { content: ""; flex: 1; height: 1px; background: var(--border-color); margin: 0 10px; }
-        .auth-error { color: #d32f2f; font-size: 0.9rem; margin-bottom: 15px; min-height: 20px; }
+        .auth-error { color: #d32f2f; font-size: 0.9rem; margin-bottom: 10px; min-height: 20px; }
 
-        /* 導航與側邊欄 */
-        .mobile-header { display: none; background-color: var(--sidebar-bg); padding: 15px 20px; border-bottom: 1px solid var(--border-color); align-items: center; justify-content: space-between; z-index: 100; }
-        .hamburger-btn { background: none; border: none; font-size: 1.8rem; color: var(--text-color); cursor: pointer; padding: 0; }
-        .sidebar { width: 250px; background-color: var(--sidebar-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 20px; box-sizing: border-box; transition: transform 0.3s ease; z-index: 1000; }
+        .mobile-header { display: none; background-color: var(--sidebar-bg); padding: 10px 15px; border-bottom: 1px solid var(--border-color); align-items: center; justify-content: space-between; z-index: 100; position: sticky; top: 0; }
+        .hamburger-btn { background: none; border: none; font-size: 1.6rem; color: var(--text-color); cursor: pointer; padding: 0; }
+        .sidebar { width: 230px; background-color: var(--sidebar-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 15px; box-sizing: border-box; transition: transform 0.3s ease; z-index: 1000; }
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 999; opacity: 0; transition: opacity 0.3s; }
-        .app-title { font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; text-align: center; color: var(--text-color); }
-        .user-info { text-align: center; margin-bottom: 20px; font-size: 0.9rem; color: var(--text-muted); word-break: break-all; }
-        .nav-btn { padding: 18px 20px; border: 2px solid transparent; border-radius: 15px; font-size: 1.3rem; font-weight: bold; cursor: pointer; background: var(--btn-bg); color: var(--text-muted); margin-bottom: 15px; text-align: left; transition: 0.2s; }
+        .app-title { font-size: 1.3rem; font-weight: bold; margin-bottom: 15px; text-align: center; color: var(--text-color); }
+        .user-info { text-align: center; margin-bottom: 15px; font-size: 0.85rem; color: var(--text-muted); word-break: break-all; }
+        .nav-btn { padding: 12px 15px; border: 2px solid transparent; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; background: var(--btn-bg); color: var(--text-muted); margin-bottom: 10px; text-align: left; transition: 0.2s; }
         .nav-btn.active { background: var(--theme-light); color: var(--theme-color); border-color: var(--theme-color); }
-        .sidebar-bottom { margin-top: auto; display: flex; flex-direction: column; gap: 10px; }
-        .action-btn { padding: 15px; border: 1px solid var(--border-color); border-radius: 12px; background: var(--btn-bg); color: var(--text-color); font-size: 1.1rem; cursor: pointer; font-weight: bold; }
+        .sidebar-bottom { margin-top: auto; display: flex; flex-direction: column; gap: 8px; }
+        .action-btn { padding: 12px; border: 1px solid var(--border-color); border-radius: 10px; background: var(--btn-bg); color: var(--text-color); font-size: 1rem; cursor: pointer; font-weight: bold; }
         .logout-btn { color: #d32f2f; border-color: #ffcccc; background: #fff5f5; }
 
-        /* 內容區 */
-        .main-content { flex: 1; padding: 20px 30px; box-sizing: border-box; display: flex; flex-direction: column; overflow-y: auto; }
-        .baby-selector { display: flex; gap: 15px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
+        /* 內容區：增加底部 padding，加入平滑滾動 */
+        .main-content { flex: 1; padding: 15px 20px 40px; box-sizing: border-box; display: flex; flex-direction: column; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        .baby-selector { display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
         .baby-selector::-webkit-scrollbar { display: none; }
-        .baby-tab { padding: 12px 25px; border-radius: 20px; background: var(--btn-bg); color: var(--text-muted); font-size: 1.2rem; font-weight: bold; cursor: pointer; border: 2px solid var(--border-color); white-space: nowrap; transition: 0.2s; }
+        .baby-tab { padding: 8px 18px; border-radius: 15px; background: var(--btn-bg); color: var(--text-muted); font-size: 1.1rem; font-weight: bold; cursor: pointer; border: 2px solid var(--border-color); white-space: nowrap; transition: 0.2s; }
         .baby-tab.active { background: var(--theme-color); color: white; border-color: var(--theme-color); box-shadow: 0 4px 10px var(--theme-light); }
         
-        .card { background: var(--card-bg); padding: 25px; border-radius: 20px; box-shadow: 0 8px 16px rgba(0,0,0,0.05); border-top: 6px solid var(--theme-color); transition: 0.3s; flex: 1; flex-direction: column; display: none; }
+        /* 壓縮卡片內距與區塊間距 */
+        .card { background: var(--card-bg); padding: 15px 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-top: 5px solid var(--theme-color); transition: 0.3s; flex: 1; flex-direction: column; display: none; }
         .card.active { display: flex; }
-        h2 { font-size: 1.6rem; margin-top: 0; margin-bottom: 15px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; color: var(--text-color); display: flex; justify-content: space-between; align-items: center; }
-        .section { margin-bottom: 20px; } 
-        .label { font-size: 1.1rem; font-weight: bold; margin-bottom: 10px; display: block; color: var(--text-muted); }
-        .row { display: flex; gap: 40px; width: 100%; }
+        h2 { font-size: 1.4rem; margin-top: 0; margin-bottom: 12px; border-bottom: 2px solid var(--border-color); padding-bottom: 8px; color: var(--text-color); display: flex; justify-content: space-between; align-items: center; }
+        .section { margin-bottom: 15px; } 
+        .label { font-size: 1rem; font-weight: bold; margin-bottom: 6px; display: block; color: var(--text-muted); }
+        .row { display: flex; gap: 20px; width: 100%; }
         .col { flex: 1; }
-        .split-divider { border-right: 2px dashed var(--border-color); padding-right: 40px; }
-        .btn-group { display: grid; gap: 12px; }
-        .btn { padding: 15px 5px; border: 2px solid var(--border-color); border-radius: 12px; background: var(--btn-bg); cursor: pointer; font-size: 1.1rem; font-weight: bold; color: var(--text-color); transition: 0.2s; text-align: center; }
-        .btn.active { background: var(--theme-color); color: white; border-color: var(--theme-color); box-shadow: 0 4px 10px var(--theme-light); }
-        .input-text, .input-number { width: 100%; padding: 15px; border: 2px solid var(--border-color); border-radius: 12px; font-size: 1.1rem; box-sizing: border-box; background: var(--btn-bg); color: var(--text-color); }
+        .split-divider { border-right: 2px dashed var(--border-color); padding-right: 20px; }
+        
+        /* 壓縮按鈕大小 */
+        .btn-group { display: grid; gap: 8px; }
+        .btn { padding: 10px 5px; border: 2px solid var(--border-color); border-radius: 10px; background: var(--btn-bg); cursor: pointer; font-size: 1rem; font-weight: bold; color: var(--text-color); transition: 0.2s; text-align: center; }
+        .btn.active { background: var(--theme-color); color: white; border-color: var(--theme-color); box-shadow: 0 2px 8px var(--theme-light); }
+        .input-text, .input-number { width: 100%; padding: 12px; border: 2px solid var(--border-color); border-radius: 10px; font-size: 1rem; box-sizing: border-box; background: var(--btn-bg); color: var(--text-color); }
         .hidden { display: none !important; }
-        .submit-btn { width: 100%; padding: 20px; background: var(--theme-color); color: white; border: none; border-radius: 15px; font-size: 1.4rem; font-weight: bold; cursor: pointer; margin-top: 20px; box-shadow: 0 6px 12px var(--theme-light); transition: 0.2s; }
+        .submit-btn { width: 100%; padding: 15px; background: var(--theme-color); color: white; border: none; border-radius: 12px; font-size: 1.2rem; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 10px var(--theme-light); transition: 0.2s; }
         .submit-btn:disabled { background: var(--border-color); cursor: not-allowed; box-shadow: none; }
-        .time-display { color: var(--theme-color); font-size: 1.6rem; font-weight: bold; font-variant-numeric: tabular-nums; }
+        .time-display { color: var(--theme-color); font-size: 1.3rem; font-weight: bold; font-variant-numeric: tabular-nums; }
 
-        /* 設定 Modal 視窗 */
         .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 2000; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; }
         .modal.active { display: flex; opacity: 1; }
-        .modal-content { background: var(--card-bg); padding: 30px; border-radius: 20px; width: 90%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transform: translateY(-20px); transition: transform 0.3s; }
+        .modal-content { background: var(--card-bg); padding: 25px; border-radius: 15px; width: 90%; max-width: 350px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transform: translateY(-20px); transition: transform 0.3s; }
         .modal.active .modal-content { transform: translateY(0); }
 
+        /* 手機與平板模式：釋放全頁滾動，避免瀏覽器工具列阻擋 */
         @media (max-width: 850px) {
-            body { flex-direction: column; overflow: visible; }
+            body { flex-direction: column; height: auto; min-height: 100dvh; overflow: visible; }
             .mobile-header { display: flex; }
             .sidebar { position: fixed; top: 0; left: 0; bottom: 0; transform: translateX(-100%); box-shadow: 4px 0 15px rgba(0,0,0,0.3); }
             .sidebar.open { transform: translateX(0); }
-            .main-content { padding: 15px; overflow-y: visible; }
-            .baby-selector { gap: 10px; margin-bottom: 15px; }
-            .baby-tab { padding: 10px 20px; font-size: 1.1rem; }
-            .card { border-radius: 15px; padding: 20px; }
-            .row { flex-direction: column; gap: 20px; }
-            .split-divider { border-right: none; padding-right: 0; border-bottom: 2px dashed var(--border-color); padding-bottom: 20px; }
-            .btn-group[style] { grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)) !important; }
+            /* 讓 main-content 不再限制高度，底部多留白 60px 躲避 iOS 工具列 */
+            .main-content { overflow: visible; padding: 12px 15px 60px; }
+            .row { flex-direction: column; gap: 12px; }
+            .split-divider { border-right: none; padding-right: 0; border-bottom: 2px dashed var(--border-color); padding-bottom: 12px; }
+            .btn-group[style] { grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)) !important; }
         }
     </style>
 
@@ -98,7 +97,7 @@
         <div class="auth-title" data-i18n="appTitle">👶 寶寶紀錄</div>
         <div id="auth-error-msg" class="auth-error"></div>
         <input type="email" id="auth-email" class="auth-input" data-i18n-placeholder="emailPlaceholder" placeholder="電子郵件 Email">
-        <input type="password" id="auth-password" class="auth-input" data-i18n-placeholder="pwPlaceholder" placeholder="密碼 Password (最少6位)">
+        <input type="password" id="auth-password" class="auth-input" data-i18n-placeholder="pwPlaceholder" placeholder="密碼 Password">
         
         <button class="auth-btn" onclick="loginUser()" data-i18n="btnLogin">Email 登入</button>
         <button class="auth-btn outline" onclick="registerUser()" data-i18n="btnRegister">註冊新帳號</button>
@@ -106,7 +105,7 @@
         <div class="auth-divider" data-i18n="orText">或</div>
         
         <button class="auth-btn google" onclick="loginWithGoogle()">
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="24" height="24">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="20" height="20">
             <span data-i18n="btnGoogleLogin">使用 Google 登入</span>
         </button>
     </div>
@@ -115,22 +114,24 @@
 <div class="mobile-header">
     <button class="hamburger-btn" onclick="toggleSidebar()">☰</button>
     <div class="app-title" style="margin: 0;" data-i18n="appTitle">👶 寶寶紀錄</div>
-    <div style="width: 40px;"></div>
+    <div style="width: 30px;"></div>
 </div>
 
 <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
 
 <div class="sidebar" id="sidebar">
     <div class="app-title" id="desktop-title" data-i18n="appTitle">👶 寶寶紀錄</div>
-    <div class="user-info" id="user-info"></div> <button class="nav-btn active" id="nav-feeding" onclick="switchTab('feeding', this, '#2196F3')" data-i18n="navFeeding">🍼 吃奶</button>
+    <div class="user-info" id="user-info"></div> 
+    
+    <button class="nav-btn active" id="nav-feeding" onclick="switchTab('feeding', this, '#2196F3')" data-i18n="navFeeding">🍼 吃奶</button>
     <button class="nav-btn" id="nav-diaper" onclick="switchTab('diaper', this, '#FF9800')" data-i18n="navDiaper">🧻 尿片</button>
     <button class="nav-btn" id="nav-sleep" onclick="switchTab('sleep', this, '#673AB7')" data-i18n="navSleep">💤 睡眠</button>
     
     <div class="sidebar-bottom">
         <button class="action-btn" id="lang-toggle-btn" onclick="toggleLanguage()">🌐 English</button>
-        <button class="action-btn" onclick="openSettingsModal()" data-i18n="btnSettings">⚙️ 設定寶寶名稱</button>
+        <button class="action-btn" onclick="openSettingsModal()" data-i18n="btnSettings">⚙️ 設定名稱</button>
         <button class="action-btn" id="theme-toggle-btn" onclick="toggleTheme()">☀️ 切換模式</button>
-        <button class="action-btn logout-btn" onclick="logoutUser()" data-i18n="btnLogout">🚪 登出帳號</button>
+        <button class="action-btn logout-btn" onclick="logoutUser()" data-i18n="btnLogout">🚪 登出</button>
     </div>
 </div>
 
@@ -171,12 +172,11 @@
                 <div class="col split-divider" style="flex: 0.8;">
                     <label class="label" data-i18n="labelBrand">牌子及型號</label>
                     <input type="text" class="input-text" data-i18n-placeholder="brandPlaceholder" placeholder="例如：Illuma 1段" id="formula-brand">
-                    
-                    <div id="recent-brand-area" style="margin-top: 10px; display: none;">
-                        <label class="label" style="font-size: 0.9rem; margin-bottom: 5px;" data-i18n="labelRecent">最近使用：</label>
-                        <div class="btn-group" id="recent-brand-list" style="grid-template-columns: repeat(2, 1fr); gap: 8px;"></div>
+                    <div id="recent-brand-area" style="margin-top: 8px; display: none;">
+                        <label class="label" style="font-size: 0.85rem; margin-bottom: 4px;" data-i18n="labelRecent">最近使用：</label>
+                        <div class="btn-group" id="recent-brand-list" style="grid-template-columns: repeat(2, 1fr); gap: 6px;"></div>
                     </div>
-                    <input type="number" class="input-number" data-i18n-placeholder="mlPlaceholder" placeholder="或手動輸入 ML" id="formula-volume" style="margin-top: 15px;">
+                    <input type="number" class="input-number" data-i18n-placeholder="mlPlaceholder" placeholder="或手動輸入 ML" id="formula-volume" style="margin-top: 10px;">
                 </div>
                 <div class="col" style="flex: 1.2;">
                     <label class="label" data-i18n="labelQuickMl">快速選擇奶量 (ML)</label>
@@ -237,14 +237,14 @@
                 <div class="btn-group" style="grid-template-columns: 1fr;">
                     <button class="btn pee-btn" onclick="toggleActive(this)" data-i18n="pee">有小便 💦</button>
                 </div>
-                <div class="btn-group" id="poo-toggle-btns" style="grid-template-columns: repeat(2, 1fr); margin-top: 12px;">
+                <div class="btn-group" id="poo-toggle-btns" style="grid-template-columns: repeat(2, 1fr); margin-top: 8px;">
                     <button class="btn poo-choice active" data-value="no" onclick="setPoo('no', this)" data-i18n="noPoo">沒大便</button>
                     <button class="btn poo-choice" data-value="yes" onclick="setPoo('yes', this)" data-i18n="poo">有大便 💩</button>
                 </div>
             </div>
         </div>
 
-        <div id="poo-details" class="section hidden" style="background: var(--btn-bg); padding: 15px; border-radius: 12px; border: 2px dashed var(--border-color);">
+        <div id="poo-details" class="section hidden" style="background: var(--btn-bg); padding: 12px; border-radius: 10px; border: 2px dashed var(--border-color);">
             <div class="row">
                 <div class="col split-divider">
                     <label class="label" data-i18n="labelPooColor">大便顏色</label>
@@ -254,7 +254,7 @@
                         <button class="btn poo-color" data-value="green" onclick="selectPooColor(this)" data-i18n="colorGreen">🟢 綠色</button>
                         <button class="btn poo-color" data-value="other" onclick="selectPooColor(this)" data-i18n="colorOther">⚪ 其他</button>
                     </div>
-                    <input type="text" id="poo-color-other" class="input-text hidden" style="margin-top: 10px;" data-i18n-placeholder="otherColorPlaceholder" placeholder="請輸入顏色">
+                    <input type="text" id="poo-color-other" class="input-text hidden" style="margin-top: 8px;" data-i18n-placeholder="otherColorPlaceholder" placeholder="請輸入顏色">
                 </div>
                 <div class="col">
                     <label class="label" data-i18n="labelPooAmount">大便量</label>
@@ -289,8 +289,8 @@
             <div class="col">
                 <label class="label" data-i18n="labelSleepStatus">睡眠狀態</label>
                 <div class="btn-group" id="sleep-action-btns" style="grid-template-columns: 1fr;">
-                    <button class="btn sleep-action active" data-value="start_sleep" onclick="singleSelectBtn(this, 'sleep-action-btns')" data-i18n="sleepStart" style="padding: 25px 10px;">開始睡眠 (入睡) 🌙</button>
-                    <button class="btn sleep-action" data-value="end_sleep" onclick="singleSelectBtn(this, 'sleep-action-btns')" data-i18n="sleepEnd" style="padding: 25px 10px;">結束睡眠 (醒來) ☀️</button>
+                    <button class="btn sleep-action active" data-value="start_sleep" onclick="singleSelectBtn(this, 'sleep-action-btns')" data-i18n="sleepStart" style="padding: 15px;">開始睡眠 (入睡) 🌙</button>
+                    <button class="btn sleep-action" data-value="end_sleep" onclick="singleSelectBtn(this, 'sleep-action-btns')" data-i18n="sleepEnd" style="padding: 15px;">結束睡眠 (醒來) ☀️</button>
                 </div>
             </div>
         </div>
@@ -300,7 +300,7 @@
 
 <div class="modal" id="settings-modal">
     <div class="modal-content">
-        <h2 data-i18n="settingsTitle">⚙️ 設定寶寶名稱</h2>
+        <h2 data-i18n="settingsTitle" style="font-size: 1.2rem;">⚙️ 設定名稱</h2>
         <div class="section">
             <label class="label" data-i18n="firstBaby">👶 第一位寶寶</label>
             <input type="text" id="input-baby1-name" class="input-text" data-i18n-placeholder="settingsPlaceholder1" placeholder="例如：大寶">
@@ -309,14 +309,14 @@
             <label class="label" data-i18n="secondBaby">👶 第二位寶寶</label>
             <input type="text" id="input-baby2-name" class="input-text" data-i18n-placeholder="settingsPlaceholder2" placeholder="例如：二寶">
         </div>
-        <button class="submit-btn" style="margin-top: 10px;" onclick="saveBabyNames()" data-i18n="saveSettingsBtn">💾 儲存設定</button>
-        <button class="btn" style="width: 100%; margin-top: 10px;" onclick="closeSettingsModal()" data-i18n="cancelBtn">取消</button>
+        <button class="submit-btn" style="margin-top: 5px; padding: 12px; font-size: 1rem;" onclick="saveBabyNames()" data-i18n="saveSettingsBtn">💾 儲存</button>
+        <button class="btn" style="width: 100%; margin-top: 8px; padding: 10px;" onclick="closeSettingsModal()" data-i18n="cancelBtn">取消</button>
     </div>
 </div>
 
 <script>
     // ==========================================
-    // 🚨 記得把你的 firebaseConfig 貼回這裡！ 🚨
+    // 🚨 記得再次把你的 firebaseConfig 貼回來！ 🚨
     // ==========================================
 const firebaseConfig = {
   apiKey: "AIzaSyBAExf2aDgBP8UrCMKlpB4C8US-fCuf4Xg",
@@ -328,62 +328,58 @@ const firebaseConfig = {
   measurementId: "G-YRLJW2P55F"
 };
     
-    // 初始化 Firebase
     let db, auth, googleProvider;
     if(firebaseConfig.apiKey) {
         firebase.initializeApp(firebaseConfig);
         db = firebase.firestore();
         auth = firebase.auth();
         googleProvider = new firebase.auth.GoogleAuthProvider();
-    } else {
-        alert("請在程式碼中填寫 firebaseConfig 以啟用資料庫功能！");
     }
 
-    /* === i18n 語言系統 === */
     const translations = {
         zh: {
-            appTitle: "👶 寶寶紀錄", emailPlaceholder: "電子郵件 Email", pwPlaceholder: "密碼 Password (最少6位)",
+            appTitle: "👶 寶寶紀錄", emailPlaceholder: "電子郵件 Email", pwPlaceholder: "密碼 Password",
             btnLogin: "Email 登入", btnRegister: "註冊新帳號", orText: "或", btnGoogleLogin: "使用 Google 登入",
             menuBtn: "☰ 選單", navFeeding: "🍼 吃奶", navDiaper: "🧻 尿片", navSleep: "💤 睡眠",
             btnSettings: "⚙️ 設定名稱", btnLogout: "🚪 登出帳號", btnThemeDark: "🌙 切換夜間", btnThemeLight: "☀️ 切換日間",
             tabBaby1: "大寶", tabBaby2: "二寶",
-            feedingTitle: "🍼 吃奶紀錄", labelTimeAdjust: "記錄時間微調", now: "現在",
+            feedingTitle: "🍼 吃奶紀錄", labelTimeAdjust: "時間微調", now: "現在",
             min10: "-10分", min20: "-20分", min30: "-30分", min45: "-45分", min60: "-60分",
             labelFeedType: "吃奶種類", formula: "配方奶", breastmilk: "人奶(樽)", direct: "親餵", pump: "泵奶",
             labelBrand: "牌子及型號", brandPlaceholder: "例如：Illuma 1段", labelRecent: "最近使用：",
             mlPlaceholder: "或手動輸入 ML", labelQuickMl: "快速選擇奶量",
             labelMl: "奶量 (ML)", manualMlPlaceholder: "請手動輸入 ML",
-            labelDuration: "親餵時長 (分鐘)", durationPlaceholder: "手動輸入分鐘", labelQuickSelect: "快速選擇", saveFeeding: "儲存吃奶紀錄",
+            labelDuration: "親餵時長(分)", durationPlaceholder: "手動輸入分鐘", labelQuickSelect: "快速選擇", saveFeeding: "儲存吃奶紀錄",
             diaperTitle: "🧻 換尿片紀錄", labelBasicStatus: "基本狀態", pee: "有小便 💦", noPoo: "沒大便", poo: "有大便 💩",
-            labelPooColor: "大便顏色", colorYellow: "🟡 黃色", colorBrown: "🟤 啡色", colorGreen: "🟢 綠色", colorOther: "⚪ 其他",
+            labelPooColor: "大便顏色", colorYellow: "🟡 黃", colorBrown: "🟤 啡", colorGreen: "🟢 綠", colorOther: "⚪ 其他",
             otherColorPlaceholder: "請填寫顏色", labelPooAmount: "大便量", saveDiaper: "儲存尿片紀錄",
-            sleepTitle: "💤 睡眠紀錄", labelEventTime: "發生時間", labelSleepStatus: "睡眠狀態",
+            sleepTitle: "💤 睡眠紀錄", labelEventTime: "時間", labelSleepStatus: "狀態",
             sleepStart: "開始睡眠 (入睡) 🌙", sleepEnd: "結束睡眠 (醒來) ☀️", saveSleep: "儲存睡眠紀錄",
-            settingsTitle: "⚙️ 設定寶寶名稱", firstBaby: "👶 第一位寶寶", secondBaby: "👶 第二位寶寶",
-            settingsPlaceholder1: "例如：大寶", settingsPlaceholder2: "例如：二寶", saveSettingsBtn: "💾 儲存設定", cancelBtn: "取消",
-            alertSettingsSaved: "✅ 寶寶名稱設定完成！", saving: "儲存中...", alertSuccess: "✅ 成功儲存", alertError: "❌ 錯誤："
+            settingsTitle: "⚙️ 設定名稱", firstBaby: "第一位寶寶", secondBaby: "第二位寶寶",
+            settingsPlaceholder1: "例如：大寶", settingsPlaceholder2: "例如：二寶", saveSettingsBtn: "💾 儲存", cancelBtn: "取消",
+            alertSettingsSaved: "✅ 設定完成！", saving: "儲存中...", alertSuccess: "✅ 成功儲存", alertError: "❌ 錯誤："
         },
         en: {
-            appTitle: "👶 Baby Tracker", emailPlaceholder: "Email Address", pwPlaceholder: "Password (min 6 chars)",
-            btnLogin: "Email Login", btnRegister: "Register", orText: "OR", btnGoogleLogin: "Sign in with Google",
+            appTitle: "👶 Baby Tracker", emailPlaceholder: "Email", pwPlaceholder: "Password",
+            btnLogin: "Login", btnRegister: "Register", orText: "OR", btnGoogleLogin: "Google Login",
             menuBtn: "☰ Menu", navFeeding: "🍼 Feeding", navDiaper: "🧻 Diaper", navSleep: "💤 Sleep",
-            btnSettings: "⚙️ Settings", btnLogout: "🚪 Logout", btnThemeDark: "🌙 Dark Mode", btnThemeLight: "☀️ Light Mode",
+            btnSettings: "⚙️ Settings", btnLogout: "🚪 Logout", btnThemeDark: "🌙 Dark", btnThemeLight: "☀️ Light",
             tabBaby1: "Baby 1", tabBaby2: "Baby 2",
-            feedingTitle: "🍼 Feeding", labelTimeAdjust: "Time Adjust", now: "Now",
+            feedingTitle: "🍼 Feeding", labelTimeAdjust: "Time", now: "Now",
             min10: "-10m", min20: "-20m", min30: "-30m", min45: "-45m", min60: "-60m",
             labelFeedType: "Type", formula: "Formula", breastmilk: "Breastmilk", direct: "Nursing", pump: "Pump",
-            labelBrand: "Brand", brandPlaceholder: "e.g., Illuma Stage 1", labelRecent: "Recent:",
-            mlPlaceholder: "Enter ML manually", labelQuickMl: "Quick Volume (ML)",
-            labelMl: "Volume (ML)", manualMlPlaceholder: "Enter ML manually",
-            labelDuration: "Duration (mins)", durationPlaceholder: "Enter minutes", labelQuickSelect: "Quick Select", saveFeeding: "Save Feeding",
+            labelBrand: "Brand", brandPlaceholder: "e.g., Illuma", labelRecent: "Recent:",
+            mlPlaceholder: "Enter ML", labelQuickMl: "Quick Vol (ML)",
+            labelMl: "Volume (ML)", manualMlPlaceholder: "Enter ML",
+            labelDuration: "Duration(min)", durationPlaceholder: "Minutes", labelQuickSelect: "Quick Select", saveFeeding: "Save Feeding",
             diaperTitle: "🧻 Diaper", labelBasicStatus: "Status", pee: "Pee 💦", noPoo: "No Poo", poo: "Poo 💩",
-            labelPooColor: "Color", colorYellow: "🟡 Yellow", colorBrown: "🟤 Brown", colorGreen: "🟢 Green", colorOther: "⚪ Other",
-            otherColorPlaceholder: "Enter custom color", labelPooAmount: "Amount", saveDiaper: "Save Diaper",
+            labelPooColor: "Color", colorYellow: "🟡 Yel", colorBrown: "🟤 Brn", colorGreen: "🟢 Grn", colorOther: "⚪ Oth",
+            otherColorPlaceholder: "Custom color", labelPooAmount: "Amount", saveDiaper: "Save Diaper",
             sleepTitle: "💤 Sleep", labelEventTime: "Time", labelSleepStatus: "Status",
-            sleepStart: "Fell Asleep 🌙", sleepEnd: "Woke Up ☀️", saveSleep: "Save Sleep",
-            settingsTitle: "⚙️ Settings", firstBaby: "👶 First Baby", secondBaby: "👶 Second Baby",
+            sleepStart: "Asleep 🌙", sleepEnd: "Awake ☀️", saveSleep: "Save Sleep",
+            settingsTitle: "⚙️ Settings", firstBaby: "First Baby", secondBaby: "Second Baby",
             settingsPlaceholder1: "e.g., Baby 1", settingsPlaceholder2: "e.g., Baby 2", saveSettingsBtn: "💾 Save", cancelBtn: "Cancel",
-            alertSettingsSaved: "✅ Saved!", saving: "Saving...", alertSuccess: "✅ Saved successfully", alertError: "❌ Error: "
+            alertSettingsSaved: "✅ Saved!", saving: "Saving...", alertSuccess: "✅ Saved", alertError: "❌ Error: "
         }
     };
 
@@ -400,29 +396,23 @@ const firebaseConfig = {
         loadBabySettings(); 
     }
 
-    function toggleLanguage() {
-        currentLang = currentLang === 'zh' ? 'en' : 'zh';
-        localStorage.setItem('appLang', currentLang); updateLanguage();
-    }
+    function toggleLanguage() { currentLang = currentLang === 'zh' ? 'en' : 'zh'; localStorage.setItem('appLang', currentLang); updateLanguage(); }
 
     function loadBabySettings() {
         let saved = localStorage.getItem('babySettings');
         if (saved) { babies = JSON.parse(saved); } else { babies.baby1 = translations[currentLang].tabBaby1; babies.baby2 = translations[currentLang].tabBaby2; }
-        document.getElementById('tab-baby1').innerText = `👶 ${babies.baby1}`;
-        document.getElementById('tab-baby2').innerText = `👶 ${babies.baby2}`;
+        document.getElementById('tab-baby1').innerText = `👶 ${babies.baby1}`; document.getElementById('tab-baby2').innerText = `👶 ${babies.baby2}`;
     }
 
     function switchBaby(babyId) {
         currentBabyId = babyId;
         document.querySelectorAll('.baby-tab').forEach(t => t.classList.remove('active'));
-        document.getElementById(`tab-${babyId}`).classList.add('active');
-        restoreLastBrand();
+        document.getElementById(`tab-${babyId}`).classList.add('active'); restoreLastBrand();
     }
 
     function openSettingsModal() {
         document.getElementById('input-baby1-name').value = babies.baby1; document.getElementById('input-baby2-name').value = babies.baby2;
-        document.getElementById('settings-modal').classList.add('active');
-        if(window.innerWidth <= 850) toggleSidebar(); 
+        document.getElementById('settings-modal').classList.add('active'); if(window.innerWidth <= 850) toggleSidebar(); 
     }
     function closeSettingsModal() { document.getElementById('settings-modal').classList.remove('active'); }
     function saveBabyNames() {
@@ -432,71 +422,33 @@ const firebaseConfig = {
         alert(translations[currentLang].alertSettingsSaved);
     }
 
-    /* === Firebase Authentication === */
     function showError(msg) { document.getElementById('auth-error-msg').innerText = msg; }
-    
-    function registerUser() {
-        let email = document.getElementById('auth-email').value; let pw = document.getElementById('auth-password').value;
-        if(!email || !pw) return showError('請輸入 Email 和密碼');
-        auth.createUserWithEmailAndPassword(email, pw).catch(err => showError(err.message));
-    }
-    function loginUser() {
-        let email = document.getElementById('auth-email').value; let pw = document.getElementById('auth-password').value;
-        if(!email || !pw) return showError('請輸入 Email 和密碼');
-        auth.signInWithEmailAndPassword(email, pw).catch(err => showError(err.message));
-    }
-    function loginWithGoogle() {
-        auth.signInWithPopup(googleProvider).catch(err => showError(err.message));
-    }
-    function logoutUser() {
-        auth.signOut().then(() => { if(window.innerWidth <= 850) toggleSidebar(); });
-    }
+    function registerUser() { let e = document.getElementById('auth-email').value; let p = document.getElementById('auth-password').value; if(e&&p) auth.createUserWithEmailAndPassword(e, p).catch(err => showError(err.message)); else showError('請輸入 Email 和密碼'); }
+    function loginUser() { let e = document.getElementById('auth-email').value; let p = document.getElementById('auth-password').value; if(e&&p) auth.signInWithEmailAndPassword(e, p).catch(err => showError(err.message)); else showError('請輸入 Email 和密碼'); }
+    function loginWithGoogle() { auth.signInWithPopup(googleProvider).catch(err => showError(err.message)); }
+    function logoutUser() { auth.signOut().then(() => { if(window.innerWidth <= 850) toggleSidebar(); }); }
 
     if(auth) {
         auth.onAuthStateChanged(user => {
             let overlay = document.getElementById('auth-overlay');
-            if (user) {
-                overlay.style.display = 'none';
-                document.getElementById('user-info').innerText = `👤 ${user.email}`;
-                fetchRecentBrands(); // 登入後才抓取該用戶的紀錄
-            } else {
-                overlay.style.display = 'flex'; document.getElementById('user-info').innerText = '';
-            }
+            if (user) { overlay.style.display = 'none'; document.getElementById('user-info').innerText = `👤 ${user.email}`; fetchRecentBrands(); } 
+            else { overlay.style.display = 'flex'; document.getElementById('user-info').innerText = ''; }
         });
     }
 
-    /* === UI與時鐘 === */
     function toggleSidebar() {
         let sidebar = document.getElementById('sidebar'); let overlay = document.getElementById('sidebar-overlay');
-        if (sidebar.classList.contains('open')) {
-            sidebar.classList.remove('open'); overlay.style.opacity = '0'; setTimeout(() => overlay.style.display = 'none', 300);
-        } else {
-            sidebar.classList.add('open'); overlay.style.display = 'block'; setTimeout(() => overlay.style.opacity = '1', 10);
-        }
+        if (sidebar.classList.contains('open')) { sidebar.classList.remove('open'); overlay.style.opacity = '0'; setTimeout(() => overlay.style.display = 'none', 300); } 
+        else { sidebar.classList.add('open'); overlay.style.display = 'block'; setTimeout(() => overlay.style.opacity = '1', 10); }
     }
 
-    function initTheme() {
-        let hour = new Date().getHours(); let isNight = (hour >= 18 || hour < 6);
-        applyTheme(isNight ? 'dark' : 'light');
-    }
+    function initTheme() { let h = new Date().getHours(); applyTheme((h >= 18 || h < 6) ? 'dark' : 'light'); }
     function toggleTheme() { applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
-    function applyTheme(theme) {
-        document.documentElement.setAttribute('data-theme', theme);
-        document.getElementById('theme-toggle-btn').innerText = (theme === 'dark') ? translations[currentLang].btnThemeLight : translations[currentLang].btnThemeDark;
-    }
+    function applyTheme(t) { document.documentElement.setAttribute('data-theme', t); document.getElementById('theme-toggle-btn').innerText = (t === 'dark') ? translations[currentLang].btnThemeLight : translations[currentLang].btnThemeDark; }
 
-    let recordTimes = { 'feeding': new Date(), 'diaper': new Date(), 'sleep': new Date() };
-    let isTimeFrozen = { 'feeding': false, 'diaper': false, 'sleep': false };
-
-    function renderTimeDisplay(cat) {
-        let h = recordTimes[cat].getHours().toString().padStart(2, '0'); let m = recordTimes[cat].getMinutes().toString().padStart(2, '0');
-        document.getElementById('time-' + cat).innerText = `${h}:${m}`;
-    }
-    function setTime(cat, minsAgo, btn) {
-        btn.parentElement.querySelectorAll('.btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
-        let t = new Date(); t.setMinutes(t.getMinutes() - minsAgo);
-        recordTimes[cat] = t; isTimeFrozen[cat] = (minsAgo !== 0); renderTimeDisplay(cat);
-    }
+    let recordTimes = { 'feeding': new Date(), 'diaper': new Date(), 'sleep': new Date() }; let isTimeFrozen = { 'feeding': false, 'diaper': false, 'sleep': false };
+    function renderTimeDisplay(cat) { let h = recordTimes[cat].getHours().toString().padStart(2, '0'); let m = recordTimes[cat].getMinutes().toString().padStart(2, '0'); document.getElementById('time-' + cat).innerText = `${h}:${m}`; }
+    function setTime(cat, minsAgo, btn) { btn.parentElement.querySelectorAll('.btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); let t = new Date(); t.setMinutes(t.getMinutes() - minsAgo); recordTimes[cat] = t; isTimeFrozen[cat] = (minsAgo !== 0); renderTimeDisplay(cat); }
     setInterval(() => { ['feeding', 'diaper', 'sleep'].forEach(cat => { if (!isTimeFrozen[cat]) { recordTimes[cat] = new Date(); renderTimeDisplay(cat); }}); }, 1000);
 
     function switchTab(tab, btn, colorHex) {
@@ -517,117 +469,63 @@ const firebaseConfig = {
         else if(type === 'direct') document.getElementById('direct-section').classList.remove('hidden');
     }
 
-    function singleSelectBtn(btn, groupId) {
-        document.querySelectorAll(`#${groupId} .btn`).forEach(b => b.classList.remove('active')); btn.classList.add('active');
-    }
-
-    function selectPooColor(btn) {
-        singleSelectBtn(btn, 'poo-color-btns');
-        let otherInput = document.getElementById('poo-color-other');
-        if (btn.getAttribute('data-value') === 'other') otherInput.classList.remove('hidden'); else otherInput.classList.add('hidden');
-    }
-
+    function singleSelectBtn(btn, groupId) { document.querySelectorAll(`#${groupId} .btn`).forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
+    function selectPooColor(btn) { singleSelectBtn(btn, 'poo-color-btns'); let otherInput = document.getElementById('poo-color-other'); if (btn.getAttribute('data-value') === 'other') otherInput.classList.remove('hidden'); else otherInput.classList.add('hidden'); }
     function toggleActive(btn) { btn.classList.toggle('active'); }
-    function setPoo(status, btn) {
-        document.querySelectorAll('#poo-toggle-btns .btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
-        if(status === 'yes') document.getElementById('poo-details').classList.remove('hidden'); else document.getElementById('poo-details').classList.add('hidden');
-    }
-
-    function restoreLastBrand() {
-        let lastBrand = localStorage.getItem('lastFormulaBrand'); if (lastBrand) document.getElementById('formula-brand').value = lastBrand;
-    }
+    function setPoo(status, btn) { document.querySelectorAll('#poo-toggle-btns .btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); if(status === 'yes') document.getElementById('poo-details').classList.remove('hidden'); else document.getElementById('poo-details').classList.add('hidden'); }
+    function restoreLastBrand() { let lastBrand = localStorage.getItem('lastFormulaBrand'); if (lastBrand) document.getElementById('formula-brand').value = lastBrand; }
 
     async function fetchRecentBrands() {
         if(!db || !auth.currentUser) return;
         try {
-            // 這裡限定只抓取「當下登入用戶」的紀錄
-            const snapshot = await db.collection("baby_records")
-                                     .where("userId", "==", auth.currentUser.uid)
-                                     .get();
-            let records = []; snapshot.forEach(doc => records.push(doc.data()));
-            // 手動依照時間排序，避免需要設置 Firestore 複合索引
-            records.sort((a, b) => b.createdAt - a.createdAt);
-            
+            const snapshot = await db.collection("baby_records").where("userId", "==", auth.currentUser.uid).get();
+            let records = []; snapshot.forEach(doc => records.push(doc.data())); records.sort((a, b) => b.createdAt - a.createdAt);
             let recentBrands = new Set();
-            for(let data of records) {
-                if (data.category === 'feeding' && data.feedingType === 'formula' && data.brand && data.brand !== '未填寫' && data.brand !== 'Empty') {
-                    recentBrands.add(data.brand);
-                }
-            }
-
+            for(let data of records) { if (data.category === 'feeding' && data.feedingType === 'formula' && data.brand && data.brand !== '未填寫' && data.brand !== 'Empty') recentBrands.add(data.brand); }
             let brandArray = Array.from(recentBrands).slice(0, 2); let list = document.getElementById('recent-brand-list');
             if(brandArray.length > 0) {
                 list.innerHTML = '';
                 brandArray.forEach(brand => {
-                    let btn = document.createElement('button'); btn.className = 'btn'; btn.style.padding = '8px 5px'; btn.style.fontSize = '0.9rem'; btn.innerText = brand;
+                    let btn = document.createElement('button'); btn.className = 'btn'; btn.style.padding = '6px 4px'; btn.style.fontSize = '0.85rem'; btn.innerText = brand;
                     btn.onclick = function() { document.getElementById('formula-brand').value = brand; }; list.appendChild(btn);
                 });
                 document.getElementById('recent-brand-area').style.display = 'block';
             }
-        } catch (error) { console.log("無法載入雲端歷史牌子: ", error); }
+        } catch (error) { console.log(error); }
     }
 
-    /* === 儲存資料到 Firebase === */
     async function submitData(category) {
-        if(!db) { alert("請先設定 firebaseConfig"); return; }
-        if(!auth.currentUser) { alert("請先登入帳號！"); return; }
+        if(!db) return alert("請先設定 firebaseConfig"); if(!auth.currentUser) return alert("請先登入！");
+        let submitBtn = document.getElementById('btn-submit-' + category); let originalText = submitBtn.innerText; submitBtn.innerText = translations[currentLang].saving; submitBtn.disabled = true;
 
-        let submitBtn = document.getElementById('btn-submit-' + category);
-        let originalText = submitBtn.innerText; submitBtn.innerText = translations[currentLang].saving; submitBtn.disabled = true;
-
-        let dataToSave = {
-            userId: auth.currentUser.uid, // 綁定會員 ID 🔒
-            babyId: currentBabyId,            
-            babyName: babies[currentBabyId],  
-            category: category,
-            recordTime: recordTimes[category],
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        };
+        let dataToSave = { userId: auth.currentUser.uid, babyId: currentBabyId, babyName: babies[currentBabyId], category: category, recordTime: recordTimes[category], createdAt: firebase.firestore.FieldValue.serverTimestamp() };
 
         if (category === 'feeding') {
-            let activeType = document.querySelector('.type-btn.active').getAttribute('data-value');
-            dataToSave.feedingType = activeType;
+            let activeType = document.querySelector('.type-btn.active').getAttribute('data-value'); dataToSave.feedingType = activeType;
             if (activeType === 'formula') {
-                let brandInput = document.getElementById('formula-brand').value;
-                dataToSave.brand = brandInput || (currentLang === 'zh' ? '未填寫' : 'Empty');
-                dataToSave.volumeML = Number(document.getElementById('formula-volume').value) || 0;
-                if (brandInput) localStorage.setItem('lastFormulaBrand', brandInput);
+                let brandInput = document.getElementById('formula-brand').value; dataToSave.brand = brandInput || '未填寫'; dataToSave.volumeML = Number(document.getElementById('formula-volume').value) || 0; if (brandInput) localStorage.setItem('lastFormulaBrand', brandInput);
             } else if (activeType === 'direct') { dataToSave.durationMins = Number(document.getElementById('direct-duration').value) || 0;
             } else { dataToSave.volumeML = Number(document.getElementById('breastmilk-volume').value) || 0; }
         } else if (category === 'diaper') {
-            dataToSave.hasPee = document.querySelector('.pee-btn').classList.contains('active');
-            let hasPoo = document.querySelector('.poo-choice.active').getAttribute('data-value') === 'yes'; dataToSave.hasPoo = hasPoo;
+            dataToSave.hasPee = document.querySelector('.pee-btn').classList.contains('active'); let hasPoo = document.querySelector('.poo-choice.active').getAttribute('data-value') === 'yes'; dataToSave.hasPoo = hasPoo;
             if (hasPoo) {
-                let colorBtn = document.querySelector('.poo-color.active'); let amountBtn = document.querySelector('.poo-amount.active');
-                let pooColorValue = 'none';
-                if (colorBtn) {
-                    pooColorValue = colorBtn.getAttribute('data-value');
-                    if (pooColorValue === 'other') {
-                        let customColor = document.getElementById('poo-color-other').value.trim();
-                        pooColorValue = customColor !== '' ? customColor : 'other';
-                    }
-                }
+                let colorBtn = document.querySelector('.poo-color.active'); let amountBtn = document.querySelector('.poo-amount.active'); let pooColorValue = 'none';
+                if (colorBtn) { pooColorValue = colorBtn.getAttribute('data-value'); if (pooColorValue === 'other') { let customColor = document.getElementById('poo-color-other').value.trim(); pooColorValue = customColor !== '' ? customColor : 'other'; } }
                 dataToSave.pooColor = pooColorValue; dataToSave.pooAmount = amountBtn ? amountBtn.getAttribute('data-value') : 'none'; 
             }
         } else if (category === 'sleep') { dataToSave.sleepStatus = document.querySelector('.sleep-action.active').getAttribute('data-value'); }
 
         try {
-            await db.collection("baby_records").add(dataToSave);
-            alert(`${translations[currentLang].alertSuccess} 【${babies[currentBabyId]}】!`);
+            await db.collection("baby_records").add(dataToSave); alert(`${translations[currentLang].alertSuccess} 【${babies[currentBabyId]}】!`);
             document.querySelectorAll('input').forEach(input => { if(input.id !== 'auth-email' && input.id !== 'auth-password') input.value = ''; });
             document.getElementById('poo-color-other').classList.add('hidden'); restoreLastBrand(); fetchRecentBrands();
             let firstBtn = document.getElementById(category + '-card').querySelector('.btn-group button'); if(firstBtn) setTime(category, 0, firstBtn);
-        } catch (error) { console.error(error); alert(translations[currentLang].alertError + error.message);
-        } finally { submitBtn.innerText = originalText; submitBtn.disabled = false; }
+        } catch (error) { alert(translations[currentLang].alertError + error.message); } finally { submitBtn.innerText = originalText; submitBtn.disabled = false; }
     }
 
     window.onload = function() {
-        initTheme(); updateLanguage(); 
-        setTime('feeding', 0, document.querySelector('#feeding-card .btn-group button'));
-        setTime('diaper', 0, document.querySelector('#diaper-card .btn-group button'));
-        setTime('sleep', 0, document.querySelector('#sleep-card .btn-group button'));
-        restoreLastBrand();
-        if(window.innerWidth <= 850) document.getElementById('desktop-title').style.display = 'none';
+        initTheme(); updateLanguage(); setTime('feeding', 0, document.querySelector('#feeding-card .btn-group button')); setTime('diaper', 0, document.querySelector('#diaper-card .btn-group button')); setTime('sleep', 0, document.querySelector('#sleep-card .btn-group button'));
+        restoreLastBrand(); if(window.innerWidth <= 850) document.getElementById('desktop-title').style.display = 'none';
     };
 </script>
 

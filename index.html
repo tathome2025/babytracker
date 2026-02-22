@@ -61,7 +61,19 @@
         .hidden { display: none !important; }
         .submit-btn { width: 100%; padding: 15px; background: var(--theme-color); color: white; border: none; border-radius: 12px; font-size: 1.2rem; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 10px var(--theme-light); transition: 0.2s; }
         .submit-btn:disabled { background: var(--border-color); cursor: not-allowed; box-shadow: none; }
-        .time-display { color: var(--theme-color); font-size: 1.3rem; font-weight: bold; font-variant-numeric: tabular-nums; }
+        
+        /* 🔥 修改此處：時間顯示放大並加框突出 */
+        .time-display { 
+            color: var(--theme-color); 
+            font-size: 1.6rem; 
+            font-weight: 900; 
+            font-variant-numeric: tabular-nums; 
+            background: var(--theme-light); 
+            padding: 4px 14px; 
+            border-radius: 10px; 
+            border: 2px solid var(--theme-color); 
+            box-shadow: 0 4px 8px var(--theme-light); 
+        }
 
         .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 2000; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; }
         .modal.active { display: flex; opacity: 1; }
@@ -138,7 +150,7 @@
     
     <div class="sidebar-bottom">
         <button class="action-btn" onclick="exportCSV()" data-i18n="btnExportCSV">📥 匯出完整紀錄 CSV格式</button>
-        <button class="action-btn" onclick="openSettingsModal()" data-i18n="btnSettings">⚙️ 設定名稱</button>
+        <button class="action-btn" onclick="openSettingsModal()" data-i18n="btnSettings">⚙️ 設定寶寶名稱</button>
         <button class="action-btn" id="theme-toggle-btn" onclick="toggleTheme()">☀️ 切換模式</button>
         <button class="action-btn" id="lang-toggle-btn" onclick="toggleLanguage()">🌐 English</button>
         <button class="action-btn logout-btn" onclick="logoutUser()" data-i18n="btnLogout">🚪 登出</button>
@@ -192,12 +204,15 @@
                 <div class="col" style="flex: 1.2;">
                     <label class="label" data-i18n="labelQuickMl">快速選擇奶量 (ML)</label>
                     <div class="btn-group" style="grid-template-columns: repeat(3, 1fr);">
+                        <button class="btn" onclick="document.getElementById('formula-volume').value=30">30</button>
                         <button class="btn" onclick="document.getElementById('formula-volume').value=60">60</button>
                         <button class="btn" onclick="document.getElementById('formula-volume').value=90">90</button>
                         <button class="btn" onclick="document.getElementById('formula-volume').value=120">120</button>
                         <button class="btn" onclick="document.getElementById('formula-volume').value=150">150</button>
                         <button class="btn" onclick="document.getElementById('formula-volume').value=180">180</button>
                         <button class="btn" onclick="document.getElementById('formula-volume').value=210">210</button>
+                        <button class="btn" onclick="document.getElementById('formula-volume').value=240">240</button>
+                        <button class="btn" onclick="document.getElementById('formula-volume').value=270">270</button>
                     </div>
                 </div>
             </div>
@@ -366,7 +381,7 @@
 
 <div class="modal" id="settings-modal">
     <div class="modal-content">
-        <h2 style="font-size: 1.2rem;" data-i18n="settingsTitle">⚙️ 設定名稱</h2>
+        <h2 style="font-size: 1.2rem;" data-i18n="settingsTitle">⚙️ 設定寶寶名稱</h2>
         <div class="section">
             <label class="label" data-i18n="firstBaby">👶 第一位寶寶</label>
             <input type="text" id="input-baby1-name" class="input-text" data-i18n-placeholder="settingsPlaceholder1" placeholder="例如：大寶">
@@ -411,7 +426,7 @@ const firebaseConfig = {
             appTitle: "👶 寶寶紀錄", emailPlaceholder: "電子郵件 Email", pwPlaceholder: "密碼 Password",
             btnLogin: "Email 登入", btnRegister: "註冊新帳號", orText: "或", btnGoogleLogin: "使用 Google 登入",
             navFeeding: "🍼 吃奶", navDiaper: "🧻 尿片", navSleep: "💤 睡眠", navLog: "📅 24h 日誌", navHistory: "📊 趨勢圖表", navRedPacket: "🧧 利是紀錄",
-            btnExportCSV: "📥 匯出 CSV", btnSettings: "⚙️ 設定名稱", btnLogout: "🚪 登出帳號", btnThemeDark: "🌙 切換夜間", btnThemeLight: "☀️ 切換日間",
+            btnExportCSV: "📥 匯出完整紀錄 CSV格式", btnSettings: "⚙️ 設定寶寶名稱", btnLogout: "🚪 登出帳號", btnThemeDark: "🌙 切換夜間", btnThemeLight: "☀️ 切換日間",
             tabBaby1: "大寶", tabBaby2: "二寶", tabBaby3: "三寶",
             feedingTitle: "🍼 吃奶紀錄", labelTimeAdjust: "時間微調", now: "現在",
             min10: "-10分", min20: "-20分", min30: "-30分", min45: "-45分", min60: "-60分",
@@ -424,7 +439,7 @@ const firebaseConfig = {
             otherColorPlaceholder: "請填寫顏色", labelPooAmount: "大便量", saveDiaper: "儲存尿片紀錄",
             sleepTitle: "💤 睡眠紀錄", labelEventTime: "時間", labelSleepStatus: "狀態",
             sleepStart: "開始睡眠 (入睡) 🌙", sleepEnd: "結束睡眠 (醒來) ☀️", saveSleep: "儲存睡眠紀錄",
-            settingsTitle: "⚙️ 設定名稱", firstBaby: "第一位寶寶", secondBaby: "第二位寶寶", thirdBaby: "第三位寶寶",
+            settingsTitle: "⚙️ 設定寶寶名稱", firstBaby: "第一位寶寶", secondBaby: "第二位寶寶", thirdBaby: "第三位寶寶",
             settingsPlaceholder1: "例如：大寶", settingsPlaceholder2: "例如：二寶", settingsPlaceholder3: "例如：三寶", saveSettingsBtn: "💾 儲存 (同步雲端)", cancelBtn: "取消",
             alertSettingsSaved: "✅ 設定已同步到雲端！", saving: "儲存中...", alertSuccess: "✅ 成功儲存", alertError: "❌ 錯誤：",
             historyTitle: "📊 統計趨勢圖表", sumMilk: "總奶量", sumDiaper: "換尿片", sumSleep: "睡眠時數", timelineTitle: "📅 24小時日誌",
@@ -438,7 +453,7 @@ const firebaseConfig = {
             appTitle: "👶 Baby Tracker", emailPlaceholder: "Email", pwPlaceholder: "Password",
             btnLogin: "Login", btnRegister: "Register", orText: "OR", btnGoogleLogin: "Google Login",
             navFeeding: "🍼 Feeding", navDiaper: "🧻 Diaper", navSleep: "💤 Sleep", navLog: "📅 24h Log", navHistory: "📊 Charts", navRedPacket: "🧧 Red Packet",
-            btnExportCSV: "📥 Export CSV", btnSettings: "⚙️ Settings", btnLogout: "🚪 Logout", btnThemeDark: "🌙 Dark", btnThemeLight: "☀️ Light",
+            btnExportCSV: "📥 Export Full Records (CSV)", btnSettings: "⚙️ Set Baby Name", btnLogout: "🚪 Logout", btnThemeDark: "🌙 Dark", btnThemeLight: "☀️ Light",
             tabBaby1: "Baby 1", tabBaby2: "Baby 2", tabBaby3: "Baby 3",
             feedingTitle: "🍼 Feeding", labelTimeAdjust: "Time", now: "Now",
             min10: "-10m", min20: "-20m", min30: "-30m", min45: "-45m", min60: "-60m",
@@ -451,7 +466,7 @@ const firebaseConfig = {
             otherColorPlaceholder: "Custom color", labelPooAmount: "Amount", saveDiaper: "Save Diaper",
             sleepTitle: "💤 Sleep", labelEventTime: "Time", labelSleepStatus: "Status",
             sleepStart: "Asleep 🌙", sleepEnd: "Awake ☀️", saveSleep: "Save Sleep",
-            settingsTitle: "⚙️ Settings", firstBaby: "First Baby", secondBaby: "Second Baby", thirdBaby: "Third Baby",
+            settingsTitle: "⚙️ Set Baby Name", firstBaby: "First Baby", secondBaby: "Second Baby", thirdBaby: "Third Baby",
             settingsPlaceholder1: "e.g., Baby 1", settingsPlaceholder2: "e.g., Baby 2", settingsPlaceholder3: "e.g., Baby 3", saveSettingsBtn: "💾 Save (Sync)", cancelBtn: "Cancel",
             alertSettingsSaved: "✅ Saved to cloud!", saving: "Saving...", alertSuccess: "✅ Saved", alertError: "❌ Error: ",
             historyTitle: "📊 History Trend", sumMilk: "Total Milk", sumDiaper: "Diapers", sumSleep: "Sleep Duration", timelineTitle: "📅 24-Hour Log",
@@ -693,7 +708,7 @@ const firebaseConfig = {
             allRecords.sort((a, b) => a.time - b.time);
             
             let lastSleepStart = null;
-            let dayTotalMilk = 0; let dayDiaperCount = 0; let daySleepMins = 0; // 改為紀錄分鐘數
+            let dayTotalMilk = 0; let dayDiaperCount = 0; let daySleepMins = 0; 
             let listHtml = '';
 
             allRecords.forEach(r => {
@@ -706,7 +721,6 @@ const firebaseConfig = {
                         let diffMins = (r.time - lastSleepStart) / 1000 / 60;
                         if (dailyStats[rDate]) dailyStats[rDate].sleepMins += diffMins;
                         
-                        // 計算過去 24 小時內的睡眠時長
                         if (r.time >= past24h && r.time <= now) {
                             daySleepMins += diffMins;
                         }
@@ -760,7 +774,6 @@ const firebaseConfig = {
                 else listDiv.innerHTML = listHtml; 
                 document.getElementById('sum-milk-val').innerText = dayTotalMilk;
                 document.getElementById('sum-diaper-val').innerText = dayDiaperCount;
-                // 更新睡眠時數顯示
                 document.getElementById('sum-sleep-val').innerText = (daySleepMins / 60).toFixed(1);
             }
 

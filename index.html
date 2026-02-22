@@ -16,48 +16,44 @@
         }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; display: flex; height: 100dvh; overflow: hidden; transition: 0.3s; }
         
-        /* 認證介面 */
+        /* 登入遮罩 */
         #auth-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--bg-color); z-index: 3000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         .auth-card { background: var(--card-bg); padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; border-top: 6px solid var(--theme-color); }
         .auth-input { width: 100%; padding: 12px; border: 2px solid var(--border-color); border-radius: 10px; font-size: 1rem; box-sizing: border-box; background: var(--btn-bg); color: var(--text-color); margin-bottom: 12px; }
-        .auth-btn { width: 100%; padding: 12px; background: var(--theme-color); color: white; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-bottom: 12px; }
-        .auth-divider { margin: 15px 0; color: var(--text-muted); font-size: 0.9rem; display: flex; align-items: center; }
-        .auth-divider::before, .auth-divider::after { content: ""; flex: 1; height: 1px; background: var(--border-color); margin: 0 10px; }
+        .auth-btn { width: 100%; padding: 12px; background: var(--theme-color); color: white; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-bottom: 12px; width: 100%; }
 
-        /* 主佈局 */
+        /* 佈局 */
         .mobile-header { display: none; background-color: var(--sidebar-bg); padding: 10px 15px; border-bottom: 1px solid var(--border-color); align-items: center; justify-content: space-between; z-index: 100; position: sticky; top: 0; }
         .sidebar { width: 230px; background-color: var(--sidebar-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 15px; box-sizing: border-box; transition: transform 0.3s ease; z-index: 1000; }
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 999; }
-        .nav-btn { padding: 12px 15px; border: 2px solid transparent; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; background: var(--btn-bg); color: var(--text-muted); margin-bottom: 10px; text-align: left; }
+        
+        .nav-btn { width: 100%; padding: 12px 15px; border: 2px solid transparent; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; background: var(--btn-bg); color: var(--text-muted); margin-bottom: 10px; text-align: left; }
         .nav-btn.active { background: var(--theme-light); color: var(--theme-color); border-color: var(--theme-color); }
         
         .main-content { flex: 1; padding: 15px 20px 40px; box-sizing: border-box; display: flex; flex-direction: column; overflow-y: auto; }
-        .baby-selector { display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; }
-        .baby-tab { padding: 8px 18px; border-radius: 15px; background: var(--btn-bg); color: var(--text-muted); font-size: 1rem; font-weight: bold; cursor: pointer; border: 2px solid var(--border-color); white-space: nowrap; }
+        .baby-selector { display: flex; gap: 10px; margin-bottom: 15px; }
+        .baby-tab { padding: 8px 18px; border-radius: 15px; background: var(--btn-bg); color: var(--text-muted); font-size: 1rem; font-weight: bold; cursor: pointer; border: 2px solid var(--border-color); }
         .baby-tab.active { background: var(--theme-color); color: white; border-color: var(--theme-color); }
         
-        .card { background: var(--card-bg); padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-top: 5px solid var(--theme-color); display: none; flex-direction: column; }
-        .card.active { display: flex; }
-        h2 { font-size: 1.3rem; margin-top: 0; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        /* 卡片顯示邏輯 */
+        .card { background: var(--card-bg); padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-top: 5px solid var(--theme-color); display: none; flex-direction: column; margin-bottom: 20px; }
+        .card.active { display: flex !important; }
 
         .btn-group { display: grid; gap: 8px; }
         .btn { padding: 10px; border: 2px solid var(--border-color); border-radius: 10px; background: var(--btn-bg); cursor: pointer; font-size: 1rem; color: var(--text-color); font-weight: bold; }
         .btn.active { background: var(--theme-color); color: white; border-color: var(--theme-color); }
-        .input-text, .input-number, .input-date { width: 100%; padding: 12px; border: 2px solid var(--border-color); border-radius: 10px; font-size: 1rem; box-sizing: border-box; background: var(--btn-bg); color: var(--text-color); }
+        .input-number, .input-date { width: 100%; padding: 12px; border: 2px solid var(--border-color); border-radius: 10px; font-size: 1rem; box-sizing: border-box; background: var(--btn-bg); color: var(--text-color); }
         .submit-btn { width: 100%; padding: 15px; background: var(--theme-color); color: white; border: none; border-radius: 12px; font-size: 1.2rem; font-weight: bold; cursor: pointer; margin-top: 15px; }
-        .hidden { display: none !important; }
 
-        /* 圖表與歷史清單 */
-        .chart-section { margin-bottom: 25px; }
-        .chart-container { position: relative; height: 180px; width: 100%; margin-top: 10px; }
+        .chart-container { position: relative; height: 180px; width: 100%; margin: 10px 0 25px 0; }
         .history-item { background: var(--btn-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .history-time { font-weight: bold; font-size: 1.1rem; }
         .delete-btn { color: #d32f2f; background: none; border: 1px solid #ffcccc; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
 
         @media (max-width: 850px) {
             .mobile-header { display: flex; }
             .sidebar { position: fixed; top: 0; left: 0; bottom: 0; transform: translateX(-100%); }
             .sidebar.open { transform: translateX(0); }
+            .sidebar-overlay.show { display: block; }
         }
     </style>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
@@ -69,13 +65,12 @@
 
 <div id="auth-overlay">
     <div class="auth-card">
-        <h2 id="auth-title">👶 寶寶紀錄登入</h2>
-        <div id="auth-error-msg" style="color:red; margin-bottom:10px;"></div>
+        <h2>👶 寶寶紀錄登入</h2>
+        <div id="auth-error-msg" style="color:red; margin-bottom:10px; font-size:0.9rem"></div>
         <input type="email" id="auth-email" class="auth-input" placeholder="Email">
         <input type="password" id="auth-password" class="auth-input" placeholder="Password">
         <button class="auth-btn" onclick="loginUser()">登入</button>
         <button class="auth-btn" style="background:#888" onclick="registerUser()">註冊</button>
-        <div class="auth-divider">或</div>
         <button class="auth-btn" style="background:#fff; color:#444; border:1px solid #ccc" onclick="loginWithGoogle()">Google 登入</button>
     </div>
 </div>
@@ -83,20 +78,22 @@
 <div class="mobile-header">
     <button onclick="toggleSidebar()" style="background:none; border:none; font-size:1.5rem">☰</button>
     <b>寶寶紀錄</b>
-    <span></span>
+    <div style="width:30px"></div>
 </div>
+
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
 
 <div class="sidebar" id="sidebar">
     <h3 style="text-align:center">👶 寶寶紀錄</h3>
     <div id="user-info" style="font-size:0.8rem; text-align:center; margin-bottom:15px; color:var(--text-muted)"></div>
-    <button class="nav-btn active" onclick="switchTab('feeding', this, '#2196F3')">🍼 吃奶紀錄</button>
-    <button class="nav-btn" onclick="switchTab('diaper', this, '#FF9800')">🧻 尿片紀錄</button>
-    <button class="nav-btn" onclick="switchTab('sleep', this, '#673AB7')">💤 睡眠紀錄</button>
-    <button class="nav-btn" onclick="switchTab('history', this, '#4CAF50')">📊 統計分析</button>
+    <button class="nav-btn active" id="btn-feeding" onclick="switchTab('feeding', this, '#2196F3')">🍼 吃奶紀錄</button>
+    <button class="nav-btn" id="btn-diaper" onclick="switchTab('diaper', this, '#FF9800')">🧻 尿片紀錄</button>
+    <button class="nav-btn" id="btn-sleep" onclick="switchTab('sleep', this, '#673AB7')">💤 睡眠紀錄</button>
+    <button class="nav-btn" id="btn-history" onclick="switchTab('history', this, '#4CAF50')">📊 統計分析</button>
     
     <div style="margin-top:auto">
-        <button class="nav-btn" style="width:100%" onclick="toggleTheme()">☀️ 切換模式</button>
-        <button class="nav-btn" style="width:100%; color:red" onclick="logoutUser()">🚪 登出</button>
+        <button class="nav-btn" onclick="toggleTheme()">☀️ 切換模式</button>
+        <button class="nav-btn" style="color:red" onclick="logoutUser()">🚪 登出</button>
     </div>
 </div>
 
@@ -113,9 +110,9 @@
             <button class="btn" onclick="setTime('feeding', 15, this)">-15m</button>
             <button class="btn" onclick="setTime('feeding', 30, this)">-30m</button>
         </div>
-        <label class="label">奶量 (ml)</label>
-        <input type="number" id="milk-val" class="input-number" placeholder="輸入 ml">
-        <button class="submit-btn" onclick="submitData('feeding')">儲存紀錄</button>
+        <label style="display:block; margin-bottom:8px; font-weight:bold">奶量 (ml)</label>
+        <input type="number" id="milk-val" class="input-number" placeholder="輸入 ml 數字">
+        <button class="submit-btn" onclick="submitData('feeding')">儲存吃奶紀錄</button>
     </div>
 
     <div id="diaper-card" class="card">
@@ -124,7 +121,7 @@
             <button class="btn pee-btn" onclick="this.classList.toggle('active')">小便 💦</button>
             <button class="btn poo-btn" onclick="this.classList.toggle('active')">大便 💩</button>
         </div>
-        <button class="submit-btn" onclick="submitData('diaper')">儲存紀錄</button>
+        <button class="submit-btn" onclick="submitData('diaper')">儲存尿片紀錄</button>
     </div>
 
     <div id="sleep-card" class="card">
@@ -133,35 +130,26 @@
             <button class="btn active" data-val="start_sleep" onclick="selectSleep(this)">開始睡眠 🌙</button>
             <button class="btn" data-val="end_sleep" onclick="selectSleep(this)">結束睡眠 ☀️</button>
         </div>
-        <button class="submit-btn" onclick="submitData('sleep')">儲存紀錄</button>
+        <button class="submit-btn" onclick="submitData('sleep')">儲存睡眠狀態</button>
     </div>
 
     <div id="history-card" class="card">
-        <h2>
-            📊 趨勢分析
+        <h2>📊 趨勢分析
             <select id="stats-range" class="input-date" style="width:auto" onchange="loadHistory()">
                 <option value="7">最近 7 天</option>
                 <option value="14">最近 14 天</option>
                 <option value="30">最近 30 天</option>
             </select>
         </h2>
-
-        <div class="chart-section">
-            <label class="label">🍼 每日總奶量 (ml)</label>
+        <div>
+            <label style="font-weight:bold">🍼 每日總奶量 (ml)</label>
             <div class="chart-container"><canvas id="milkChart"></canvas></div>
-        </div>
-
-        <div class="chart-section">
-            <label class="label">💤 每日睡眠總時數 (小時)</label>
+            <label style="font-weight:bold">💤 每日睡眠總時數 (小時)</label>
             <div class="chart-container"><canvas id="sleepChart"></canvas></div>
-        </div>
-
-        <div class="chart-section">
-            <label class="label">🧻 每日換片次數</label>
+            <label style="font-weight:bold">🧻 每日換片次數</label>
             <div class="chart-container"><canvas id="diaperChart"></canvas></div>
         </div>
-
-        <h3 style="border-top:1px solid var(--border-color); padding-top:15px">📝 歷史明細</h3>
+        <h3 style="border-top:1px solid var(--border-color); padding-top:15px">📝 歷史紀錄</h3>
         <input type="date" id="history-date" class="input-date" style="margin-bottom:10px" onchange="loadHistory()">
         <div id="history-list"></div>
     </div>
@@ -169,7 +157,7 @@
 
 <script>
     // ==========================================
-    // 🚨 在此填寫你的 Firebase Config 🚨
+    // 🚨 請務必填寫你的真實 Firebase Config 🚨
     // ==========================================
 const firebaseConfig = {
   apiKey: "AIzaSyBAExf2aDgBP8UrCMKlpB4C8US-fCuf4Xg",
@@ -190,45 +178,67 @@ const firebaseConfig = {
     let recordTimes = { feeding: new Date(), diaper: new Date(), sleep: new Date() };
     let charts = {};
 
-    // 認證邏輯
+    // 登入狀態監控
     auth.onAuthStateChanged(user => {
-        document.getElementById('auth-overlay').style.display = user ? 'none' : 'flex';
-        if(user) {
+        const overlay = document.getElementById('auth-overlay');
+        if (user) {
+            overlay.style.display = 'none';
             document.getElementById('user-info').innerText = user.email;
             document.getElementById('history-date').valueAsDate = new Date();
+            // 登入後確保顯示第一個分頁
+            switchTab('feeding', document.getElementById('btn-feeding'), '#2196F3');
             loadHistory();
+        } else {
+            overlay.style.display = 'flex';
         }
     });
 
-    function loginUser() { auth.signInWithEmailAndPassword(document.getElementById('auth-email').value, document.getElementById('auth-password').value).catch(e => alert(e.message)); }
-    function registerUser() { auth.createUserWithEmailAndPassword(document.getElementById('auth-email').value, document.getElementById('auth-password').value).catch(e => alert(e.message)); }
+    function loginUser() { auth.signInWithEmailAndPassword(document.getElementById('auth-email').value, document.getElementById('auth-password').value).catch(e => { document.getElementById('auth-error-msg').innerText = e.message; }); }
+    function registerUser() { auth.createUserWithEmailAndPassword(document.getElementById('auth-email').value, document.getElementById('auth-password').value).catch(e => { document.getElementById('auth-error-msg').innerText = e.message; }); }
     function loginWithGoogle() { auth.signInWithPopup(googleProvider); }
     function logoutUser() { auth.signOut(); }
 
-    // UI 切換
-    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
-    function switchTab(tab, btn, color) {
+    // UI 切換邏輯 (修正過的)
+    function toggleSidebar() { 
+        document.getElementById('sidebar').classList.toggle('open'); 
+        document.getElementById('sidebar-overlay').classList.toggle('show');
+    }
+
+    function switchTab(tabId, btn, color) {
+        // 1. 切換按鈕樣式
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
-        document.getElementById(tab+'-card').classList.add('active');
+
+        // 2. 切換卡片顯示 (核心修正：先隱藏所有再顯示目標)
+        document.querySelectorAll('.card').forEach(c => {
+            c.classList.remove('active');
+            c.style.display = 'none'; 
+        });
+        const target = document.getElementById(tabId + '-card');
+        target.classList.add('active');
+        target.style.display = 'flex';
+
+        // 3. 切換主題色
         document.documentElement.style.setProperty('--theme-color', color);
-        if(tab === 'history') loadHistory();
-        if(window.innerWidth <= 850) toggleSidebar();
+        
+        if (tabId === 'history') loadHistory();
+        if (window.innerWidth <= 850 && document.getElementById('sidebar').classList.contains('open')) toggleSidebar();
     }
+
     function switchBaby(id) {
         currentBabyId = id;
         document.querySelectorAll('.baby-tab').forEach(t => t.classList.remove('active'));
         document.getElementById('tab-'+id).classList.add('active');
         loadHistory();
     }
+
     function toggleTheme() {
-        const current = document.documentElement.getAttribute('data-theme');
-        document.documentElement.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
-        loadHistory();
+        const root = document.documentElement;
+        const current = root.getAttribute('data-theme');
+        root.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+        loadHistory(); 
     }
 
-    // 時間微調
     function setTime(cat, mins, btn) {
         const t = new Date(); t.setMinutes(t.getMinutes() - mins);
         recordTimes[cat] = t;
@@ -243,9 +253,13 @@ const firebaseConfig = {
         btn.classList.add('active');
     }
 
-    // 儲存資料
+    // 資料存取
     async function submitData(cat) {
         if(!auth.currentUser) return;
+        const submitBtn = event.target;
+        submitBtn.disabled = true;
+        submitBtn.innerText = "儲存中...";
+
         let data = {
             userId: auth.currentUser.uid,
             babyId: currentBabyId,
@@ -261,26 +275,31 @@ const firebaseConfig = {
         }
         if(cat === 'sleep') data.sleepStatus = document.querySelector('#sleep-type-group .btn.active').getAttribute('data-val');
 
-        await db.collection("baby_records").add(data);
-        alert("儲存成功！");
-        if(cat === 'feeding') document.getElementById('milk-val').value = '';
-        loadHistory();
+        try {
+            await db.collection("baby_records").add(data);
+            alert("成功儲存！");
+            if(cat === 'feeding') document.getElementById('milk-val').value = '';
+            loadHistory();
+        } catch(e) {
+            alert("錯誤: " + e.message);
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerText = "儲存紀錄";
+        }
     }
 
-    // 核心邏輯：讀取紀錄與計算睡眠時數
     async function loadHistory() {
         if(!auth.currentUser) return;
         const range = parseInt(document.getElementById('stats-range').value);
         const selectedDate = document.getElementById('history-date').value;
         
-        // 初始化每日數據
         let labels = [];
         let dailyStats = {};
         for(let i=range-1; i>=0; i--) {
             let d = new Date(); d.setDate(d.getDate() - i);
             let k = d.toISOString().split('T')[0];
             labels.push(k.slice(5));
-            dailyStats[k] = { milk: 0, diaper: 0, sleepMinutes: 0, rawSleep: [] };
+            dailyStats[k] = { milk: 0, diaper: 0, sleepMinutes: 0 };
         }
 
         const snapshot = await db.collection("baby_records")
@@ -296,45 +315,37 @@ const firebaseConfig = {
             allRecords.push(d);
         });
 
-        // 排序所有紀錄以計算睡眠
+        // 睡眠計算：排序並配對
         allRecords.sort((a, b) => a.time - b.time);
-
-        // 睡眠配對邏輯
         let lastSleepStart = null;
         allRecords.forEach(r => {
+            let k = r.time.toISOString().split('T')[0];
+            
             if(r.category === 'sleep') {
-                if(r.sleepStatus === 'start_sleep') {
-                    lastSleepStart = r.time;
-                } else if(r.sleepStatus === 'end_sleep' && lastSleepStart) {
-                    let duration = (r.time - lastSleepStart) / 1000 / 60; // 分鐘
-                    // 將時數歸納到「結束睡眠」的那一天
-                    let k = r.time.toISOString().split('T')[0];
-                    if(dailyStats[k]) dailyStats[k].sleepMinutes += duration;
+                if(r.sleepStatus === 'start_sleep') lastSleepStart = r.time;
+                else if(r.sleepStatus === 'end_sleep' && lastSleepStart) {
+                    let diff = (r.time - lastSleepStart) / 1000 / 60;
+                    if(dailyStats[k]) dailyStats[k].sleepMinutes += diff;
                     lastSleepStart = null;
                 }
             }
-            
-            // 其他統計
-            let k = r.time.toISOString().split('T')[0];
             if(dailyStats[k]) {
                 if(r.category === 'feeding') dailyStats[k].milk += (r.volumeML || 0);
                 if(r.category === 'diaper') dailyStats[k].diaper += 1;
             }
 
-            // 清單顯示
             if(k === selectedDate) {
                 let icon = r.category==='feeding'?'🍼':(r.category==='diaper'?'🧻':'💤');
-                let desc = r.category==='feeding'? `${r.volumeML}ml` : (r.category==='sleep'?(r.sleepStatus==='start_sleep'?'開始睡':'醒來'):'換片');
+                let detail = r.category==='feeding'? `${r.volumeML}ml` : (r.category==='sleep'?(r.sleepStatus==='start_sleep'?'睡覺':'醒來'):'換片');
                 listHtml += `<div class="history-item">
-                    <div><b>${String(r.time.getHours()).padStart(2,'0')}:${String(r.time.getMinutes()).padStart(2,'0')}</b> ${icon} ${desc}</div>
+                    <div><b>${String(r.time.getHours()).padStart(2,'0')}:${String(r.time.getMinutes()).padStart(2,'0')}</b> ${icon} ${detail}</div>
                     <button class="delete-btn" onclick="deleteRec('${r.id}')">刪除</button>
                 </div>`;
             }
         });
 
-        document.getElementById('history-list').innerHTML = listHtml || "無紀錄";
+        document.getElementById('history-list').innerHTML = listHtml || "<p style='text-align:center;color:#888'>本日無紀錄</p>";
 
-        // 渲染圖表
         renderChart('milkChart', 'milk', labels, Object.values(dailyStats).map(d => d.milk), '#2196F3');
         renderChart('sleepChart', 'sleep', labels, Object.values(dailyStats).map(d => (d.sleepMinutes/60).toFixed(1)), '#673AB7');
         renderChart('diaperChart', 'diaper', labels, Object.values(dailyStats).map(d => d.diaper), '#FF9800');
@@ -355,17 +366,28 @@ const firebaseConfig = {
                 responsive: true, maintainAspectRatio: false,
                 plugins: { legend: { display: false } },
                 scales: {
-                    y: { beginAtZero: true, grid: { color: isDark?'#444':'#eee' } },
-                    x: { grid: { display: false } }
+                    y: { beginAtZero: true, grid: { color: isDark?'#444':'#eee' }, ticks: { color: isDark?'#aaa':'#666'} },
+                    x: { grid: { display: false }, ticks: { color: isDark?'#aaa':'#666'} }
                 }
             }
         });
     }
 
-    async function deleteRec(id) { if(confirm("確定刪除？")) { await db.collection("baby_records").doc(id).delete(); loadHistory(); } }
+    async function deleteRec(id) { if(confirm("確定刪除此紀錄？")) { await db.collection("baby_records").doc(id).delete(); loadHistory(); } }
 
-    // 初始化時間顯示
-    ['feeding','diaper','sleep'].forEach(c => setTime(c, 0, document.querySelector(`#${c}-card .btn`)));
+    // 初始化時鐘
+    setInterval(() => {
+        ['feeding','diaper','sleep'].forEach(cat => {
+            // 這裡可以加入自動更新時間邏輯，目前我們先手動點選「現在」來更新
+        });
+    }, 60000);
+
+    // 啟動時設定初始時間
+    window.onload = () => {
+        setTime('feeding', 0, document.querySelector('#feeding-card .btn'));
+        setTime('diaper', 0, document.querySelector('#diaper-card .btn'));
+        setTime('sleep', 0, document.querySelector('#sleep-card .btn'));
+    };
 </script>
 
 </body>

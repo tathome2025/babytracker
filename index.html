@@ -8,11 +8,11 @@
         :root {
             --bg-color: #f4f7f6; --sidebar-bg: #ffffff; --card-bg: #ffffff; --text-color: #333333;
             --text-muted: #666666; --border-color: #e0e0e0; --btn-bg: #f9f9f9; --theme-color: #2196F3; 
-            --theme-light: rgba(33, 150, 243, 0.1); --red-packet-bg: #fff5f5; --red-packet-border: #ffcccc; --red-packet-text: #d32f2f;
+            --theme-light: rgba(33, 150, 243, 0.1);
         }
         [data-theme="dark"] {
             --bg-color: #121212; --sidebar-bg: #1e1e1e; --card-bg: #242424; --text-color: #e0e0e0;
-            --text-muted: #aaaaaa; --border-color: #444444; --btn-bg: #2c2c2c; --red-packet-bg: #3b1a1a; --red-packet-border: #5c2b2b; --red-packet-text: #ff8a8a;
+            --text-muted: #aaaaaa; --border-color: #444444; --btn-bg: #2c2c2c;
         }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; display: flex; height: 100dvh; overflow: hidden; transition: 0.3s; }
         
@@ -33,7 +33,7 @@
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 999; opacity: 0; transition: opacity 0.3s; }
         .app-title { font-size: 1.3rem; font-weight: bold; margin-bottom: 15px; text-align: center; color: var(--text-color); }
         .user-info { text-align: center; margin-bottom: 15px; font-size: 0.85rem; color: var(--text-muted); word-break: break-all; }
-        .nav-btn { padding: 12px 15px; border: 2px solid transparent; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; background: var(--btn-bg); color: var(--text-muted); margin-bottom: 8px; text-align: left; transition: 0.2s; }
+        .nav-btn { padding: 12px 15px; border: 2px solid transparent; border-radius: 12px; font-size: 1.05rem; font-weight: bold; cursor: pointer; background: var(--btn-bg); color: var(--text-muted); margin-bottom: 8px; text-align: left; transition: 0.2s; }
         .nav-btn.active { background: var(--theme-light); color: var(--theme-color); border-color: var(--theme-color); }
         .sidebar-bottom { margin-top: auto; display: flex; flex-direction: column; gap: 8px; padding-top: 20px; }
         .action-btn { padding: 12px; border: 1px solid var(--border-color); border-radius: 10px; background: var(--btn-bg); color: var(--text-color); font-size: 1rem; cursor: pointer; font-weight: bold; text-align: center; }
@@ -54,11 +54,11 @@
         .time-label { font-size: 1rem; font-weight: bold; color: var(--text-muted); }
         .time-display { 
             color: var(--theme-color); 
-            font-size: 1.8rem; 
+            font-size: 1.6rem; 
             font-weight: 900; 
             font-variant-numeric: tabular-nums; 
             background: var(--theme-light); 
-            padding: 4px 14px; 
+            padding: 6px 14px; 
             border-radius: 12px; 
             border: 2px solid var(--theme-color); 
             box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
@@ -85,7 +85,6 @@
         .modal-content { background: var(--card-bg); padding: 25px; border-radius: 15px; width: 90%; max-width: 350px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transform: translateY(-20px); transition: transform 0.3s; }
         .modal.active .modal-content { transform: translateY(0); }
 
-        /* 🔥 更新 summary-grid 以容納 4 個方塊 */
         .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
         .summary-box { background: var(--btn-bg); padding: 10px; border-radius: 10px; text-align: center; border: 1px solid var(--border-color); }
         .summary-title { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px; }
@@ -98,7 +97,15 @@
         .history-detail { color: var(--text-muted); font-size: 0.9rem; }
         .delete-btn { background: #fff5f5; color: #d32f2f; border: 1px solid #ffcccc; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; }
         
-        .profile-box { background: var(--theme-light); padding: 15px; border-radius: 10px; border: 1px solid var(--border-color); margin-bottom: 20px; }
+        .profile-box { background: var(--theme-light); padding: 20px; border-radius: 10px; border: 1px solid var(--border-color); margin-bottom: 20px; position: relative; }
+        .profile-text-row { font-size: 1.1rem; margin-bottom: 8px; color: var(--text-color); }
+        .edit-icon-btn { position: absolute; right: 15px; top: 15px; background: white; border: 1px solid var(--border-color); padding: 5px 10px; border-radius: 5px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        
+        /* 日曆表格 */
+        .calendar-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 10px; }
+        .cal-day { padding: 10px; border: 2px solid var(--border-color); border-radius: 10px; background: var(--btn-bg); text-align: center; }
+        .cal-day.active { background: #e0f7fa; border-color: #00bcd4; }
+        [data-theme="dark"] .cal-day.active { background: #006064; border-color: #00e5ff; }
 
         @media (max-width: 850px) {
             body { flex-direction: column; height: auto; min-height: 100dvh; overflow: visible; }
@@ -109,8 +116,8 @@
             .row { flex-direction: column; gap: 12px; }
             .split-divider { border-right: none; padding-right: 0; border-bottom: 2px dashed var(--border-color); padding-bottom: 12px; }
             .btn-group[style] { grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)) !important; }
-            /* 🔥 手機版改為 2x2 排列 */
             .summary-grid { grid-template-columns: repeat(2, 1fr); }
+            .calendar-grid { grid-template-columns: repeat(3, 1fr); }
         }
     </style>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
@@ -151,6 +158,8 @@
     <button class="nav-btn active" onclick="switchTab('feeding', this, '#2196F3')" data-i18n="navFeeding">🍼 吃奶</button>
     <button class="nav-btn" onclick="switchTab('diaper', this, '#FF9800')" data-i18n="navDiaper">🧻 尿片</button>
     <button class="nav-btn" onclick="switchTab('sleep', this, '#673AB7')" data-i18n="navSleep">💤 睡眠</button>
+    <button class="nav-btn" onclick="switchTab('bath', this, '#00ACC1')" data-i18n="navBath">🛀 沖涼</button>
+    <button class="nav-btn" onclick="switchTab('tummy', this, '#8BC34A')" data-i18n="navTummy">🐢 趴撐</button>
     <button class="nav-btn" onclick="switchTab('growth', this, '#00BCD4')" data-i18n="navGrowth">📏 成長紀錄</button>
     <button class="nav-btn" onclick="switchTab('log', this, '#E91E63')" data-i18n="navLog">📅 24h 日誌</button>
     <button class="nav-btn" onclick="switchTab('history', this, '#4CAF50')" data-i18n="navHistory">📊 趨勢圖表</button>
@@ -160,12 +169,10 @@
     <div class="sidebar-bottom">
         <button class="action-btn" onclick="exportCSV()" data-i18n="btnExportCSV">📥 匯出完整紀錄</button>
         <button class="action-btn" onclick="openSettingsModal()" data-i18n="btnSettings">⚙️ 設定寶寶名稱</button>
-        
         <div style="display: flex; gap: 8px;">
             <button class="action-btn" id="theme-toggle-btn" onclick="toggleTheme()" style="flex: 1; padding: 10px 5px;">☀️ 日/夜</button>
             <button class="action-btn" id="lang-toggle-btn" onclick="toggleLanguage()" style="flex: 1; padding: 10px 5px;">🌐 EN</button>
         </div>
-
         <button class="action-btn logout-btn" onclick="logoutUser()" data-i18n="btnLogout">🚪 登出</button>
     </div>
 </div>
@@ -183,7 +190,7 @@
                 <span data-i18n="feedingTitle">🍼 吃奶紀錄</span>
                 <div class="time-wrapper">
                     <span class="time-label" data-i18n="currentTime">現在時間：</span>
-                    <span id="time-feeding" class="time-display">--:--</span>
+                    <span id="time-feeding" class="time-display">--/-- --:--</span>
                 </div>
             </div>
             <button id="mode-btn-feeding" class="btn outline" style="width: auto; padding: 6px 12px; font-size: 0.9rem;" onclick="toggleManualMode('feeding')" data-i18n="btnManualMode">📅 補登過去紀錄</button>
@@ -304,7 +311,7 @@
                 <span data-i18n="diaperTitle">🧻 換尿片紀錄</span>
                 <div class="time-wrapper">
                     <span class="time-label" data-i18n="currentTime">現在時間：</span>
-                    <span id="time-diaper" class="time-display">--:--</span>
+                    <span id="time-diaper" class="time-display">--/-- --:--</span>
                 </div>
             </div>
             <button id="mode-btn-diaper" class="btn outline" style="width: auto; padding: 6px 12px; font-size: 0.9rem;" onclick="toggleManualMode('diaper')" data-i18n="btnManualMode">📅 補登過去紀錄</button>
@@ -362,6 +369,17 @@
                 </div>
             </div>
         </div>
+        
+        <div class="section">
+            <label class="label" data-i18n="labelRash">尿布疹 (Diaper Rash)</label>
+            <div class="btn-group" id="rash-btns" style="grid-template-columns: repeat(4, 1fr);">
+                <button class="btn rash-btn active" data-value="0" onclick="singleSelectBtn(this, 'rash-btns')" data-i18n="rashNone">無</button>
+                <button class="btn rash-btn" data-value="1" onclick="singleSelectBtn(this, 'rash-btns')" data-i18n="rashMild">輕微</button>
+                <button class="btn rash-btn" data-value="2" onclick="singleSelectBtn(this, 'rash-btns')" data-i18n="rashMod">中度</button>
+                <button class="btn rash-btn" data-value="3" onclick="singleSelectBtn(this, 'rash-btns')" data-i18n="rashSevere">嚴重</button>
+            </div>
+        </div>
+
         <button class="submit-btn" id="btn-submit-diaper" onclick="submitData('diaper')" data-i18n="saveDiaper">儲存尿片紀錄</button>
     </div>
 
@@ -371,7 +389,7 @@
                 <span data-i18n="sleepTitle">💤 睡眠紀錄</span>
                 <div class="time-wrapper">
                     <span class="time-label" data-i18n="currentTime">現在時間：</span>
-                    <span id="time-sleep" class="time-display">--:--</span>
+                    <span id="time-sleep" class="time-display">--/-- --:--</span>
                 </div>
             </div>
             <button id="mode-btn-sleep" class="btn outline" style="width: auto; padding: 6px 12px; font-size: 0.9rem;" onclick="toggleManualMode('sleep')" data-i18n="btnManualMode">📅 補登過去紀錄</button>
@@ -404,9 +422,98 @@
         <button class="submit-btn" id="btn-submit-sleep" onclick="submitData('sleep')" data-i18n="saveSleep">儲存睡眠紀錄</button>
     </div>
 
+    <div id="bath-card" class="card">
+        <h2>
+            <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                <span data-i18n="bathTitle">🛀 沖涼紀錄</span>
+                <div class="time-wrapper">
+                    <span class="time-label" data-i18n="currentTime">現在時間：</span>
+                    <span id="time-bath" class="time-display">--/-- --:--</span>
+                </div>
+            </div>
+            <button id="mode-btn-bath" class="btn outline" style="width: auto; padding: 6px 12px; font-size: 0.9rem;" onclick="toggleManualMode('bath')" data-i18n="btnManualMode">📅 補登過去紀錄</button>
+        </h2>
+        
+        <div class="row section">
+            <div class="col split-divider">
+                <label class="label" data-i18n="labelEventTime">發生時間</label>
+                <div id="quick-time-bath" class="btn-group" style="grid-template-columns: repeat(3, 1fr);">
+                    <button class="btn active" onclick="setTime('bath', 0, this)" data-i18n="now">現在</button>
+                    <button class="btn" onclick="setTime('bath', 10, this)" data-i18n="min10">-10分</button>
+                    <button class="btn" onclick="setTime('bath', 20, this)" data-i18n="min20">-20分</button>
+                    <button class="btn" onclick="setTime('bath', 30, this)" data-i18n="min30">-30分</button>
+                    <button class="btn" onclick="setTime('bath', 45, this)" data-i18n="min45">-45分</button>
+                    <button class="btn" onclick="setTime('bath', 60, this)" data-i18n="min60">-60分</button>
+                </div>
+                <div id="manual-time-bath" class="hidden">
+                    <input type="datetime-local" id="input-manual-bath" class="input-date" onchange="setManualTime('bath', this.value)">
+                    <p style="font-size: 0.85rem; color: #E91E63; margin-top: 5px;" data-i18n="manualNotice">* 您正在補登過去的紀錄</p>
+                </div>
+            </div>
+            <div class="col">
+                <label class="label" data-i18n="labelBathStatus">沖涼狀態</label>
+                <div class="btn-group" id="bath-action-btns" style="grid-template-columns: 1fr;">
+                    <button class="btn bath-action active" data-value="start_bath" onclick="singleSelectBtn(this, 'bath-action-btns')" data-i18n="bathStart" style="padding: 15px;">開始沖涼 🛀</button>
+                    <button class="btn bath-action" data-value="end_bath" onclick="singleSelectBtn(this, 'bath-action-btns')" data-i18n="bathEnd" style="padding: 15px;">結束沖涼 🛁</button>
+                </div>
+            </div>
+        </div>
+        <button class="submit-btn" id="btn-submit-bath" onclick="submitData('bath')" data-i18n="saveBath" style="background:#00ACC1">儲存沖涼紀錄</button>
+    </div>
+
+    <div id="tummy-card" class="card">
+        <h2>
+            <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                <span data-i18n="tummyTitle">🐢 趴撐紀錄</span>
+                <div class="time-wrapper">
+                    <span class="time-label" data-i18n="currentTime">現在時間：</span>
+                    <span id="time-tummy" class="time-display">--/-- --:--</span>
+                </div>
+            </div>
+            <button id="mode-btn-tummy" class="btn outline" style="width: auto; padding: 6px 12px; font-size: 0.9rem;" onclick="toggleManualMode('tummy')" data-i18n="btnManualMode">📅 補登過去紀錄</button>
+        </h2>
+        
+        <div class="row section">
+            <div class="col split-divider">
+                <label class="label" data-i18n="labelEventTime">發生時間</label>
+                <div id="quick-time-tummy" class="btn-group" style="grid-template-columns: repeat(3, 1fr);">
+                    <button class="btn active" onclick="setTime('tummy', 0, this)" data-i18n="now">現在</button>
+                    <button class="btn" onclick="setTime('tummy', 5, this)">-5分</button>
+                    <button class="btn" onclick="setTime('tummy', 10, this)" data-i18n="min10">-10分</button>
+                    <button class="btn" onclick="setTime('tummy', 15, this)">-15分</button>
+                    <button class="btn" onclick="setTime('tummy', 20, this)" data-i18n="min20">-20分</button>
+                    <button class="btn" onclick="setTime('tummy', 30, this)" data-i18n="min30">-30分</button>
+                </div>
+                <div id="manual-time-tummy" class="hidden">
+                    <input type="datetime-local" id="input-manual-tummy" class="input-date" onchange="setManualTime('tummy', this.value)">
+                    <p style="font-size: 0.85rem; color: #E91E63; margin-top: 5px;" data-i18n="manualNotice">* 您正在補登過去的紀錄</p>
+                </div>
+            </div>
+            <div class="col">
+                <label class="label" data-i18n="labelTummyStatus">趴撐狀態</label>
+                <div class="btn-group" id="tummy-action-btns" style="grid-template-columns: 1fr;">
+                    <button class="btn tummy-action active" data-value="start_tummy" onclick="singleSelectBtn(this, 'tummy-action-btns')" data-i18n="tummyStart" style="padding: 15px;">開始趴撐 🐢</button>
+                    <button class="btn tummy-action" data-value="end_tummy" onclick="singleSelectBtn(this, 'tummy-action-btns')" data-i18n="tummyEnd" style="padding: 15px;">結束趴撐 🛌</button>
+                </div>
+            </div>
+        </div>
+        <button class="submit-btn" id="btn-submit-tummy" onclick="submitData('tummy')" data-i18n="saveTummy" style="background:#8BC34A">儲存趴撐紀錄</button>
+    </div>
+
     <div id="growth-card" class="card">
+        
         <h2 style="border-bottom:none; margin-bottom:5px;"><span data-i18n="birthProfile">👶 出生資料</span></h2>
-        <div class="profile-box">
+        
+        <div id="profile-view-mode" class="profile-box hidden">
+            <button class="edit-icon-btn" onclick="editBabyProfile()">✏️ <span data-i18n="btnEdit">編輯</span></button>
+            <div class="profile-text-row"><span data-i18n="labelBirthDate">出生日期</span>： <span id="view-bdate" style="font-weight:bold; color:var(--theme-color);"></span></div>
+            <div class="profile-text-row"><span data-i18n="labelBirthTime">出生時間</span>： <span id="view-btime" style="font-weight:bold; color:var(--theme-color);"></span></div>
+            <div class="profile-text-row"><span data-i18n="labelBirthLoc">出生地點</span>： <span id="view-bloc" style="font-weight:bold; color:var(--theme-color);"></span></div>
+            <div class="profile-text-row"><span data-i18n="labelBirthWeight">出生體重</span>： <span id="view-bweight" style="font-weight:bold; color:var(--theme-color);"></span> kg</div>
+            <div class="profile-text-row"><span data-i18n="labelBirthHeight">出生身高</span>： <span id="view-bheight" style="font-weight:bold; color:var(--theme-color);"></span> cm</div>
+        </div>
+
+        <div id="profile-edit-mode" class="profile-box">
             <div class="row" style="margin-bottom:10px;">
                 <div class="col"><label class="label" data-i18n="labelBirthDate">出生日期</label><input type="date" id="profile-bdate" class="input-date"></div>
                 <div class="col"><label class="label" data-i18n="labelBirthTime">出生時間</label><input type="time" id="profile-btime" class="input-date"></div>
@@ -504,11 +611,17 @@
             <label class="label" style="font-size:0.95rem;" data-i18n="chartTitleDiaper">🧻 每日換尿片次數</label>
             <div class="chart-container" style="height: 180px; margin-bottom: 25px;"><canvas id="diaperChart"></canvas></div>
 
+            <label class="label" style="font-size:0.95rem;" data-i18n="chartTitleRash">🔴 尿布疹嚴重程度 (0=無, 3=嚴重)</label>
+            <div class="chart-container" style="height: 150px; margin-bottom: 25px;"><canvas id="rashChart"></canvas></div>
+
             <label class="label" style="font-size:0.95rem;" data-i18n="chartTitleWeight">⚖️ 體重趨勢 (kg)</label>
             <div class="chart-container" style="height: 180px; margin-bottom: 25px;"><canvas id="weightChart"></canvas></div>
 
             <label class="label" style="font-size:0.95rem;" data-i18n="chartTitleHeight">📏 身高趨勢 (cm)</label>
-            <div class="chart-container" style="height: 180px;"><canvas id="heightChart"></canvas></div>
+            <div class="chart-container" style="height: 180px; margin-bottom: 25px;"><canvas id="heightChart"></canvas></div>
+
+            <label class="label" style="font-size:0.95rem; margin-top:10px; border-top:1px solid var(--border-color); padding-top:15px;" data-i18n="bathCalendarTitle">🛀 沖涼打卡月曆</label>
+            <div id="bath-calendar-container" class="calendar-grid"></div>
         </div>
     </div>
 </div>
@@ -537,6 +650,7 @@
     // ==========================================
     // 🚨 記得把你的 Firebase 金鑰貼回來！ 🚨
     // ==========================================
+    const firebaseConfig = {
 const firebaseConfig = {
   apiKey: "AIzaSyBAExf2aDgBP8UrCMKlpB4C8US-fCuf4Xg",
   authDomain: "babytrackerweb-c6a26.firebaseapp.com",
@@ -559,12 +673,12 @@ const firebaseConfig = {
         zh: {
             appTitle: "👶 寶寶紀錄", emailPlaceholder: "電子郵件 Email", pwPlaceholder: "密碼 Password",
             btnLogin: "Email 登入", btnRegister: "註冊新帳號", orText: "或", btnGoogleLogin: "使用 Google 登入",
-            navFeeding: "🍼 吃奶", navDiaper: "🧻 尿片", navSleep: "💤 睡眠", navGrowth: "📏 成長紀錄", navLog: "📅 24h 日誌", navHistory: "📊 趨勢圖表", navRedPacket: "🧧 利是紀錄",
+            navFeeding: "🍼 吃奶", navDiaper: "🧻 尿片", navSleep: "💤 睡眠", navBath: "🛀 沖涼", navTummy: "🐢 趴撐", navGrowth: "📏 成長紀錄", navLog: "📅 24h 日誌", navHistory: "📊 趨勢圖表", navRedPacket: "🧧 利是紀錄",
             btnExportCSV: "📥 匯出完整紀錄", btnSettings: "⚙️ 設定寶寶名稱", btnLogout: "🚪 登出帳號", btnThemeDark: "🌙 切換夜間", btnThemeLight: "☀️ 切換日間",
             tabBaby1: "大寶", tabBaby2: "二寶", tabBaby3: "三寶",
             currentTime: "現在時間：", lblLeft: "左胸 (L)", lblRight: "右胸 (R)",
             feedingTitle: "🍼 吃奶紀錄", labelTimeAdjust: "記錄時間微調", now: "現在",
-            btnManualMode: "📅 補登過去紀錄", btnBackToNow: "🔙 返回即時紀錄", manualNotice: "* 您正在補登過去的紀錄",
+            btnManualMode: "📅 補登過去紀錄", btnBackToNow: "🔙 返回即時紀錄", btnEdit: "編輯", manualNotice: "* 您正在補登過去的紀錄",
             min10: "-10分", min20: "-20分", min30: "-30分", min45: "-45分", min60: "-60分",
             labelFeedType: "吃奶種類", formula: "配方奶", breastmilk: "人奶(樽)", direct: "親餵", pump: "泵奶",
             labelBrand: "牌子及型號", brandPlaceholder: "例如：Illuma 1段", labelRecent: "最近使用：",
@@ -572,11 +686,13 @@ const firebaseConfig = {
             labelDuration: "親餵時長 (分鐘)", durationPlaceholder: "分鐘", labelPumpVol: "泵奶量 (ML)", saveFeeding: "儲存吃奶紀錄",
             diaperTitle: "🧻 換尿片紀錄", labelBasicStatus: "基本狀態", pee: "有小便 💦", noPoo: "沒大便", poo: "有大便 💩",
             labelPooColor: "大便顏色", colorYellow: "🟡 黃", colorBrown: "🟤 啡", colorGreen: "🟢 綠", colorOther: "⚪ 其他",
-            otherColorPlaceholder: "請填寫顏色", labelPooAmount: "大便量", saveDiaper: "儲存尿片紀錄",
+            otherColorPlaceholder: "請填寫顏色", labelPooAmount: "大便量", labelRash: "尿布疹 (Diaper Rash)", rashNone: "無", rashMild: "輕微", rashMod: "中度", rashSevere: "嚴重", saveDiaper: "儲存尿片紀錄",
             sleepTitle: "💤 睡眠紀錄", labelEventTime: "發生時間", labelSleepStatus: "睡眠狀態",
             sleepStart: "開始睡眠 (入睡) 🌙", sleepEnd: "結束睡眠 (醒來) ☀️", saveSleep: "儲存睡眠紀錄",
+            bathTitle: "🛀 沖涼紀錄", labelBathStatus: "沖涼狀態", bathStart: "開始沖涼 🛀", bathEnd: "結束沖涼 🛁", saveBath: "儲存沖涼紀錄",
+            tummyTitle: "🐢 趴撐紀錄", labelTummyStatus: "趴撐狀態", tummyStart: "開始趴撐 🐢", tummyEnd: "結束趴撐 🛌", saveTummy: "儲存趴撐紀錄",
             birthProfile: "👶 出生資料", labelBirthDate: "出生日期", labelBirthTime: "出生時間", labelBirthLoc: "出生地點", placeholderLoc: "醫院或診所名稱",
-            labelBirthWeight: "出生體重 (kg)", labelBirthHeight: "出生身高 (cm)", saveProfile: "💾 儲存出生資料", profileSaved: "✅ 出生資料已更新！",
+            labelBirthWeight: "出生體重", labelBirthHeight: "出生身高", saveProfile: "💾 儲存出生資料", profileSaved: "✅ 出生資料已更新！",
             growthTitle: "📏 成長紀錄新增", labelGrowthDate: "記錄日期", labelHeight: "身高 (cm)", labelWeight: "體重 (kg)", saveGrowth: "新增成長紀錄",
             settingsTitle: "⚙️ 設定寶寶名稱", firstBaby: "第一位寶寶", secondBaby: "第二位寶寶", thirdBaby: "第三位寶寶",
             settingsPlaceholder1: "例如：大寶", settingsPlaceholder2: "例如：二寶", settingsPlaceholder3: "例如：三寶", saveSettingsBtn: "💾 儲存 (同步雲端)", cancelBtn: "取消",
@@ -586,18 +702,18 @@ const firebaseConfig = {
             deleteConfirm: "確定要刪除這筆紀錄嗎？", emptyHistory: "過去 24 小時內沒有任何紀錄喔！",
             range7: "最近 7 天", range14: "最近 14 天", range30: "最近 1 個月", range90: "最近 3 個月", range180: "最近半年", range365: "最近一年",
             chartTitleMilk: "🍼 每日總奶量 (配方/人奶樽)", chartTitleDirect: "🤱 每日親餵時長 (分鐘)", chartTitlePump: "🍼 每日泵奶量 (ml)", chartTitleSleep: "💤 每日總睡眠時數 (小時)", chartTitleDiaper: "🧻 每日換尿片次數",
-            chartTitleHeight: "📏 身高趨勢 (cm)", chartTitleWeight: "⚖️ 體重趨勢 (kg)",
+            chartTitleRash: "🔴 尿布疹嚴重程度 (0=無, 3=嚴重)", chartTitleHeight: "📏 身高趨勢 (cm)", chartTitleWeight: "⚖️ 體重趨勢 (kg)", bathCalendarTitle: "🛀 沖涼打卡月曆",
             lblFormula: "配方奶", lblBreast: "人奶樽", lblDirect: "親餵", lblPump: "泵奶", lblTimeMin: "時間(分)", lblMilkMl: "奶量(ml)", lblHours: "小時", lblHeight: "身高(cm)", lblWeight: "體重(kg)", lblL: "左", lblR: "右"
         },
         en: {
             appTitle: "👶 Baby Tracker", emailPlaceholder: "Email", pwPlaceholder: "Password",
             btnLogin: "Login", btnRegister: "Register", orText: "OR", btnGoogleLogin: "Google Login",
-            navFeeding: "🍼 Feeding", navDiaper: "🧻 Diaper", navSleep: "💤 Sleep", navGrowth: "📏 Growth", navLog: "📅 24h Log", navHistory: "📊 Charts", navRedPacket: "🧧 Red Packet",
+            navFeeding: "🍼 Feeding", navDiaper: "🧻 Diaper", navSleep: "💤 Sleep", navBath: "🛀 Bath", navTummy: "🐢 Tummy Time", navGrowth: "📏 Growth", navLog: "📅 24h Log", navHistory: "📊 Charts", navRedPacket: "🧧 Red Packet",
             btnExportCSV: "📥 Export Full Records", btnSettings: "⚙️ Set Baby Name", btnLogout: "🚪 Logout", btnThemeDark: "🌙 Dark", btnThemeLight: "☀️ Light",
             tabBaby1: "Baby 1", tabBaby2: "Baby 2", tabBaby3: "Baby 3",
             currentTime: "Time: ", lblLeft: "Left (L)", lblRight: "Right (R)",
             feedingTitle: "🍼 Feeding", labelTimeAdjust: "Time", now: "Now",
-            btnManualMode: "📅 Add Past Record", btnBackToNow: "🔙 Back to Now", manualNotice: "* You are adding a past record",
+            btnManualMode: "📅 Add Past Record", btnBackToNow: "🔙 Back to Now", btnEdit: "Edit", manualNotice: "* You are adding a past record",
             min10: "-10m", min20: "-20m", min30: "-30m", min45: "-45m", min60: "-60m",
             labelFeedType: "Type", formula: "Formula", breastmilk: "Breastmilk", direct: "Nursing", pump: "Pump",
             labelBrand: "Brand", brandPlaceholder: "e.g., Illuma", labelRecent: "Recent:",
@@ -605,11 +721,13 @@ const firebaseConfig = {
             labelDuration: "Nursing (mins)", durationPlaceholder: "Mins", labelPumpVol: "Pump Vol (ML)", saveFeeding: "Save Feeding",
             diaperTitle: "🧻 Diaper", labelBasicStatus: "Status", pee: "Pee 💦", noPoo: "No Poo", poo: "Poo 💩",
             labelPooColor: "Color", colorYellow: "🟡 Yel", colorBrown: "🟤 Brn", colorGreen: "🟢 Grn", colorOther: "⚪ Oth",
-            otherColorPlaceholder: "Custom color", labelPooAmount: "Amount", saveDiaper: "Save Diaper",
+            otherColorPlaceholder: "Custom color", labelPooAmount: "Amount", labelRash: "Diaper Rash", rashNone: "None", rashMild: "Mild", rashMod: "Mod", rashSevere: "Severe", saveDiaper: "Save Diaper",
             sleepTitle: "💤 Sleep", labelEventTime: "Time", labelSleepStatus: "Status",
             sleepStart: "Asleep 🌙", sleepEnd: "Awake ☀️", saveSleep: "Save Sleep",
+            bathTitle: "🛀 Bath", labelBathStatus: "Status", bathStart: "Start Bath 🛀", bathEnd: "End Bath 🛁", saveBath: "Save Bath",
+            tummyTitle: "🐢 Tummy Time", labelTummyStatus: "Status", tummyStart: "Start Tummy 🐢", tummyEnd: "End Tummy 🛌", saveTummy: "Save Tummy",
             birthProfile: "👶 Birth Profile", labelBirthDate: "Birth Date", labelBirthTime: "Birth Time", labelBirthLoc: "Location", placeholderLoc: "Hospital/Clinic",
-            labelBirthWeight: "Birth Wt (kg)", labelBirthHeight: "Birth Ht (cm)", saveProfile: "💾 Save Profile", profileSaved: "✅ Profile saved!",
+            labelBirthWeight: "Birth Wt", labelBirthHeight: "Birth Ht", saveProfile: "💾 Save Profile", profileSaved: "✅ Profile saved!",
             growthTitle: "📏 Add Growth Record", labelGrowthDate: "Record Date", labelHeight: "Height (cm)", labelWeight: "Weight (kg)", saveGrowth: "Save Growth",
             settingsTitle: "⚙️ Set Baby Name", firstBaby: "First Baby", secondBaby: "Second Baby", thirdBaby: "Third Baby",
             settingsPlaceholder1: "e.g., Baby 1", settingsPlaceholder2: "e.g., Baby 2", settingsPlaceholder3: "e.g., Baby 3", saveSettingsBtn: "💾 Save (Sync)", cancelBtn: "Cancel",
@@ -619,7 +737,7 @@ const firebaseConfig = {
             deleteConfirm: "Delete this record?", emptyHistory: "No records in the last 24 hours!",
             range7: "Last 7 Days", range14: "Last 14 Days", range30: "Last 1 Month", range90: "Last 3 Months", range180: "Last 6 Months", range365: "Last 1 Year",
             chartTitleMilk: "🍼 Daily Total Milk", chartTitleDirect: "🤱 Daily Nursing (mins)", chartTitlePump: "🍼 Daily Pump Vol (ml)", chartTitleSleep: "💤 Daily Sleep (Hours)", chartTitleDiaper: "🧻 Daily Diapers",
-            chartTitleHeight: "📏 Height Trend (cm)", chartTitleWeight: "⚖️ Weight Trend (kg)",
+            chartTitleRash: "🔴 Diaper Rash Severity", chartTitleHeight: "📏 Height Trend (cm)", chartTitleWeight: "⚖️ Weight Trend (kg)", bathCalendarTitle: "🛀 Bath Calendar",
             lblFormula: "Formula", lblBreast: "Breastmilk", lblDirect: "Nursing", lblPump: "Pump", lblTimeMin: "Time(min)", lblMilkMl: "Vol(ml)", lblHours: "Hours", lblHeight: "Height(cm)", lblWeight: "Weight(kg)", lblL: "L", lblR: "R"
         }
     };
@@ -628,8 +746,8 @@ const firebaseConfig = {
     let babies = { baby1: "", baby2: "", baby3: "" };
     let babyProfiles = { baby1: {}, baby2: {}, baby3: {} };
     let currentBabyId = "baby1";
-    let historyCharts = { milk: null, direct: null, pump: null, diaper: null, sleep: null, height: null, weight: null }; 
-    let isManualMode = { feeding: false, diaper: false, sleep: false }; // 手動補登模式狀態
+    let historyCharts = { milk: null, direct: null, pump: null, diaper: null, sleep: null, rash: null, height: null, weight: null }; 
+    let isManualMode = { feeding: false, diaper: false, sleep: false, bath: false, tummy: false }; 
 
     function updateLanguage() {
         document.querySelectorAll('[data-i18n]').forEach(el => el.innerText = translations[currentLang][el.getAttribute('data-i18n')]);
@@ -637,7 +755,7 @@ const firebaseConfig = {
         document.getElementById('lang-toggle-btn').innerText = currentLang === 'zh' ? '🌐 English' : '🌐 中文';
         let isDark = document.documentElement.getAttribute('data-theme') === 'dark';
         document.getElementById('theme-toggle-btn').innerText = isDark ? translations[currentLang].btnThemeLight : translations[currentLang].btnThemeDark;
-        updateBabyUI();
+        updateBabyUI(); updateProfileUI();
         if(document.getElementById('log-card').classList.contains('active') || document.getElementById('history-card').classList.contains('active')) loadDashboardData(); 
     }
 
@@ -670,17 +788,11 @@ const firebaseConfig = {
         let n1 = document.getElementById('input-baby1-name').value.trim(); 
         let n2 = document.getElementById('input-baby2-name').value.trim();
         let n3 = document.getElementById('input-baby3-name').value.trim();
-        if(n1) babies.baby1 = n1; 
-        if(n2) babies.baby2 = n2; 
-        if(n3) babies.baby3 = n3;
+        if(n1) babies.baby1 = n1; if(n2) babies.baby2 = n2; if(n3) babies.baby3 = n3;
         
         if(auth.currentUser) {
             try { 
-                await db.collection("user_settings").doc(auth.currentUser.uid).set({
-                    baby1: babies.baby1,
-                    baby2: babies.baby2,
-                    baby3: babies.baby3
-                }, { merge: true }); 
+                await db.collection("user_settings").doc(auth.currentUser.uid).set({ baby1: babies.baby1, baby2: babies.baby2, baby3: babies.baby3 }, { merge: true }); 
                 alert(translations[currentLang].alertSettingsSaved);
             } catch(e) { alert("儲存失敗，Error: " + e.message); }
         }
@@ -690,27 +802,40 @@ const firebaseConfig = {
     function saveBabyProfile() {
         if(!db || !auth.currentUser) return alert("Please Login!");
         let p = {
-            bdate: document.getElementById('profile-bdate').value,
-            btime: document.getElementById('profile-btime').value,
-            bloc: document.getElementById('profile-bloc').value,
-            bweight: document.getElementById('profile-bweight').value,
-            bheight: document.getElementById('profile-bheight').value
+            bdate: document.getElementById('profile-bdate').value, btime: document.getElementById('profile-btime').value,
+            bloc: document.getElementById('profile-bloc').value, bweight: document.getElementById('profile-bweight').value, bheight: document.getElementById('profile-bheight').value
         };
         babyProfiles[currentBabyId] = p;
-        db.collection("user_settings").doc(auth.currentUser.uid).set({
-            [`${currentBabyId}_profile`]: p
-        }, { merge: true })
-        .then(() => alert(translations[currentLang].profileSaved))
+        db.collection("user_settings").doc(auth.currentUser.uid).set({ [`${currentBabyId}_profile`]: p }, { merge: true })
+        .then(() => { alert(translations[currentLang].profileSaved); updateProfileUI(); })
         .catch(e => alert("Error: " + e.message));
     }
 
     function updateProfileUI() {
+        let p = babyProfiles[currentBabyId];
+        let vMode = document.getElementById('profile-view-mode');
+        let eMode = document.getElementById('profile-edit-mode');
+        
+        if(p && (p.bdate || p.btime || p.bloc || p.bweight || p.bheight)) {
+            vMode.classList.remove('hidden'); eMode.classList.add('hidden');
+            document.getElementById('view-bdate').innerText = p.bdate || '--';
+            document.getElementById('view-btime').innerText = p.btime || '--';
+            document.getElementById('view-bloc').innerText = p.bloc || '--';
+            document.getElementById('view-bweight').innerText = p.bweight || '--';
+            document.getElementById('view-bheight').innerText = p.bheight || '--';
+        } else {
+            vMode.classList.add('hidden'); eMode.classList.remove('hidden');
+            document.getElementById('profile-bdate').value = ''; document.getElementById('profile-btime').value = '';
+            document.getElementById('profile-bloc').value = ''; document.getElementById('profile-bweight').value = ''; document.getElementById('profile-bheight').value = '';
+        }
+    }
+
+    function editBabyProfile() {
+        document.getElementById('profile-view-mode').classList.add('hidden');
+        document.getElementById('profile-edit-mode').classList.remove('hidden');
         let p = babyProfiles[currentBabyId] || {};
-        document.getElementById('profile-bdate').value = p.bdate || '';
-        document.getElementById('profile-btime').value = p.btime || '';
-        document.getElementById('profile-bloc').value = p.bloc || '';
-        document.getElementById('profile-bweight').value = p.bweight || '';
-        document.getElementById('profile-bheight').value = p.bheight || '';
+        document.getElementById('profile-bdate').value = p.bdate || ''; document.getElementById('profile-btime').value = p.btime || '';
+        document.getElementById('profile-bloc').value = p.bloc || ''; document.getElementById('profile-bweight').value = p.bweight || ''; document.getElementById('profile-bheight').value = p.bheight || '';
     }
 
     function updateBabyUI() {
@@ -728,11 +853,8 @@ const firebaseConfig = {
     }
 
     function openSettingsModal() {
-        document.getElementById('input-baby1-name').value = babies.baby1; 
-        document.getElementById('input-baby2-name').value = babies.baby2;
-        document.getElementById('input-baby3-name').value = babies.baby3;
-        document.getElementById('settings-modal').classList.add('active'); 
-        if(window.innerWidth <= 850) toggleSidebar(); 
+        document.getElementById('input-baby1-name').value = babies.baby1; document.getElementById('input-baby2-name').value = babies.baby2; document.getElementById('input-baby3-name').value = babies.baby3;
+        document.getElementById('settings-modal').classList.add('active'); if(window.innerWidth <= 850) toggleSidebar(); 
     }
     function closeSettingsModal() { document.getElementById('settings-modal').classList.remove('active'); }
     
@@ -746,13 +868,9 @@ const firebaseConfig = {
         auth.onAuthStateChanged(user => {
             let overlay = document.getElementById('auth-overlay');
             if (user) { 
-                overlay.style.display = 'none'; 
-                document.getElementById('user-info').innerText = `👤 ${user.email}`; 
-                
+                overlay.style.display = 'none'; document.getElementById('user-info').innerText = `👤 ${user.email}`; 
                 db.collection("user_settings").doc(user.uid).set({ email: user.email }, { merge: true })
-                .then(() => loadBabySettingsFromDB())
-                .catch(e => { console.error("Email sync error", e); loadBabySettingsFromDB(); });
-
+                .then(() => loadBabySettingsFromDB()).catch(e => { console.error(e); loadBabySettingsFromDB(); });
                 fetchRecentBrands(); 
             } else { 
                 overlay.style.display = 'flex'; document.getElementById('user-info').innerText = ''; 
@@ -773,61 +891,45 @@ const firebaseConfig = {
     function setLocalDate(inputId) {
         let tzoffset = (new Date()).getTimezoneOffset() * 60000;
         let localISOTime = (new Date(Date.now() - tzoffset)).toISOString().split('T')[0];
-        let el = document.getElementById(inputId);
-        if(el) el.value = localISOTime;
+        let el = document.getElementById(inputId); if(el) el.value = localISOTime;
     }
 
-    let recordTimes = { 'feeding': new Date(), 'diaper': new Date(), 'sleep': new Date() }; let isTimeFrozen = { 'feeding': false, 'diaper': false, 'sleep': false };
+    let recordTimes = { 'feeding': new Date(), 'diaper': new Date(), 'sleep': new Date(), 'bath': new Date(), 'tummy': new Date() }; 
+    let isTimeFrozen = { 'feeding': false, 'diaper': false, 'sleep': false, 'bath': false, 'tummy': false };
     
     function renderTimeDisplay(cat) { 
-        let h = recordTimes[cat].getHours().toString().padStart(2, '0'); let m = recordTimes[cat].getMinutes().toString().padStart(2, '0'); 
-        let el = document.getElementById('time-' + cat); if(el) el.innerText = `${h}:${m}`; 
+        let mm = String(recordTimes[cat].getMonth() + 1).padStart(2, '0'); let dd = String(recordTimes[cat].getDate()).padStart(2, '0');
+        let h = String(recordTimes[cat].getHours()).padStart(2, '0'); let m = String(recordTimes[cat].getMinutes()).padStart(2, '0'); 
+        let el = document.getElementById('time-' + cat); if(el) el.innerText = `${mm}/${dd} ${h}:${m}`; 
     }
     
     function setTime(cat, minsAgo, btn) { 
-        if(btn) {
-            btn.parentElement.querySelectorAll('.btn').forEach(b => b.classList.remove('active')); 
-            btn.classList.add('active'); 
-        }
+        if(btn) { btn.parentElement.querySelectorAll('.btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
         let t = new Date(); t.setMinutes(t.getMinutes() - minsAgo); recordTimes[cat] = t; isTimeFrozen[cat] = (minsAgo !== 0); 
         renderTimeDisplay(cat); 
     }
 
-    // 🔥 補登模式切換
     function toggleManualMode(cat) {
         isManualMode[cat] = !isManualMode[cat];
-        let quickDiv = document.getElementById(`quick-time-${cat}`);
-        let manualDiv = document.getElementById(`manual-time-${cat}`);
-        let btn = document.getElementById(`mode-btn-${cat}`);
-        
+        let quickDiv = document.getElementById(`quick-time-${cat}`); let manualDiv = document.getElementById(`manual-time-${cat}`); let btn = document.getElementById(`mode-btn-${cat}`);
         if (isManualMode[cat]) {
             quickDiv.classList.add('hidden'); manualDiv.classList.remove('hidden');
-            btn.innerText = translations[currentLang].btnBackToNow;
-            btn.style.background = "#FF9800"; btn.style.color = "white"; btn.style.border = "none";
-            
+            btn.innerText = translations[currentLang].btnBackToNow; btn.style.background = "#FF9800"; btn.style.color = "white"; btn.style.border = "none";
             let tzoffset = (new Date()).getTimezoneOffset() * 60000;
-            let localISOTime = (new Date(recordTimes[cat] - tzoffset)).toISOString().slice(0, 16);
-            document.getElementById(`input-manual-${cat}`).value = localISOTime;
+            document.getElementById(`input-manual-${cat}`).value = (new Date(recordTimes[cat] - tzoffset)).toISOString().slice(0, 16);
             isTimeFrozen[cat] = true;
         } else {
             quickDiv.classList.remove('hidden'); manualDiv.classList.add('hidden');
-            btn.innerText = translations[currentLang].btnManualMode;
-            btn.style.background = "transparent"; btn.style.color = "var(--theme-color)"; btn.style.border = "1px solid var(--theme-color)";
-            
-            let firstBtn = quickDiv.querySelector('button');
-            if(firstBtn) setTime(cat, 0, firstBtn);
+            btn.innerText = translations[currentLang].btnManualMode; btn.style.background = "transparent"; btn.style.color = "var(--theme-color)"; btn.style.border = "1px solid var(--theme-color)";
+            let firstBtn = quickDiv.querySelector('button'); if(firstBtn) setTime(cat, 0, firstBtn);
         }
     }
 
     function setManualTime(cat, val) { if(val) { recordTimes[cat] = new Date(val); renderTimeDisplay(cat); } }
 
-    setInterval(() => { ['feeding', 'diaper', 'sleep'].forEach(cat => { if (!isTimeFrozen[cat]) { recordTimes[cat] = new Date(); renderTimeDisplay(cat); }}); }, 1000);
+    setInterval(() => { ['feeding', 'diaper', 'sleep', 'bath', 'tummy'].forEach(cat => { if (!isTimeFrozen[cat]) { recordTimes[cat] = new Date(); renderTimeDisplay(cat); }}); }, 1000);
 
-    function addVal(id, amt) {
-        let el = document.getElementById(id);
-        let curr = Number(el.value) || 0;
-        el.value = curr + amt;
-    }
+    function addVal(id, amt) { let el = document.getElementById(id); let curr = Number(el.value) || 0; el.value = curr + amt; }
 
     function switchTab(tab, btn, colorHex) {
         document.documentElement.style.setProperty('--theme-color', colorHex);
@@ -837,9 +939,9 @@ const firebaseConfig = {
         document.querySelectorAll('.card').forEach(c => c.classList.remove('active')); document.getElementById(tab + '-card').classList.add('active');
         
         if (tab === 'log' || tab === 'history') { loadDashboardData(); }
-        else if (tab === 'growth') { setLocalDate('growth-date'); } 
+        else if (tab === 'growth') { setLocalDate('growth-date'); updateProfileUI(); } 
         else if (tab !== 'redpacket') { 
-            if(isManualMode[tab]) toggleManualMode(tab); // 離開後自動恢復即時模式
+            if(isManualMode[tab]) toggleManualMode(tab); 
             let firstBtn = document.getElementById(tab + '-card').querySelector('.btn-group button'); if(firstBtn) setTime(tab, 0, firstBtn); 
         }
         if(window.innerWidth <= 850) toggleSidebar();
@@ -886,8 +988,7 @@ const firebaseConfig = {
         if (category === 'growth') {
             let dateVal = document.getElementById('growth-date').value;
             if(!dateVal) { submitBtn.innerText = originalText; submitBtn.disabled = false; return alert(currentLang==='zh'?"請選擇日期！":"Please select a date!"); }
-            recordTime = new Date(dateVal);
-            let now = new Date(); recordTime.setHours(now.getHours(), now.getMinutes(), now.getSeconds());
+            recordTime = new Date(dateVal); let now = new Date(); recordTime.setHours(now.getHours(), now.getMinutes(), now.getSeconds());
         } else {
             recordTime = recordTimes[category];
         }
@@ -899,11 +1000,9 @@ const firebaseConfig = {
             if (activeType === 'formula') {
                 let brandInput = document.getElementById('formula-brand').value; dataToSave.brand = brandInput || '未填寫'; dataToSave.volumeML = Number(document.getElementById('formula-volume').value) || 0; if (brandInput) localStorage.setItem('lastFormulaBrand', brandInput);
             } else if (activeType === 'direct') { 
-                dataToSave.directLeft = Number(document.getElementById('direct-left').value) || 0;
-                dataToSave.directRight = Number(document.getElementById('direct-right').value) || 0;
+                dataToSave.directLeft = Number(document.getElementById('direct-left').value) || 0; dataToSave.directRight = Number(document.getElementById('direct-right').value) || 0;
             } else if (activeType === 'pump') {
-                dataToSave.pumpLeft = Number(document.getElementById('pump-left').value) || 0;
-                dataToSave.pumpRight = Number(document.getElementById('pump-right').value) || 0;
+                dataToSave.pumpLeft = Number(document.getElementById('pump-left').value) || 0; dataToSave.pumpRight = Number(document.getElementById('pump-right').value) || 0;
             } else { 
                 dataToSave.volumeML = Number(document.getElementById('breastmilk-volume').value) || 0; 
             }
@@ -914,11 +1013,13 @@ const firebaseConfig = {
                 if (colorBtn) { pooColorValue = colorBtn.getAttribute('data-value'); if (pooColorValue === 'other') { let customColor = document.getElementById('poo-color-other').value.trim(); pooColorValue = customColor !== '' ? customColor : 'other'; } }
                 dataToSave.pooColor = pooColorValue; dataToSave.pooAmount = amountBtn ? amountBtn.getAttribute('data-value') : 'none'; 
             }
-        } else if (category === 'sleep') { 
-            dataToSave.sleepStatus = document.querySelector('.sleep-action.active').getAttribute('data-value'); 
+            let rashBtn = document.querySelector('.rash-btn.active');
+            dataToSave.rash = rashBtn ? Number(rashBtn.getAttribute('data-value')) : 0;
+        } else if (category === 'sleep') { dataToSave.sleepStatus = document.querySelector('.sleep-action.active').getAttribute('data-value'); 
+        } else if (category === 'bath') { dataToSave.bathStatus = document.querySelector('.bath-action.active').getAttribute('data-value'); 
+        } else if (category === 'tummy') { dataToSave.tummyStatus = document.querySelector('.tummy-action.active').getAttribute('data-value'); 
         } else if (category === 'growth') {
-            dataToSave.height = Number(document.getElementById('growth-height').value) || null;
-            dataToSave.weight = Number(document.getElementById('growth-weight').value) || null;
+            dataToSave.height = Number(document.getElementById('growth-height').value) || null; dataToSave.weight = Number(document.getElementById('growth-weight').value) || null;
             if(!dataToSave.height && !dataToSave.weight) { submitBtn.innerText = originalText; submitBtn.disabled = false; return alert(currentLang==='zh'?"請至少填寫身高或體重！":"Please enter height or weight!"); }
         }
 
@@ -927,7 +1028,6 @@ const firebaseConfig = {
             document.querySelectorAll('input').forEach(input => { if(input.id !== 'auth-email' && input.id !== 'auth-password' && input.type !== 'date' && input.type !== 'time' && !input.id.startsWith('profile-')) input.value = ''; });
             document.getElementById('poo-color-other').classList.add('hidden'); restoreLastBrand(); fetchRecentBrands();
             
-            // 儲存後自動切回即時模式
             if (category !== 'growth') { 
                 if(isManualMode[category]) toggleManualMode(category);
                 let firstBtn = document.getElementById(category + '-card').querySelector('.btn-group button'); if(firstBtn) setTime(category, 0, firstBtn); 
@@ -949,12 +1049,13 @@ const firebaseConfig = {
         const past24h = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
         let labels = [];
+        let dates = []; 
         let dailyStats = {};
         for(let i = range - 1; i >= 0; i--) {
             let d = new Date(); d.setDate(d.getDate() - i);
             let k = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-            labels.push(k.slice(5)); 
-            dailyStats[k] = { formula: 0, breastmilk: 0, directLeft: 0, directRight: 0, pumpLeft: 0, pumpRight: 0, diaper: 0, sleepMins: 0, height: null, weight: null };
+            dates.push(k); labels.push(k.slice(5)); 
+            dailyStats[k] = { formula: 0, breastmilk: 0, directLeft: 0, directRight: 0, pumpLeft: 0, pumpRight: 0, diaper: 0, rash: 0, sleepMins: 0, bathTimes: [], height: null, weight: null };
         }
 
         try {
@@ -968,41 +1069,51 @@ const firebaseConfig = {
 
             allRecords.sort((a, b) => a.time - b.time);
             
-            let lastSleepStart = null;
+            let lastSleepStart = null; let lastTummyStart = null;
             let dayTotalFed = 0; let dayTotalPump = 0; let dayDiaperCount = 0; let daySleepMins = 0; 
             let listHtml = '';
 
             allRecords.forEach(r => {
                 let rDate = `${r.time.getFullYear()}-${String(r.time.getMonth()+1).padStart(2,'0')}-${String(r.time.getDate()).padStart(2,'0')}`;
                 
+                // Sleep Calc
                 if (r.category === 'sleep') {
-                    if (r.sleepStatus === 'start_sleep') {
-                        lastSleepStart = r.time;
-                    } else if (r.sleepStatus === 'end_sleep' && lastSleepStart) {
+                    if (r.sleepStatus === 'start_sleep') { lastSleepStart = r.time; } 
+                    else if (r.sleepStatus === 'end_sleep' && lastSleepStart) {
                         let diffMins = (r.time - lastSleepStart) / 1000 / 60;
                         if (dailyStats[rDate]) dailyStats[rDate].sleepMins += diffMins;
                         if (r.time >= past24h && r.time <= now) daySleepMins += diffMins;
                         lastSleepStart = null;
                     }
                 }
+                
+                // Tummy Calc (Only for Timeline display, no chart yet)
+                if (r.category === 'tummy') {
+                    if (r.tummyStatus === 'start_tummy') { lastTummyStart = r.time; }
+                    else if (r.tummyStatus === 'end_tummy' && lastTummyStart) { lastTummyStart = null; }
+                }
+
                 if (dailyStats[rDate]) {
                     if (r.category === 'feeding') {
                         if (r.feedingType === 'formula') dailyStats[rDate].formula += (r.volumeML || 0);
                         else if (r.feedingType === 'breastmilk') dailyStats[rDate].breastmilk += (r.volumeML || 0);
                         else if (r.feedingType === 'direct') {
-                            let l = r.directLeft||0; let r_v = r.directRight||0;
-                            if(!l && !r_v && r.durationMins) l = r.durationMins; // 相容舊資料
-                            dailyStats[rDate].directLeft += l;
-                            dailyStats[rDate].directRight += r_v;
+                            let l = r.directLeft||0; let r_v = r.directRight||0; if(!l && !r_v && r.durationMins) l = r.durationMins; 
+                            dailyStats[rDate].directLeft += l; dailyStats[rDate].directRight += r_v;
                         }
                         else if (r.feedingType === 'pump') {
-                            let l = r.pumpLeft||0; let r_v = r.pumpRight||0;
-                            if(!l && !r_v && r.volumeML) l = r.volumeML; // 相容舊資料
-                            dailyStats[rDate].pumpLeft += l;
-                            dailyStats[rDate].pumpRight += r_v;
+                            let l = r.pumpLeft||0; let r_v = r.pumpRight||0; if(!l && !r_v && r.volumeML) l = r.volumeML; 
+                            dailyStats[rDate].pumpLeft += l; dailyStats[rDate].pumpRight += r_v;
                         }
                     }
-                    if (r.category === 'diaper') dailyStats[rDate].diaper += 1;
+                    if (r.category === 'diaper') {
+                        dailyStats[rDate].diaper += 1;
+                        dailyStats[rDate].rash = Math.max(dailyStats[rDate].rash, r.rash || 0);
+                    }
+                    if (r.category === 'bath' && r.bathStatus === 'start_bath') {
+                        let h = String(r.time.getHours()).padStart(2,'0'); let m = String(r.time.getMinutes()).padStart(2,'0');
+                        dailyStats[rDate].bathTimes.push(`${h}:${m}`);
+                    }
                     if (r.category === 'growth') {
                         if (r.height) dailyStats[rDate].height = r.height;
                         if (r.weight) dailyStats[rDate].weight = r.weight;
@@ -1036,17 +1147,17 @@ const firebaseConfig = {
                         let txtPee = currentLang==='zh'?"小便":"Pee"; let txtPoo = currentLang==='zh'?"大便":"Poo"; let txtNoPoo = currentLang==='zh'?"沒大便":"No Poo";
                         if(r.hasPee) arr.push(txtPee);
                         if(r.hasPoo) { let p = txtPoo; if(r.pooColor !== 'none') p += `(${r.pooColor}, ${r.pooAmount})`; arr.push(p); }
+                        if(r.rash && r.rash > 0) { let rashMap = {1:translations[currentLang].rashMild, 2:translations[currentLang].rashMod, 3:translations[currentLang].rashSevere}; arr.push(`⚠️ ${translations[currentLang].labelRash}: ${rashMap[r.rash]}`); }
                         if(arr.length===0) arr.push(txtNoPoo); desc = arr.join(' / ');
                     } 
-                    else if (r.category === 'sleep') {
-                        icon = '💤'; desc = (r.sleepStatus === 'start_sleep') ? translations[currentLang].sleepStart : translations[currentLang].sleepEnd;
-                    }
+                    else if (r.category === 'sleep') { icon = '💤'; desc = (r.sleepStatus === 'start_sleep') ? translations[currentLang].sleepStart : translations[currentLang].sleepEnd; }
+                    else if (r.category === 'bath') { icon = '🛀'; desc = (r.bathStatus === 'start_bath') ? translations[currentLang].bathStart : translations[currentLang].bathEnd; }
+                    else if (r.category === 'tummy') { icon = '🐢'; desc = (r.tummyStatus === 'start_tummy') ? translations[currentLang].tummyStart : translations[currentLang].tummyEnd; }
                     else if (r.category === 'growth') {
                         icon = '📏'; let arr = [];
                         if (r.height) arr.push(`${translations[currentLang].lblHeight}: ${r.height}cm`);
                         if (r.weight) arr.push(`${translations[currentLang].lblWeight}: ${r.weight}kg`);
-                        desc = arr.join(', ');
-                        h = '--'; m = '--'; 
+                        desc = arr.join(', '); h = '--'; m = '--'; 
                     }
 
                     listHtml = `
@@ -1070,23 +1181,30 @@ const firebaseConfig = {
             }
 
             if(isHistoryTab) {
-                let lblL = translations[currentLang].lblLeft;
-                let lblR = translations[currentLang].lblRight;
-
-                renderStackedBarChart('milkChart', labels, Object.values(dailyStats).map(d => d.formula), Object.values(dailyStats).map(d => d.breastmilk), 
-                                      translations[currentLang].lblFormula, translations[currentLang].lblBreast, '#2196F3', '#4CAF50', translations[currentLang].lblMilkMl);
-                
-                renderStackedBarChart('directChart', labels, Object.values(dailyStats).map(d => d.directLeft), Object.values(dailyStats).map(d => d.directRight), 
-                                      lblL, lblR, '#FF9800', '#FFB74D', translations[currentLang].lblTimeMin);
-                
-                renderStackedBarChart('pumpChart', labels, Object.values(dailyStats).map(d => d.pumpLeft), Object.values(dailyStats).map(d => d.pumpRight), 
-                                      lblL, lblR, '#E91E63', '#F06292', translations[currentLang].lblMilkMl);
-
+                let lblL = translations[currentLang].lblLeft; let lblR = translations[currentLang].lblRight;
+                // 圖表繪製：高反差顏色
+                renderStackedBarChart('milkChart', labels, Object.values(dailyStats).map(d => d.formula), Object.values(dailyStats).map(d => d.breastmilk), translations[currentLang].lblFormula, translations[currentLang].lblBreast, '#2196F3', '#4CAF50', translations[currentLang].lblMilkMl);
+                renderStackedBarChart('directChart', labels, Object.values(dailyStats).map(d => d.directLeft), Object.values(dailyStats).map(d => d.directRight), lblL, lblR, '#E65100', '#00BCD4', translations[currentLang].lblTimeMin);
+                renderStackedBarChart('pumpChart', labels, Object.values(dailyStats).map(d => d.pumpLeft), Object.values(dailyStats).map(d => d.pumpRight), lblL, lblR, '#E91E63', '#3F51B5', translations[currentLang].lblMilkMl);
                 renderSingleBarChart('sleepChart', 'sleep', labels, Object.values(dailyStats).map(d => (d.sleepMins/60).toFixed(1)), '#673AB7', translations[currentLang].lblHours);
                 renderSingleBarChart('diaperChart', 'diaper', labels, Object.values(dailyStats).map(d => d.diaper), '#FF9800', translations[currentLang].unitTimes);
                 
+                renderLineChart('rashChart', 'rash', labels, Object.values(dailyStats).map(d => d.rash), '#F44336', 'Severity (0-3)');
                 renderLineChart('weightChart', 'weight', labels, Object.values(dailyStats).map(d => d.weight), '#9C27B0', 'kg');
                 renderLineChart('heightChart', 'height', labels, Object.values(dailyStats).map(d => d.height), '#00BCD4', 'cm');
+
+                // 🛀 沖涼日曆
+                let calHtml = '';
+                dates.forEach((d, i) => {
+                    let hasBath = dailyStats[d].bathTimes.length > 0;
+                    calHtml += `
+                        <div class="cal-day ${hasBath ? 'active' : ''}">
+                            <div style="font-size:0.85rem; color:var(--text-muted);">${labels[i]}</div>
+                            <div style="font-size:1.5rem; margin:5px 0;">${hasBath ? '✅' : '❌'}</div>
+                            <div style="font-size:0.8rem; color:${hasBath?'#00838f':'transparent'};">${hasBath ? dailyStats[d].bathTimes.join('<br>') : '-'}</div>
+                        </div>`;
+                });
+                document.getElementById('bath-calendar-container').innerHTML = calHtml;
             }
 
         } catch(e) { console.error(e); if(isLogTab) listDiv.innerHTML = "Error loading"; }
@@ -1099,122 +1217,68 @@ const firebaseConfig = {
             let csv = '\uFEFF'; 
             csv += (currentLang === 'zh' ? "日期,時間,寶寶名稱,紀錄類別,紀錄內容\n" : "Date,Time,Baby Name,Category,Details\n");
             
-            let records = [];
-            snap.forEach(doc => {
-                let d = doc.data(); d.time = (d.recordTime && d.recordTime.toDate) ? d.recordTime.toDate() : new Date(d.recordTime); records.push(d);
-            });
+            let records = []; snap.forEach(doc => { let d = doc.data(); d.time = (d.recordTime && d.recordTime.toDate) ? d.recordTime.toDate() : new Date(d.recordTime); records.push(d); });
             records.sort((a,b) => b.time - a.time);
 
             records.forEach(r => {
                 let dateStr = `${r.time.getFullYear()}/${String(r.time.getMonth()+1).padStart(2,'0')}/${String(r.time.getDate()).padStart(2,'0')}`;
                 let timeStr = r.category==='growth' ? "--:--" : `${String(r.time.getHours()).padStart(2,'0')}:${String(r.time.getMinutes()).padStart(2,'0')}`;
-                let cat = r.category === 'feeding' ? (currentLang==='zh'?'吃奶':'Feeding') : 
-                          (r.category === 'diaper' ? (currentLang==='zh'?'換尿片':'Diaper') : 
-                          (r.category === 'sleep' ? (currentLang==='zh'?'睡眠':'Sleep') : (currentLang==='zh'?'成長紀錄':'Growth')));
+                
+                let catMap = { 'feeding':(currentLang==='zh'?'吃奶':'Feeding'), 'diaper':(currentLang==='zh'?'換尿片':'Diaper'), 'sleep':(currentLang==='zh'?'睡眠':'Sleep'), 'bath':(currentLang==='zh'?'沖涼':'Bath'), 'tummy':(currentLang==='zh'?'趴撐':'Tummy Time'), 'growth':(currentLang==='zh'?'成長紀錄':'Growth') };
+                let cat = catMap[r.category] || r.category;
+                
                 let detail = "";
                 let lblL = translations[currentLang].lblL; let lblR = translations[currentLang].lblR;
                 
                 if(r.category === 'feeding') {
-                    if(r.feedingType === 'direct') {
-                        let l = r.directLeft||0; let r_v = r.directRight||0; if(!l && !r_v && r.durationMins) l = r.durationMins;
-                        detail = `${translations[currentLang].lblDirect} ${lblL}:${l} ${lblR}:${r_v}`;
-                    } else if(r.feedingType === 'pump') {
-                        let l = r.pumpLeft||0; let r_v = r.pumpRight||0; if(!l && !r_v && r.volumeML) l = r.volumeML;
-                        detail = `${translations[currentLang].lblPump} ${lblL}:${l}ml ${lblR}:${r_v}ml`;
-                    } else {
-                        let t = r.feedingType==='formula'?translations[currentLang].lblFormula:translations[currentLang].lblBreast;
-                        detail = `${t} ${r.volumeML}ml ${r.brand && r.brand!=='未填寫'?r.brand:''}`;
-                    }
+                    if(r.feedingType === 'direct') { let l = r.directLeft||0; let r_v = r.directRight||0; if(!l && !r_v && r.durationMins) l = r.durationMins; detail = `${translations[currentLang].lblDirect} ${lblL}:${l} ${lblR}:${r_v}`; } 
+                    else if(r.feedingType === 'pump') { let l = r.pumpLeft||0; let r_v = r.pumpRight||0; if(!l && !r_v && r.volumeML) l = r.volumeML; detail = `${translations[currentLang].lblPump} ${lblL}:${l}ml ${lblR}:${r_v}ml`; } 
+                    else { let t = r.feedingType==='formula'?translations[currentLang].lblFormula:translations[currentLang].lblBreast; detail = `${t} ${r.volumeML}ml ${r.brand && r.brand!=='未填寫'?r.brand:''}`; }
                 } else if(r.category === 'diaper') {
-                    detail = `${r.hasPee?(currentLang==='zh'?'有小便':'Pee'):''} ${r.hasPoo?(currentLang==='zh'?'有大便':'Poo'):''} ${r.pooColor&&r.pooColor!=='none'?'('+r.pooColor+')':''} ${r.pooAmount&&r.pooAmount!=='none'?'('+r.pooAmount+')':''}`;
-                } else if(r.category === 'sleep') {
-                    detail = r.sleepStatus === 'start_sleep' ? translations[currentLang].sleepStart : translations[currentLang].sleepEnd;
+                    let rashTxt = r.rash ? `(Rash:${r.rash})` : '';
+                    detail = `${r.hasPee?(currentLang==='zh'?'有小便':'Pee'):''} ${r.hasPoo?(currentLang==='zh'?'有大便':'Poo'):''} ${r.pooColor&&r.pooColor!=='none'?'('+r.pooColor+')':''} ${r.pooAmount&&r.pooAmount!=='none'?'('+r.pooAmount+')':''} ${rashTxt}`;
+                } else if(r.category === 'sleep') { detail = r.sleepStatus === 'start_sleep' ? translations[currentLang].sleepStart : translations[currentLang].sleepEnd;
+                } else if(r.category === 'bath') { detail = r.bathStatus === 'start_bath' ? translations[currentLang].bathStart : translations[currentLang].bathEnd;
+                } else if(r.category === 'tummy') { detail = r.tummyStatus === 'start_tummy' ? translations[currentLang].tummyStart : translations[currentLang].tummyEnd;
                 } else if(r.category === 'growth') {
                     let hStr = r.height ? (currentLang==='zh'?'身高:':'H:') + r.height + 'cm' : '';
-                    let wStr = r.weight ? (currentLang==='zh'?'體重:':'W:') + r.weight + 'kg' : '';
-                    detail = `${hStr} ${wStr}`.trim();
+                    let wStr = r.weight ? (currentLang==='zh'?'體重:':'W:') + r.weight + 'kg' : ''; detail = `${hStr} ${wStr}`.trim();
                 }
                 csv += `${dateStr},${timeStr},${r.babyName || ''},${cat},"${detail.trim()}"\n`;
             });
 
             const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob); const link = document.createElement("a");
             link.setAttribute("href", url); link.setAttribute("download", currentLang==='zh'?"寶寶完整紀錄.csv":"Baby_Records.csv");
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
         } catch(e) { alert("Error: " + e.message); }
     }
 
     function renderStackedBarChart(canvasId, labels, data1, data2, label1, label2, color1, color2, yTitle) {
-        const ctx = document.getElementById(canvasId).getContext('2d');
-        if(historyCharts[canvasId]) historyCharts[canvasId].destroy();
-        let isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        let textColor = isDark ? '#aaaaaa' : '#666666'; let gridColor = isDark ? '#444444' : '#eeeeee';
-
+        const ctx = document.getElementById(canvasId).getContext('2d'); if(historyCharts[canvasId]) historyCharts[canvasId].destroy();
+        let isDark = document.documentElement.getAttribute('data-theme') === 'dark'; let textColor = isDark ? '#aaaaaa' : '#666666'; let gridColor = isDark ? '#444444' : '#eeeeee';
         historyCharts[canvasId] = new Chart(ctx, {
             type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [
-                    { label: label1, data: data1, backgroundColor: color1, stack: 'Stack 0' },
-                    { label: label2, data: data2, backgroundColor: color2, stack: 'Stack 0' }
-                ]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                plugins: { legend: { display: true, labels: { color: textColor } } },
-                scales: {
-                    x: { grid: { display: false }, ticks: { color: textColor, maxTicksLimit: 15 } },
-                    y: { type: 'linear', display: true, position: 'left', title: { display: true, text: yTitle, color: textColor }, grid: { color: gridColor }, ticks: { color: textColor } }
-                }
-            }
+            data: { labels: labels, datasets: [ { label: label1, data: data1, backgroundColor: color1, stack: 'Stack 0' }, { label: label2, data: data2, backgroundColor: color2, stack: 'Stack 0' } ] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, labels: { color: textColor } } }, scales: { x: { grid: { display: false }, ticks: { color: textColor, maxTicksLimit: 15 } }, y: { type: 'linear', display: true, position: 'left', title: { display: true, text: yTitle, color: textColor }, grid: { color: gridColor }, ticks: { color: textColor } } } }
         });
     }
 
     function renderSingleBarChart(canvasId, chartKey, labels, data, color, yTitle) {
-        const ctx = document.getElementById(canvasId).getContext('2d');
-        if(historyCharts[chartKey]) historyCharts[chartKey].destroy();
-        let isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        let textColor = isDark ? '#aaaaaa' : '#666666'; let gridColor = isDark ? '#444444' : '#eeeeee';
-
+        const ctx = document.getElementById(canvasId).getContext('2d'); if(historyCharts[chartKey]) historyCharts[chartKey].destroy();
+        let isDark = document.documentElement.getAttribute('data-theme') === 'dark'; let textColor = isDark ? '#aaaaaa' : '#666666'; let gridColor = isDark ? '#444444' : '#eeeeee';
         historyCharts[chartKey] = new Chart(ctx, {
-            type: 'bar',
-            data: { labels: labels, datasets: [{ data: data, backgroundColor: color, borderRadius: 4 }] },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    x: { grid: { display: false }, ticks: { color: textColor, maxTicksLimit: 15 } },
-                    y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor }, title: { display: true, text: yTitle, color: textColor } }
-                }
-            }
+            type: 'bar', data: { labels: labels, datasets: [{ data: data, backgroundColor: color, borderRadius: 4 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { color: textColor, maxTicksLimit: 15 } }, y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor }, title: { display: true, text: yTitle, color: textColor } } } }
         });
     }
 
     function renderLineChart(canvasId, chartKey, labels, data, color, yTitle) {
-        const ctx = document.getElementById(canvasId).getContext('2d');
-        if(historyCharts[chartKey]) historyCharts[chartKey].destroy();
-        let isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        let textColor = isDark ? '#aaaaaa' : '#666666'; let gridColor = isDark ? '#444444' : '#eeeeee';
-
+        const ctx = document.getElementById(canvasId).getContext('2d'); if(historyCharts[chartKey]) historyCharts[chartKey].destroy();
+        let isDark = document.documentElement.getAttribute('data-theme') === 'dark'; let textColor = isDark ? '#aaaaaa' : '#666666'; let gridColor = isDark ? '#444444' : '#eeeeee';
         historyCharts[chartKey] = new Chart(ctx, {
-            type: 'line',
-            data: { 
-                labels: labels, 
-                datasets: [{ 
-                    data: data, borderColor: color, backgroundColor: color + '33', 
-                    borderWidth: 2, pointBackgroundColor: color, pointRadius: 4, 
-                    fill: true, spanGaps: true
-                }] 
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    x: { grid: { display: false }, ticks: { color: textColor, maxTicksLimit: 15 } },
-                    y: { beginAtZero: false, grid: { color: gridColor }, ticks: { color: textColor }, title: { display: true, text: yTitle, color: textColor } }
-                }
-            }
+            type: 'line', data: { labels: labels, datasets: [{ data: data, borderColor: color, backgroundColor: color + '33', borderWidth: 2, pointBackgroundColor: color, pointRadius: 4, fill: true, spanGaps: true }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { color: textColor, maxTicksLimit: 15 } }, y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor }, title: { display: true, text: yTitle, color: textColor } } } }
         });
     }
 
@@ -1226,6 +1290,8 @@ const firebaseConfig = {
         setTime('feeding', 0, document.querySelector('#feeding-card .btn-group button')); 
         setTime('diaper', 0, document.querySelector('#diaper-card .btn-group button')); 
         setTime('sleep', 0, document.querySelector('#sleep-card .btn-group button'));
+        setTime('bath', 0, document.querySelector('#bath-card .btn-group button'));
+        setTime('tummy', 0, document.querySelector('#tummy-card .btn-group button'));
         restoreLastBrand(); if(window.innerWidth <= 850) document.getElementById('desktop-title').style.display = 'none';
     };
 </script>

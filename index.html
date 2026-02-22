@@ -183,7 +183,6 @@
     </div>
 
     <div id="growth-card" class="card active">
-        
         <h2 style="border-bottom:none; margin-bottom:5px;">
             <span data-i18n="birthProfile">👶 出生資料</span>
             <button class="btn outline" style="width: auto; padding: 6px 12px; font-size: 0.9rem;" onclick="openSettingsModal()" data-i18n="btnSettings">⚙️ 設定寶寶名稱</button>
@@ -608,7 +607,7 @@
                 <div class="summary-value"><span id="sum-sleep-val">0.0</span> <span style="font-size: 0.8rem" data-i18n="unitHours">小時</span></div>
             </div>
             <div class="summary-box" style="border-color: #00ACC1; background: #e0f7fa;">
-                <div class="summary-title" style="color: #00838f;" data-i18n="sumBath12h">12h內沖涼</div>
+                <div class="summary-title" style="color: #00838f;" data-i18n="nextBath">下次沖涼時間</div>
                 <div class="summary-value"><span id="sum-bath-val">--</span></div>
             </div>
         </div>
@@ -734,7 +733,7 @@ const firebaseConfig = {
             settingsTitle: "⚙️ 設定寶寶名稱", firstBaby: "第一位寶寶", secondBaby: "第二位寶寶", thirdBaby: "第三位寶寶",
             settingsPlaceholder1: "例如：大寶", settingsPlaceholder2: "例如：二寶", settingsPlaceholder3: "例如：三寶", saveSettingsBtn: "💾 儲存 (同步雲端)", cancelBtn: "取消",
             alertSettingsSaved: "✅ 設定已同步到雲端！", saving: "儲存中...", alertSuccess: "✅ 成功儲存", alertError: "❌ 錯誤：",
-            historyTitle: "📊 統計趨勢圖表", sumFed: "總吃奶量", sumPumped: "總泵奶量", sumDiaper: "換尿片", sumSleep: "睡眠時數", sumBath12h: "12h內沖涼", timelineTitle: "📅 24小時日誌",
+            historyTitle: "📊 統計趨勢圖表", sumFed: "總吃奶量", sumPumped: "總泵奶量", sumDiaper: "換尿片", sumSleep: "睡眠時數", nextBath: "下次沖涼時間", overdueBath: "未沖涼 ⚠️", timelineTitle: "📅 24小時日誌",
             logDesc: "顯示從此刻起，往前推算 24 小時內的所有紀錄。", unitTimes: "次", unitHours: "小時",
             deleteConfirm: "確定要刪除這筆紀錄嗎？", emptyHistory: "過去 24 小時內沒有任何紀錄喔！",
             range7: "最近 7 天", range14: "最近 14 天", range30: "最近 1 個月", range90: "最近 3 個月", range180: "最近半年", range365: "最近一年",
@@ -770,7 +769,7 @@ const firebaseConfig = {
             settingsTitle: "⚙️ Set Baby Name", firstBaby: "First Baby", secondBaby: "Second Baby", thirdBaby: "Third Baby",
             settingsPlaceholder1: "e.g., Baby 1", settingsPlaceholder2: "e.g., Baby 2", settingsPlaceholder3: "e.g., Baby 3", saveSettingsBtn: "💾 Save (Sync)", cancelBtn: "Cancel",
             alertSettingsSaved: "✅ Saved to cloud!", saving: "Saving...", alertSuccess: "✅ Saved", alertError: "❌ Error: ",
-            historyTitle: "📊 History Trend", sumFed: "Total Fed", sumPumped: "Total Pumped", sumDiaper: "Diapers", sumSleep: "Sleep Duration", sumBath12h: "Bath in 12h", timelineTitle: "📅 24-Hour Log",
+            historyTitle: "📊 History Trend", sumFed: "Total Fed", sumPumped: "Total Pumped", sumDiaper: "Diapers", sumSleep: "Sleep Duration", nextBath: "Next Bath Time", overdueBath: "Overdue ⚠️", timelineTitle: "📅 24-Hour Log",
             logDesc: "Showing all records within the past 24 hours from now.", unitTimes: "times", unitHours: "hrs",
             deleteConfirm: "Delete this record?", emptyHistory: "No records in the last 24 hours!",
             range7: "Last 7 Days", range14: "Last 14 Days", range30: "Last 1 Month", range90: "Last 3 Months", range180: "Last 6 Months", range365: "Last 1 Year",
@@ -1096,7 +1095,6 @@ const firebaseConfig = {
 
         const now = new Date();
         const past24h = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-        const past12h = new Date(now.getTime() - 12 * 60 * 60 * 1000);
 
         let labels = [];
         let dailyStats = {};
@@ -1120,7 +1118,7 @@ const firebaseConfig = {
             
             let lastSleepStart = null; let lastTummyStart = null;
             let dayTotalFed = 0; let dayTotalPump = 0; let dayDiaperCount = 0; let daySleepMins = 0; 
-            let hasBath12h = false;
+            let lastBathTime = null; // 🔥 追蹤最後一次沖涼時間
             let listHtml = '';
 
             allRecords.forEach(r => {
@@ -1145,8 +1143,9 @@ const firebaseConfig = {
                     }
                 }
 
-                if (r.category === 'bath' && r.time >= past12h && r.time <= now) {
-                    hasBath12h = true;
+                // 🔥 記錄最新一次沖涼時間
+                if (r.category === 'bath') {
+                    lastBathTime = r.time;
                 }
 
                 if (dailyStats[rDate]) {
@@ -1236,7 +1235,25 @@ const firebaseConfig = {
                 document.getElementById('sum-pump-val').innerText = dayTotalPump;
                 document.getElementById('sum-diaper-val').innerText = dayDiaperCount;
                 document.getElementById('sum-sleep-val').innerText = (daySleepMins / 60).toFixed(1);
-                document.getElementById('sum-bath-val').innerText = hasBath12h ? translations[currentLang].yes : translations[currentLang].no;
+                
+                // 🔥 計算下次沖涼時間與超時警告
+                let bathDisplay = "--";
+                let bathStyle = "color: #00838f;";
+                if (lastBathTime) {
+                    let nextBathTime = new Date(lastBathTime.getTime() + 24 * 60 * 60 * 1000);
+                    if (now > nextBathTime) {
+                        bathDisplay = translations[currentLang].overdueBath;
+                        bathStyle = "color: #d32f2f; font-weight: 900; font-size: 1.2rem;"; // 超時顯示粗體紅字
+                    } else {
+                        let mm = String(nextBathTime.getMonth() + 1).padStart(2, '0');
+                        let dd = String(nextBathTime.getDate()).padStart(2, '0');
+                        let h = String(nextBathTime.getHours()).padStart(2, '0');
+                        let m = String(nextBathTime.getMinutes()).padStart(2, '0');
+                        bathDisplay = `${mm}/${dd} ${h}:${m}`;
+                        bathStyle = "color: #00838f; font-size: 1.05rem;";
+                    }
+                }
+                document.getElementById('sum-bath-val').innerHTML = `<span style="${bathStyle}">${bathDisplay}</span>`;
             }
 
             if(isHistoryTab) {

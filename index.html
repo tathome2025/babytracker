@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>嬰幼兒生活紀錄 (多寶 & 雙語版)</title>
+    <title>嬰幼兒生活紀錄 (專業版)</title>
     <style>
         :root {
             --bg-color: #f4f7f6; --sidebar-bg: #ffffff; --card-bg: #ffffff; --text-color: #333333;
@@ -40,14 +40,15 @@
         .logout-btn { color: #d32f2f; border-color: #ffcccc; background: #fff5f5; }
 
         .main-content { flex: 1; padding: 15px 20px 40px; box-sizing: border-box; display: flex; flex-direction: column; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-        .baby-selector { display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
+        /* 修改這行：確保寶寶選擇器底部有足夠空間，不會被下方卡片遮擋 */
+        .baby-selector { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; flex-shrink: 0; }
         .baby-selector::-webkit-scrollbar { display: none; }
         .baby-tab { padding: 8px 18px; border-radius: 15px; background: var(--btn-bg); color: var(--text-muted); font-size: 1.1rem; font-weight: bold; cursor: pointer; border: 2px solid var(--border-color); white-space: nowrap; transition: 0.2s; }
         .baby-tab.active { background: var(--theme-color); color: white; border-color: var(--theme-color); box-shadow: 0 4px 10px var(--theme-light); }
         
-        .card { background: var(--card-bg); padding: 15px 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-top: 5px solid var(--theme-color); transition: 0.3s; flex: 1; flex-direction: column; display: none; }
+        .card { background: var(--card-bg); padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-top: 5px solid var(--theme-color); transition: 0.3s; flex: 1; flex-direction: column; display: none; margin-bottom: 20px; }
         .card.active { display: flex; }
-        h2 { font-size: 1.4rem; margin-top: 0; margin-bottom: 12px; border-bottom: 2px solid var(--border-color); padding-bottom: 8px; color: var(--text-color); display: flex; justify-content: space-between; align-items: center; }
+        h2 { font-size: 1.4rem; margin-top: 0; margin-bottom: 15px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; color: var(--text-color); display: flex; justify-content: space-between; align-items: center; }
         .section { margin-bottom: 15px; } 
         .label { font-size: 1rem; font-weight: bold; margin-bottom: 6px; display: block; color: var(--text-muted); }
         .row { display: flex; gap: 20px; width: 100%; }
@@ -72,7 +73,7 @@
         .summary-box { background: var(--btn-bg); padding: 10px; border-radius: 10px; text-align: center; border: 1px solid var(--border-color); }
         .summary-title { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px; }
         .summary-value { font-size: 1.3rem; font-weight: bold; color: var(--theme-color); }
-        .chart-container { position: relative; width: 100%; margin-bottom: 15px; }
+        .chart-container { position: relative; width: 100%; margin-bottom: 20px; }
         .history-list { display: flex; flex-direction: column; gap: 10px; }
         .history-item { background: var(--btn-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; display: flex; justify-content: space-between; align-items: center; }
         .history-info { display: flex; flex-direction: column; gap: 4px; }
@@ -85,7 +86,7 @@
             .mobile-header { display: flex; }
             .sidebar { position: fixed; top: 0; left: 0; bottom: 0; transform: translateX(-100%); box-shadow: 4px 0 15px rgba(0,0,0,0.3); }
             .sidebar.open { transform: translateX(0); }
-            .main-content { overflow: visible; padding: 12px 15px 60px; }
+            .main-content { overflow: visible; padding: 15px 15px 60px; }
             .row { flex-direction: column; gap: 12px; }
             .split-divider { border-right: none; padding-right: 0; border-bottom: 2px dashed var(--border-color); padding-bottom: 12px; }
             .btn-group[style] { grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)) !important; }
@@ -132,7 +133,8 @@
     <button class="nav-btn active" id="nav-feeding" onclick="switchTab('feeding', this, '#2196F3')" data-i18n="navFeeding">🍼 吃奶</button>
     <button class="nav-btn" id="nav-diaper" onclick="switchTab('diaper', this, '#FF9800')" data-i18n="navDiaper">🧻 尿片</button>
     <button class="nav-btn" id="nav-sleep" onclick="switchTab('sleep', this, '#673AB7')" data-i18n="navSleep">💤 睡眠</button>
-    <button class="nav-btn" id="nav-history" onclick="switchTab('history', this, '#4CAF50')" data-i18n="navHistory">📊 統計紀錄</button>
+    <button class="nav-btn" id="nav-log" onclick="switchTab('log', this, '#E91E63')" data-i18n="navLog">📅 24h 日誌</button>
+    <button class="nav-btn" id="nav-history" onclick="switchTab('history', this, '#4CAF50')" data-i18n="navHistory">📊 趨勢圖表</button>
     
     <div class="sidebar-bottom">
         <button class="action-btn" id="lang-toggle-btn" onclick="toggleLanguage()">🌐 English</button>
@@ -304,34 +306,11 @@
         <button class="submit-btn" id="btn-submit-sleep" onclick="submitData('sleep')" data-i18n="saveSleep">儲存睡眠紀錄</button>
     </div>
 
-    <div id="history-card" class="card">
+    <div id="log-card" class="card">
         <h2>
-            <span data-i18n="historyTitle">📊 統計與紀錄</span>
-            <select id="stats-range" class="input-date" style="width: auto; padding: 5px; font-size: 0.9rem;" onchange="loadHistory()">
-                <option value="7">最近 7 天</option>
-                <option value="14">最近 14 天</option>
-                <option value="30">最近 30 天</option>
-            </select>
+            <span data-i18n="timelineTitle">📅 24小時日誌</span>
+            <input type="date" id="log-date" class="input-date" style="width: 150px; padding: 5px; font-size: 1rem;" onchange="loadDashboardData()">
         </h2>
-        
-        <div style="margin-bottom: 20px;">
-            <label class="label" style="font-size:0.95rem;">🍼 每日總奶量與親餵時間</label>
-            <div class="chart-container" style="height: 220px; margin-bottom: 20px;"><canvas id="milkChart"></canvas></div>
-            
-            <label class="label" style="font-size:0.95rem;">🤱 每日泵奶量 (ml)</label>
-            <div class="chart-container" style="height: 160px; margin-bottom: 20px;"><canvas id="pumpChart"></canvas></div>
-            
-            <label class="label" style="font-size:0.95rem;">💤 每日總睡眠時數 (小時)</label>
-            <div class="chart-container" style="height: 160px; margin-bottom: 20px;"><canvas id="sleepChart"></canvas></div>
-            
-            <label class="label" style="font-size:0.95rem;">🧻 每日換尿片次數</label>
-            <div class="chart-container" style="height: 160px;"><canvas id="diaperChart"></canvas></div>
-        </div>
-
-        <h3 style="margin-top: 10px; margin-bottom: 10px; font-size: 1.1rem; color: var(--text-color); border-top: 1px solid var(--border-color); padding-top: 15px; display: flex; justify-content: space-between; align-items: center;">
-            <span data-i18n="timelineTitle">📝 單日詳細紀錄</span>
-            <input type="date" id="history-date" class="input-date" style="width: 140px; padding: 5px; font-size: 0.9rem;" onchange="loadHistory()">
-        </h3>
 
         <div class="summary-grid">
             <div class="summary-box">
@@ -348,7 +327,32 @@
             </div>
         </div>
 
-        <div id="history-list" class="history-list"></div>
+        <div id="log-list" class="history-list"></div>
+    </div>
+
+    <div id="history-card" class="card">
+        <h2>
+            <span data-i18n="historyTitle">📊 統計趨勢圖表</span>
+            <select id="stats-range" class="input-date" style="width: auto; padding: 5px; font-size: 0.9rem;" onchange="loadDashboardData()">
+                <option value="7">最近 7 天</option>
+                <option value="14">最近 14 天</option>
+                <option value="30">最近 30 天</option>
+            </select>
+        </h2>
+        
+        <div style="margin-bottom: 20px;">
+            <label class="label" style="font-size:0.95rem;">🍼 每日總奶量與親餵時間</label>
+            <div class="chart-container" style="height: 220px; margin-bottom: 25px;"><canvas id="milkChart"></canvas></div>
+            
+            <label class="label" style="font-size:0.95rem;">🤱 每日泵奶量 (ml)</label>
+            <div class="chart-container" style="height: 180px; margin-bottom: 25px;"><canvas id="pumpChart"></canvas></div>
+            
+            <label class="label" style="font-size:0.95rem;">💤 每日總睡眠時數 (小時)</label>
+            <div class="chart-container" style="height: 180px; margin-bottom: 25px;"><canvas id="sleepChart"></canvas></div>
+            
+            <label class="label" style="font-size:0.95rem;">🧻 每日換尿片次數</label>
+            <div class="chart-container" style="height: 180px;"><canvas id="diaperChart"></canvas></div>
+        </div>
     </div>
 </div>
 
@@ -363,7 +367,7 @@
             <label class="label" data-i18n="secondBaby">👶 第二位寶寶</label>
             <input type="text" id="input-baby2-name" class="input-text" data-i18n-placeholder="settingsPlaceholder2" placeholder="例如：二寶">
         </div>
-        <button class="submit-btn" style="margin-top: 5px; padding: 12px; font-size: 1rem;" onclick="saveBabyNames()" data-i18n="saveSettingsBtn">💾 儲存</button>
+        <button class="submit-btn" style="margin-top: 5px; padding: 12px; font-size: 1rem;" onclick="saveBabyNames()" data-i18n="saveSettingsBtn">💾 儲存 (同步雲端)</button>
         <button class="btn" style="width: 100%; margin-top: 8px; padding: 10px;" onclick="closeSettingsModal()" data-i18n="cancelBtn">取消</button>
     </div>
 </div>
@@ -391,7 +395,7 @@
         zh: {
             appTitle: "👶 寶寶紀錄", emailPlaceholder: "電子郵件 Email", pwPlaceholder: "密碼 Password",
             btnLogin: "Email 登入", btnRegister: "註冊新帳號", orText: "或", btnGoogleLogin: "使用 Google 登入",
-            menuBtn: "☰ 選單", navFeeding: "🍼 吃奶", navDiaper: "🧻 尿片", navSleep: "💤 睡眠", navHistory: "📊 統計紀錄",
+            menuBtn: "☰ 選單", navFeeding: "🍼 吃奶", navDiaper: "🧻 尿片", navSleep: "💤 睡眠", navLog: "📅 24h 日誌", navHistory: "📊 趨勢圖表",
             btnSettings: "⚙️ 設定名稱", btnLogout: "🚪 登出帳號", btnThemeDark: "🌙 切換夜間", btnThemeLight: "☀️ 切換日間",
             tabBaby1: "大寶", tabBaby2: "二寶",
             feedingTitle: "🍼 吃奶紀錄", labelTimeAdjust: "時間微調", now: "現在",
@@ -407,15 +411,15 @@
             sleepTitle: "💤 睡眠紀錄", labelEventTime: "時間", labelSleepStatus: "狀態",
             sleepStart: "開始睡眠 (入睡) 🌙", sleepEnd: "結束睡眠 (醒來) ☀️", saveSleep: "儲存睡眠紀錄",
             settingsTitle: "⚙️ 設定名稱", firstBaby: "第一位寶寶", secondBaby: "第二位寶寶",
-            settingsPlaceholder1: "例如：大寶", settingsPlaceholder2: "例如：二寶", saveSettingsBtn: "💾 儲存", cancelBtn: "取消",
-            alertSettingsSaved: "✅ 設定完成！", saving: "儲存中...", alertSuccess: "✅ 成功儲存", alertError: "❌ 錯誤：",
-            historyTitle: "📊 統計與紀錄", sumMilk: "單日奶量", sumDiaper: "單日尿片", sumSleep: "單日睡眠動態", timelineTitle: "📝 單日詳細紀錄",
-            deleteConfirm: "確定要刪除這筆紀錄嗎？", emptyHistory: "這天沒有任何紀錄喔！"
+            settingsPlaceholder1: "例如：大寶", settingsPlaceholder2: "例如：二寶", saveSettingsBtn: "💾 儲存 (同步雲端)", cancelBtn: "取消",
+            alertSettingsSaved: "✅ 設定已同步到雲端！", saving: "儲存中...", alertSuccess: "✅ 成功儲存", alertError: "❌ 錯誤：",
+            historyTitle: "📊 統計趨勢圖表", sumMilk: "單日奶量", sumDiaper: "單日尿片", sumSleep: "單日睡眠動態", timelineTitle: "📅 24小時日誌",
+            deleteConfirm: "確定要刪除這筆紀錄嗎？", emptyHistory: "這一天 (00:00 - 23:59) 沒有任何紀錄喔！"
         },
         en: {
             appTitle: "👶 Baby Tracker", emailPlaceholder: "Email", pwPlaceholder: "Password",
             btnLogin: "Login", btnRegister: "Register", orText: "OR", btnGoogleLogin: "Google Login",
-            menuBtn: "☰ Menu", navFeeding: "🍼 Feeding", navDiaper: "🧻 Diaper", navSleep: "💤 Sleep", navHistory: "📊 History",
+            menuBtn: "☰ Menu", navFeeding: "🍼 Feeding", navDiaper: "🧻 Diaper", navSleep: "💤 Sleep", navLog: "📅 Daily Log", navHistory: "📊 Charts",
             btnSettings: "⚙️ Settings", btnLogout: "🚪 Logout", btnThemeDark: "🌙 Dark", btnThemeLight: "☀️ Light",
             tabBaby1: "Baby 1", tabBaby2: "Baby 2",
             feedingTitle: "🍼 Feeding", labelTimeAdjust: "Time", now: "Now",
@@ -431,10 +435,10 @@
             sleepTitle: "💤 Sleep", labelEventTime: "Time", labelSleepStatus: "Status",
             sleepStart: "Asleep 🌙", sleepEnd: "Awake ☀️", saveSleep: "Save Sleep",
             settingsTitle: "⚙️ Settings", firstBaby: "First Baby", secondBaby: "Second Baby",
-            settingsPlaceholder1: "e.g., Baby 1", settingsPlaceholder2: "e.g., Baby 2", saveSettingsBtn: "💾 Save", cancelBtn: "Cancel",
-            alertSettingsSaved: "✅ Saved!", saving: "Saving...", alertSuccess: "✅ Saved", alertError: "❌ Error: ",
-            historyTitle: "📊 History Trend", sumMilk: "Daily Milk", sumDiaper: "Daily Diapers", sumSleep: "Sleep Logs", timelineTitle: "📝 Daily Timeline",
-            deleteConfirm: "Delete this record?", emptyHistory: "No records for this day!"
+            settingsPlaceholder1: "e.g., Baby 1", settingsPlaceholder2: "e.g., Baby 2", saveSettingsBtn: "💾 Save (Sync)", cancelBtn: "Cancel",
+            alertSettingsSaved: "✅ Saved to cloud!", saving: "Saving...", alertSuccess: "✅ Saved", alertError: "❌ Error: ",
+            historyTitle: "📊 History Trend", sumMilk: "Daily Milk", sumDiaper: "Daily Diapers", sumSleep: "Sleep Logs", timelineTitle: "📅 24-Hour Log",
+            deleteConfirm: "Delete this record?", emptyHistory: "No records for this 24h period!"
         }
     };
 
@@ -449,23 +453,39 @@
         document.getElementById('lang-toggle-btn').innerText = currentLang === 'zh' ? '🌐 English' : '🌐 中文';
         let isDark = document.documentElement.getAttribute('data-theme') === 'dark';
         document.getElementById('theme-toggle-btn').innerText = isDark ? translations[currentLang].btnThemeLight : translations[currentLang].btnThemeDark;
-        loadBabySettings(); 
-        if(document.getElementById('history-card').classList.contains('active')) loadHistory(); 
+        updateBabyUI();
+        if(document.getElementById('log-card').classList.contains('active') || document.getElementById('history-card').classList.contains('active')) loadDashboardData(); 
     }
 
     function toggleLanguage() { currentLang = currentLang === 'zh' ? 'en' : 'zh'; localStorage.setItem('appLang', currentLang); updateLanguage(); }
 
-    function loadBabySettings() {
-        let saved = localStorage.getItem('babySettings');
-        if (saved) { babies = JSON.parse(saved); } else { babies.baby1 = translations[currentLang].tabBaby1; babies.baby2 = translations[currentLang].tabBaby2; }
-        document.getElementById('tab-baby1').innerText = `👶 ${babies.baby1}`; document.getElementById('tab-baby2').innerText = `👶 ${babies.baby2}`;
+    /* BUG FIXED: 從 Firebase 讀取寶寶名稱，確保多設備同步 */
+    async function loadBabySettingsFromDB() {
+        if(!db || !auth.currentUser) return;
+        try {
+            const doc = await db.collection("user_settings").doc(auth.currentUser.uid).get();
+            if(doc.exists) {
+                let data = doc.data();
+                if(data.baby1) babies.baby1 = data.baby1;
+                if(data.baby2) babies.baby2 = data.baby2;
+            } else {
+                babies.baby1 = translations[currentLang].tabBaby1;
+                babies.baby2 = translations[currentLang].tabBaby2;
+            }
+            updateBabyUI();
+        } catch(e) { console.error("Error loading settings:", e); }
+    }
+
+    function updateBabyUI() {
+        document.getElementById('tab-baby1').innerText = `👶 ${babies.baby1 || translations[currentLang].tabBaby1}`;
+        document.getElementById('tab-baby2').innerText = `👶 ${babies.baby2 || translations[currentLang].tabBaby2}`;
     }
 
     function switchBaby(babyId) {
         currentBabyId = babyId;
         document.querySelectorAll('.baby-tab').forEach(t => t.classList.remove('active'));
         document.getElementById(`tab-${babyId}`).classList.add('active'); restoreLastBrand();
-        if(document.getElementById('history-card').classList.contains('active')) loadHistory();
+        if(document.getElementById('log-card').classList.contains('active') || document.getElementById('history-card').classList.contains('active')) loadDashboardData();
     }
 
     function openSettingsModal() {
@@ -473,10 +493,16 @@
         document.getElementById('settings-modal').classList.add('active'); if(window.innerWidth <= 850) toggleSidebar(); 
     }
     function closeSettingsModal() { document.getElementById('settings-modal').classList.remove('active'); }
-    function saveBabyNames() {
+    
+    /* BUG FIXED: 儲存名稱到 Firebase 雲端 */
+    async function saveBabyNames() {
         let n1 = document.getElementById('input-baby1-name').value.trim(); let n2 = document.getElementById('input-baby2-name').value.trim();
         if(n1) babies.baby1 = n1; if(n2) babies.baby2 = n2;
-        localStorage.setItem('babySettings', JSON.stringify(babies)); loadBabySettings(); closeSettingsModal();
+        if(auth.currentUser) {
+            try { await db.collection("user_settings").doc(auth.currentUser.uid).set(babies); }
+            catch(e) { console.error("Error saving settings:", e); }
+        }
+        updateBabyUI(); closeSettingsModal();
         alert(translations[currentLang].alertSettingsSaved);
     }
 
@@ -489,8 +515,15 @@
     if(auth) {
         auth.onAuthStateChanged(user => {
             let overlay = document.getElementById('auth-overlay');
-            if (user) { overlay.style.display = 'none'; document.getElementById('user-info').innerText = `👤 ${user.email}`; fetchRecentBrands(); document.getElementById('history-date').valueAsDate = new Date(); } 
-            else { overlay.style.display = 'flex'; document.getElementById('user-info').innerText = ''; }
+            if (user) { 
+                overlay.style.display = 'none'; 
+                document.getElementById('user-info').innerText = `👤 ${user.email}`; 
+                loadBabySettingsFromDB();
+                fetchRecentBrands(); 
+                document.getElementById('log-date').valueAsDate = new Date(); 
+            } else { 
+                overlay.style.display = 'flex'; document.getElementById('user-info').innerText = ''; 
+            }
         });
     }
 
@@ -503,7 +536,7 @@
     function initTheme() { let h = new Date().getHours(); applyTheme((h >= 18 || h < 6) ? 'dark' : 'light'); }
     function toggleTheme() { applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
     function applyTheme(t) { document.documentElement.setAttribute('data-theme', t); document.getElementById('theme-toggle-btn').innerText = (t === 'dark') ? translations[currentLang].btnThemeLight : translations[currentLang].btnThemeDark; 
-        if(historyCharts.milk) loadHistory(); 
+        if(historyCharts.milk) loadDashboardData(); 
     }
 
     let recordTimes = { 'feeding': new Date(), 'diaper': new Date(), 'sleep': new Date() }; let isTimeFrozen = { 'feeding': false, 'diaper': false, 'sleep': false };
@@ -518,7 +551,7 @@
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
         document.querySelectorAll('.card').forEach(c => c.classList.remove('active')); document.getElementById(tab + '-card').classList.add('active');
         
-        if (tab === 'history') { loadHistory(); }
+        if (tab === 'log' || tab === 'history') { loadDashboardData(); }
         else { let firstBtn = document.getElementById(tab + '-card').querySelector('.btn-group button'); if(firstBtn) setTime(tab, 0, firstBtn); }
         
         if(window.innerWidth <= 850) toggleSidebar();
@@ -580,22 +613,25 @@
 
         try {
             await db.collection("baby_records").add(dataToSave); alert(`${translations[currentLang].alertSuccess} 【${babies[currentBabyId]}】!`);
-            document.querySelectorAll('input').forEach(input => { if(input.id !== 'auth-email' && input.id !== 'auth-password' && input.id !== 'history-date') input.value = ''; });
+            document.querySelectorAll('input').forEach(input => { if(input.id !== 'auth-email' && input.id !== 'auth-password' && input.id !== 'log-date') input.value = ''; });
             document.getElementById('poo-color-other').classList.add('hidden'); restoreLastBrand(); fetchRecentBrands();
             let firstBtn = document.getElementById(category + '-card').querySelector('.btn-group button'); if(firstBtn) setTime(category, 0, firstBtn);
         } catch (error) { alert(translations[currentLang].alertError + error.message); } finally { submitBtn.innerText = originalText; submitBtn.disabled = false; }
     }
 
     // ==========================================
-    // 歷史紀錄與圖表專用邏輯
+    // 資料獲取與渲染 (圖表 + 日誌明細)
     // ==========================================
-    async function loadHistory() {
+    async function loadDashboardData() {
         if(!db || !auth.currentUser) return;
-        const listDiv = document.getElementById('history-list'); listDiv.innerHTML = '<div style="text-align:center;">載入中...</div>';
-        
+        const isLogTab = document.getElementById('log-card').classList.contains('active');
+        const isHistoryTab = document.getElementById('history-card').classList.contains('active');
+        if (!isLogTab && !isHistoryTab) return; // 沒在使用這兩個 tab 就省下讀取
+
         const range = parseInt(document.getElementById('stats-range').value) || 7;
-        const selectedDate = document.getElementById('history-date').value; 
-        if(!selectedDate) return;
+        const selectedDate = document.getElementById('log-date').value; 
+        const listDiv = document.getElementById('log-list');
+        if(isLogTab) listDiv.innerHTML = '<div style="text-align:center;">載入中...</div>';
 
         let labels = [];
         let dailyStats = {};
@@ -603,7 +639,6 @@
             let d = new Date(); d.setDate(d.getDate() - i);
             let k = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
             labels.push(k.slice(5)); 
-            // 拆解吃奶數據以供堆疊與多軸圖表使用
             dailyStats[k] = { formula: 0, breastmilk: 0, direct: 0, pump: 0, diaper: 0, sleepMins: 0 };
         }
 
@@ -625,12 +660,12 @@
             
             let lastSleepStart = null;
             let dayTotalMilk = 0; let dayDiaperCount = 0; let daySleepCount = 0;
-            listDiv.innerHTML = '';
+            let listHtml = '';
 
             allRecords.forEach(r => {
                 let rDate = `${r.time.getFullYear()}-${String(r.time.getMonth()+1).padStart(2,'0')}-${String(r.time.getDate()).padStart(2,'0')}`;
                 
-                // 1. 處理統計數據
+                // 1. 處理圖表統計
                 if (r.category === 'sleep') {
                     if (r.sleepStatus === 'start_sleep') {
                         lastSleepStart = r.time;
@@ -650,8 +685,8 @@
                     if (r.category === 'diaper') dailyStats[rDate].diaper += 1;
                 }
 
-                // 2. 處理單日明細清單
-                if (rDate === selectedDate) {
+                // 2. 處理 24h 日誌明細 (如果開啟的是日誌頁)
+                if (isLogTab && rDate === selectedDate) {
                     let icon = ''; let desc = ''; let h = String(r.time.getHours()).padStart(2,'0'); let m = String(r.time.getMinutes()).padStart(2,'0');
                     
                     if (r.category === 'feeding') {
@@ -674,31 +709,35 @@
                         desc = (r.sleepStatus === 'start_sleep') ? translations[currentLang].sleepStart : translations[currentLang].sleepEnd;
                     }
 
-                    listDiv.innerHTML = `
+                    listHtml = `
                         <div class="history-item">
                             <div class="history-info">
                                 <div class="history-time">${h}:${m} ${icon}</div>
                                 <div class="history-detail">${desc}</div>
                             </div>
                             <button class="delete-btn" onclick="deleteRecord('${r.id}')">刪除</button>
-                        </div>` + listDiv.innerHTML;
+                        </div>` + listHtml;
                 }
             });
 
-            if(listDiv.innerHTML === '') { listDiv.innerHTML = `<div style="text-align:center; color: var(--text-muted); padding: 20px;">${translations[currentLang].emptyHistory}</div>`; }
+            // 渲染日誌頁面
+            if(isLogTab) {
+                if(listHtml === '') { listDiv.innerHTML = `<div style="text-align:center; color: var(--text-muted); padding: 20px;">${translations[currentLang].emptyHistory}</div>`; }
+                else { listDiv.innerHTML = listHtml; }
+                document.getElementById('sum-milk-val').innerText = dayTotalMilk;
+                document.getElementById('sum-diaper-val').innerText = dayDiaperCount;
+                document.getElementById('sum-sleep-val').innerText = daySleepCount;
+            }
 
-            // 單日總結更新
-            document.getElementById('sum-milk-val').innerText = dayTotalMilk;
-            document.getElementById('sum-diaper-val').innerText = dayDiaperCount;
-            document.getElementById('sum-sleep-val').innerText = daySleepCount;
+            // 渲染圖表頁面
+            if(isHistoryTab) {
+                renderFeedingStackedChart('milkChart', labels, dailyStats);
+                renderSingleBarChart('pumpChart', 'pump', labels, Object.values(dailyStats).map(d => d.pump), '#E91E63', 'ml');
+                renderSingleBarChart('sleepChart', 'sleep', labels, Object.values(dailyStats).map(d => (d.sleepMins/60).toFixed(1)), '#673AB7', '小時');
+                renderSingleBarChart('diaperChart', 'diaper', labels, Object.values(dailyStats).map(d => d.diaper), '#FF9800', '次');
+            }
 
-            // 繪製圖表
-            renderFeedingStackedChart('milkChart', labels, dailyStats);
-            renderSingleBarChart('pumpChart', 'pump', labels, Object.values(dailyStats).map(d => d.pump), '#E91E63', 'ml');
-            renderSingleBarChart('sleepChart', 'sleep', labels, Object.values(dailyStats).map(d => (d.sleepMins/60).toFixed(1)), '#673AB7', '小時');
-            renderSingleBarChart('diaperChart', 'diaper', labels, Object.values(dailyStats).map(d => d.diaper), '#FF9800', '次');
-
-        } catch(e) { console.error(e); listDiv.innerHTML = "載入失敗"; }
+        } catch(e) { console.error(e); if(isLogTab) listDiv.innerHTML = "載入失敗"; }
     }
 
     function renderFeedingStackedChart(canvasId, labels, stats) {
@@ -713,27 +752,9 @@
             data: {
                 labels: labels,
                 datasets: [
-                    {
-                        label: '配方奶 (ml)',
-                        data: Object.values(stats).map(d => d.formula),
-                        backgroundColor: '#2196F3',
-                        stack: 'Stack 0', // 堆疊在一起
-                        yAxisID: 'y'
-                    },
-                    {
-                        label: '人奶樽 (ml)',
-                        data: Object.values(stats).map(d => d.breastmilk),
-                        backgroundColor: '#4CAF50',
-                        stack: 'Stack 0', // 堆疊在一起
-                        yAxisID: 'y'
-                    },
-                    {
-                        label: '親餵 (分鐘)',
-                        data: Object.values(stats).map(d => d.direct),
-                        backgroundColor: '#FF9800',
-                        stack: 'Stack 1', // 獨立一條
-                        yAxisID: 'y1'
-                    }
+                    { label: '配方奶 (ml)', data: Object.values(stats).map(d => d.formula), backgroundColor: '#2196F3', stack: 'Stack 0', yAxisID: 'y' },
+                    { label: '人奶樽 (ml)', data: Object.values(stats).map(d => d.breastmilk), backgroundColor: '#4CAF50', stack: 'Stack 0', yAxisID: 'y' },
+                    { label: '親餵 (分鐘)', data: Object.values(stats).map(d => d.direct), backgroundColor: '#FF9800', stack: 'Stack 1', yAxisID: 'y1' }
                 ]
             },
             options: {
@@ -741,16 +762,8 @@
                 plugins: { legend: { display: true, labels: { color: textColor } } },
                 scales: {
                     x: { grid: { display: false }, ticks: { color: textColor } },
-                    y: { 
-                        type: 'linear', display: true, position: 'left',
-                        title: { display: true, text: '奶量 (ml)', color: textColor, font: {size: 11} },
-                        grid: { color: gridColor }, ticks: { color: textColor } 
-                    },
-                    y1: { 
-                        type: 'linear', display: true, position: 'right',
-                        title: { display: true, text: '時間 (分鐘)', color: textColor, font: {size: 11} },
-                        grid: { drawOnChartArea: false }, ticks: { color: textColor } 
-                    }
+                    y: { type: 'linear', display: true, position: 'left', title: { display: true, text: '奶量 (ml)', color: textColor, font: {size: 11} }, grid: { color: gridColor }, ticks: { color: textColor } },
+                    y1: { type: 'linear', display: true, position: 'right', title: { display: true, text: '時間 (分鐘)', color: textColor, font: {size: 11} }, grid: { drawOnChartArea: false }, ticks: { color: textColor } }
                 }
             }
         });
@@ -771,10 +784,7 @@
                 plugins: { legend: { display: false } },
                 scales: {
                     x: { grid: { display: false }, ticks: { color: textColor } },
-                    y: { 
-                        beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor },
-                        title: { display: true, text: yTitle, color: textColor, font: {size: 11} }
-                    }
+                    y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor }, title: { display: true, text: yTitle, color: textColor, font: {size: 11} } }
                 }
             }
         });
@@ -782,7 +792,7 @@
 
     async function deleteRecord(docId) {
         if(confirm(translations[currentLang].deleteConfirm)) {
-            try { await db.collection("baby_records").doc(docId).delete(); loadHistory(); } 
+            try { await db.collection("baby_records").doc(docId).delete(); loadDashboardData(); } 
             catch(e) { alert("刪除失敗：" + e.message); }
         }
     }

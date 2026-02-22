@@ -68,7 +68,6 @@
         .modal-content { background: var(--card-bg); padding: 25px; border-radius: 15px; width: 90%; max-width: 350px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transform: translateY(-20px); transition: transform 0.3s; }
         .modal.active .modal-content { transform: translateY(0); }
 
-        /* 歷史紀錄專屬樣式 */
         .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
         .summary-box { background: var(--btn-bg); padding: 10px; border-radius: 10px; text-align: center; border: 1px solid var(--border-color); }
         .summary-title { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px; }
@@ -316,13 +315,16 @@
         </h2>
         
         <div style="margin-bottom: 20px;">
-            <label class="label" style="font-size:0.95rem;">🍼 每日總奶量趨勢 (ml)</label>
-            <div class="chart-container" style="height: 160px; margin-bottom: 20px;"><canvas id="milkChart"></canvas></div>
+            <label class="label" style="font-size:0.95rem;">🍼 每日總奶量與親餵時間</label>
+            <div class="chart-container" style="height: 220px; margin-bottom: 20px;"><canvas id="milkChart"></canvas></div>
             
-            <label class="label" style="font-size:0.95rem;">💤 每日睡眠時數 (小時)</label>
+            <label class="label" style="font-size:0.95rem;">🤱 每日泵奶量 (ml)</label>
+            <div class="chart-container" style="height: 160px; margin-bottom: 20px;"><canvas id="pumpChart"></canvas></div>
+            
+            <label class="label" style="font-size:0.95rem;">💤 每日總睡眠時數 (小時)</label>
             <div class="chart-container" style="height: 160px; margin-bottom: 20px;"><canvas id="sleepChart"></canvas></div>
             
-            <label class="label" style="font-size:0.95rem;">🧻 每日換片次數</label>
+            <label class="label" style="font-size:0.95rem;">🧻 每日換尿片次數</label>
             <div class="chart-container" style="height: 160px;"><canvas id="diaperChart"></canvas></div>
         </div>
 
@@ -439,7 +441,7 @@
     let currentLang = localStorage.getItem('appLang') || 'zh';
     let babies = { baby1: "", baby2: "" };
     let currentBabyId = "baby1";
-    let historyCharts = { milk: null, diaper: null, sleep: null }; // 儲存多個圖表實例
+    let historyCharts = { milk: null, pump: null, diaper: null, sleep: null }; 
 
     function updateLanguage() {
         document.querySelectorAll('[data-i18n]').forEach(el => el.innerText = translations[currentLang][el.getAttribute('data-i18n')]);
@@ -501,7 +503,7 @@
     function initTheme() { let h = new Date().getHours(); applyTheme((h >= 18 || h < 6) ? 'dark' : 'light'); }
     function toggleTheme() { applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
     function applyTheme(t) { document.documentElement.setAttribute('data-theme', t); document.getElementById('theme-toggle-btn').innerText = (t === 'dark') ? translations[currentLang].btnThemeLight : translations[currentLang].btnThemeDark; 
-        if(historyCharts.milk) loadHistory(); // 切換主題時重繪圖表顏色
+        if(historyCharts.milk) loadHistory(); 
     }
 
     let recordTimes = { 'feeding': new Date(), 'diaper': new Date(), 'sleep': new Date() }; let isTimeFrozen = { 'feeding': false, 'diaper': false, 'sleep': false };
@@ -585,24 +587,24 @@
     }
 
     // ==========================================
-    // 歷史紀錄與圖表專用邏輯 (新版直方圖)
+    // 歷史紀錄與圖表專用邏輯
     // ==========================================
     async function loadHistory() {
         if(!db || !auth.currentUser) return;
         const listDiv = document.getElementById('history-list'); listDiv.innerHTML = '<div style="text-align:center;">載入中...</div>';
         
         const range = parseInt(document.getElementById('stats-range').value) || 7;
-        const selectedDate = document.getElementById('history-date').value; // YYYY-MM-DD
+        const selectedDate = document.getElementById('history-date').value; 
         if(!selectedDate) return;
 
-        // 建立直方圖的 X 軸日期清單
         let labels = [];
         let dailyStats = {};
         for(let i = range - 1; i >= 0; i--) {
             let d = new Date(); d.setDate(d.getDate() - i);
             let k = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-            labels.push(k.slice(5)); // 只顯示 MM-DD
-            dailyStats[k] = { milk: 0, diaper: 0, sleepMins: 0 };
+            labels.push(k.slice(5)); 
+            // 拆解吃奶數據以供堆疊與多軸圖表使用
+            dailyStats[k] = { formula: 0, breastmilk: 0, direct: 0, pump: 0, diaper: 0, sleepMins: 0 };
         }
 
         try {
@@ -619,7 +621,6 @@
                 allRecords.push(data);
             });
 
-            // 必須先從小到大排序，為了正確計算跨日睡眠的時間差
             allRecords.sort((a, b) => a.time - b.time);
             
             let lastSleepStart = null;
@@ -629,7 +630,7 @@
             allRecords.forEach(r => {
                 let rDate = `${r.time.getFullYear()}-${String(r.time.getMonth()+1).padStart(2,'0')}-${String(r.time.getDate()).padStart(2,'0')}`;
                 
-                // 1. 處理所有日期的統計圖表數據
+                // 1. 處理統計數據
                 if (r.category === 'sleep') {
                     if (r.sleepStatus === 'start_sleep') {
                         lastSleepStart = r.time;
@@ -640,11 +641,16 @@
                     }
                 }
                 if (dailyStats[rDate]) {
-                    if (r.category === 'feeding') dailyStats[rDate].milk += (r.volumeML || 0);
+                    if (r.category === 'feeding') {
+                        if (r.feedingType === 'formula') dailyStats[rDate].formula += (r.volumeML || 0);
+                        else if (r.feedingType === 'breastmilk') dailyStats[rDate].breastmilk += (r.volumeML || 0);
+                        else if (r.feedingType === 'direct') dailyStats[rDate].direct += (r.durationMins || 0);
+                        else if (r.feedingType === 'pump') dailyStats[rDate].pump += (r.volumeML || 0);
+                    }
                     if (r.category === 'diaper') dailyStats[rDate].diaper += 1;
                 }
 
-                // 2. 處理當前選定日期 (單日總結與歷史明細清單)
+                // 2. 處理單日明細清單
                 if (rDate === selectedDate) {
                     let icon = ''; let desc = ''; let h = String(r.time.getHours()).padStart(2,'0'); let m = String(r.time.getMinutes()).padStart(2,'0');
                     
@@ -652,6 +658,7 @@
                         icon = '🍼';
                         let typeText = translations[currentLang][r.feedingType] || r.feedingType;
                         if(r.feedingType === 'direct') { desc = `${typeText} (${r.durationMins} 分鐘)`; }
+                        else if(r.feedingType === 'pump') { desc = `${typeText} ${r.volumeML}ml`; }
                         else { desc = `${typeText} ${r.volumeML}ml`; if(r.brand && r.brand !== '未填寫') desc += ` [${r.brand}]`; dayTotalMilk += r.volumeML; }
                     } 
                     else if (r.category === 'diaper') {
@@ -667,7 +674,6 @@
                         desc = (r.sleepStatus === 'start_sleep') ? translations[currentLang].sleepStart : translations[currentLang].sleepEnd;
                     }
 
-                    // 越新的排在清單越上方
                     listDiv.innerHTML = `
                         <div class="history-item">
                             <div class="history-info">
@@ -681,43 +687,94 @@
 
             if(listDiv.innerHTML === '') { listDiv.innerHTML = `<div style="text-align:center; color: var(--text-muted); padding: 20px;">${translations[currentLang].emptyHistory}</div>`; }
 
-            // 更新單日總結
+            // 單日總結更新
             document.getElementById('sum-milk-val').innerText = dayTotalMilk;
             document.getElementById('sum-diaper-val').innerText = dayDiaperCount;
             document.getElementById('sum-sleep-val').innerText = daySleepCount;
 
-            // 繪製三個獨立直方圖
-            renderBarChart('milkChart', 'milk', labels, Object.values(dailyStats).map(d => d.milk), '#2196F3');
-            renderBarChart('sleepChart', 'sleep', labels, Object.values(dailyStats).map(d => (d.sleepMins/60).toFixed(1)), '#673AB7');
-            renderBarChart('diaperChart', 'diaper', labels, Object.values(dailyStats).map(d => d.diaper), '#FF9800');
+            // 繪製圖表
+            renderFeedingStackedChart('milkChart', labels, dailyStats);
+            renderSingleBarChart('pumpChart', 'pump', labels, Object.values(dailyStats).map(d => d.pump), '#E91E63', 'ml');
+            renderSingleBarChart('sleepChart', 'sleep', labels, Object.values(dailyStats).map(d => (d.sleepMins/60).toFixed(1)), '#673AB7', '小時');
+            renderSingleBarChart('diaperChart', 'diaper', labels, Object.values(dailyStats).map(d => d.diaper), '#FF9800', '次');
 
         } catch(e) { console.error(e); listDiv.innerHTML = "載入失敗"; }
     }
 
-    function renderBarChart(canvasId, chartKey, labels, data, color) {
+    function renderFeedingStackedChart(canvasId, labels, stats) {
+        const ctx = document.getElementById(canvasId).getContext('2d');
+        if(historyCharts['milk']) historyCharts['milk'].destroy();
+        
+        let isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        let textColor = isDark ? '#aaaaaa' : '#666666'; let gridColor = isDark ? '#444444' : '#eeeeee';
+
+        historyCharts['milk'] = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: '配方奶 (ml)',
+                        data: Object.values(stats).map(d => d.formula),
+                        backgroundColor: '#2196F3',
+                        stack: 'Stack 0', // 堆疊在一起
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: '人奶樽 (ml)',
+                        data: Object.values(stats).map(d => d.breastmilk),
+                        backgroundColor: '#4CAF50',
+                        stack: 'Stack 0', // 堆疊在一起
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: '親餵 (分鐘)',
+                        data: Object.values(stats).map(d => d.direct),
+                        backgroundColor: '#FF9800',
+                        stack: 'Stack 1', // 獨立一條
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: true, labels: { color: textColor } } },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: textColor } },
+                    y: { 
+                        type: 'linear', display: true, position: 'left',
+                        title: { display: true, text: '奶量 (ml)', color: textColor, font: {size: 11} },
+                        grid: { color: gridColor }, ticks: { color: textColor } 
+                    },
+                    y1: { 
+                        type: 'linear', display: true, position: 'right',
+                        title: { display: true, text: '時間 (分鐘)', color: textColor, font: {size: 11} },
+                        grid: { drawOnChartArea: false }, ticks: { color: textColor } 
+                    }
+                }
+            }
+        });
+    }
+
+    function renderSingleBarChart(canvasId, chartKey, labels, data, color, yTitle) {
         const ctx = document.getElementById(canvasId).getContext('2d');
         if(historyCharts[chartKey]) historyCharts[chartKey].destroy();
         
         let isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        let textColor = isDark ? '#aaaaaa' : '#666666';
-        let gridColor = isDark ? '#444444' : '#eeeeee';
+        let textColor = isDark ? '#aaaaaa' : '#666666'; let gridColor = isDark ? '#444444' : '#eeeeee';
 
         historyCharts[chartKey] = new Chart(ctx, {
             type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    data: data,
-                    backgroundColor: color,
-                    borderRadius: 4
-                }]
-            },
+            data: { labels: labels, datasets: [{ data: data, backgroundColor: color, borderRadius: 4 }] },
             options: {
                 responsive: true, maintainAspectRatio: false,
                 plugins: { legend: { display: false } },
                 scales: {
                     x: { grid: { display: false }, ticks: { color: textColor } },
-                    y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor } }
+                    y: { 
+                        beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor },
+                        title: { display: true, text: yTitle, color: textColor, font: {size: 11} }
+                    }
                 }
             }
         });

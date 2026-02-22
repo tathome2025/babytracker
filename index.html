@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>嬰幼兒生活紀錄 (專業版)</title>
+    <title>嬰幼兒生活紀錄 (專業雙語版)</title>
     <style>
         :root {
             --bg-color: #f4f7f6; --sidebar-bg: #ffffff; --card-bg: #ffffff; --text-color: #333333;
             --text-muted: #666666; --border-color: #e0e0e0; --btn-bg: #f9f9f9; --theme-color: #2196F3; 
-            --theme-light: rgba(33, 150, 243, 0.1); 
+            --theme-light: rgba(33, 150, 243, 0.1); --red-packet-bg: #fff5f5; --red-packet-border: #ffcccc; --red-packet-text: #d32f2f;
         }
         [data-theme="dark"] {
             --bg-color: #121212; --sidebar-bg: #1e1e1e; --card-bg: #242424; --text-color: #e0e0e0;
-            --text-muted: #aaaaaa; --border-color: #444444; --btn-bg: #2c2c2c; 
+            --text-muted: #aaaaaa; --border-color: #444444; --btn-bg: #2c2c2c; --red-packet-bg: #3b1a1a; --red-packet-border: #5c2b2b; --red-packet-text: #ff8a8a;
         }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; display: flex; height: 100dvh; overflow: hidden; transition: 0.3s; }
         
@@ -57,7 +57,7 @@
         .btn-group { display: grid; gap: 8px; }
         .btn { padding: 10px 5px; border: 2px solid var(--border-color); border-radius: 10px; background: var(--btn-bg); cursor: pointer; font-size: 1rem; font-weight: bold; color: var(--text-color); transition: 0.2s; text-align: center; }
         .btn.active { background: var(--theme-color); color: white; border-color: var(--theme-color); box-shadow: 0 2px 8px var(--theme-light); }
-        .input-text, .input-number, .input-date { width: 100%; padding: 12px; border: 2px solid var(--border-color); border-radius: 10px; font-size: 1rem; box-sizing: border-box; background: var(--btn-bg); color: var(--text-color); }
+        .input-text, .input-number, .input-date, .input-select { width: 100%; padding: 12px; border: 2px solid var(--border-color); border-radius: 10px; font-size: 1rem; box-sizing: border-box; background: var(--btn-bg); color: var(--text-color); }
         .hidden { display: none !important; }
         .submit-btn { width: 100%; padding: 15px; background: var(--theme-color); color: white; border: none; border-radius: 12px; font-size: 1.2rem; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 10px var(--theme-light); transition: 0.2s; }
         .submit-btn:disabled { background: var(--border-color); cursor: not-allowed; box-shadow: none; }
@@ -102,43 +102,46 @@
 
 <div id="auth-overlay">
     <div class="auth-card">
-        <div class="auth-title">👶 寶寶紀錄</div>
+        <div class="auth-title" data-i18n="appTitle">👶 寶寶紀錄</div>
         <div id="auth-error-msg" class="auth-error"></div>
-        <input type="email" id="auth-email" class="auth-input" placeholder="電子郵件 Email">
-        <input type="password" id="auth-password" class="auth-input" placeholder="密碼 Password">
-        <button class="auth-btn" onclick="loginUser()">Email 登入</button>
-        <button class="auth-btn outline" onclick="registerUser()">註冊新帳號</button>
-        <div class="auth-divider">或</div>
+        <input type="email" id="auth-email" class="auth-input" data-i18n-placeholder="emailPlaceholder" placeholder="電子郵件 Email">
+        <input type="password" id="auth-password" class="auth-input" data-i18n-placeholder="pwPlaceholder" placeholder="密碼 Password">
+        <button class="auth-btn" onclick="loginUser()" data-i18n="btnLogin">Email 登入</button>
+        <button class="auth-btn outline" onclick="registerUser()" data-i18n="btnRegister">註冊新帳號</button>
+        <div class="auth-divider" data-i18n="orText">或</div>
         <button class="auth-btn google" onclick="loginWithGoogle()">
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="20" height="20">
-            <span>使用 Google 登入</span>
+            <span data-i18n="btnGoogleLogin">使用 Google 登入</span>
         </button>
     </div>
 </div>
 
 <div class="mobile-header">
     <button class="hamburger-btn" onclick="toggleSidebar()">☰</button>
-    <div class="app-title" style="margin: 0;">👶 寶寶紀錄</div>
+    <div class="app-title" style="margin: 0;" data-i18n="appTitle">👶 寶寶紀錄</div>
     <div style="width: 30px;"></div>
 </div>
 
 <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
 
 <div class="sidebar" id="sidebar">
-    <div class="app-title" id="desktop-title">👶 寶寶紀錄</div>
+    <div class="app-title" id="desktop-title" data-i18n="appTitle">👶 寶寶紀錄</div>
     <div class="user-info" id="user-info"></div> 
     
-    <button class="nav-btn active" onclick="switchTab('feeding', this, '#2196F3')">🍼 吃奶</button>
-    <button class="nav-btn" onclick="switchTab('diaper', this, '#FF9800')">🧻 尿片</button>
-    <button class="nav-btn" onclick="switchTab('sleep', this, '#673AB7')">💤 睡眠</button>
-    <button class="nav-btn" onclick="switchTab('log', this, '#E91E63')">📅 24h 日誌</button>
-    <button class="nav-btn" onclick="switchTab('history', this, '#4CAF50')">📊 趨勢圖表</button>
+    <button class="nav-btn active" onclick="switchTab('feeding', this, '#2196F3')" data-i18n="navFeeding">🍼 吃奶</button>
+    <button class="nav-btn" onclick="switchTab('diaper', this, '#FF9800')" data-i18n="navDiaper">🧻 尿片</button>
+    <button class="nav-btn" onclick="switchTab('sleep', this, '#673AB7')" data-i18n="navSleep">💤 睡眠</button>
+    <button class="nav-btn" onclick="switchTab('log', this, '#E91E63')" data-i18n="navLog">📅 24h 日誌</button>
+    <button class="nav-btn" onclick="switchTab('history', this, '#4CAF50')" data-i18n="navHistory">📊 趨勢圖表</button>
+    
+    <button class="nav-btn hidden" id="nav-redpacket" onclick="switchTab('redpacket', this, '#F44336')" data-i18n="navRedPacket">🧧 利是紀錄</button>
     
     <div class="sidebar-bottom">
-        <button class="action-btn" onclick="exportCSV()" style="background: #e3f2fd; color: #1976d2; border-color: #bbdefb;">📥 匯出紀錄 (CSV)</button>
-        <button class="action-btn" onclick="openSettingsModal()">⚙️ 設定名稱</button>
-        <button class="action-btn" onclick="toggleTheme()">☀️ 切換模式</button>
-        <button class="action-btn logout-btn" onclick="logoutUser()">🚪 登出</button>
+        <button class="action-btn" onclick="exportCSV()" data-i18n="btnExportCSV">📥 匯出 CSV</button>
+        <button class="action-btn" onclick="openSettingsModal()" data-i18n="btnSettings">⚙️ 設定名稱</button>
+        <button class="action-btn" id="theme-toggle-btn" onclick="toggleTheme()">☀️ 切換模式</button>
+        <button class="action-btn" id="lang-toggle-btn" onclick="toggleLanguage()">🌐 English</button>
+        <button class="action-btn logout-btn" onclick="logoutUser()" data-i18n="btnLogout">🚪 登出</button>
     </div>
 </div>
 
@@ -146,30 +149,31 @@
     <div class="baby-selector" id="baby-selector">
         <button class="baby-tab active" id="tab-baby1" onclick="switchBaby('baby1')">👶 大寶</button>
         <button class="baby-tab" id="tab-baby2" onclick="switchBaby('baby2')">👶 二寶</button>
+        <button class="baby-tab hidden" id="tab-baby3" onclick="switchBaby('baby3')">👶 三寶</button>
     </div>
 
     <div id="feeding-card" class="card active">
-        <h2>🍼 吃奶紀錄 <span id="time-feeding" class="time-display">--:--</span></h2>
+        <h2><span data-i18n="feedingTitle">🍼 吃奶紀錄</span> <span id="time-feeding" class="time-display">--:--</span></h2>
         
         <div class="row section">
             <div class="col split-divider" style="flex: 1.2;">
-                <label class="label">記錄時間微調</label>
+                <label class="label" data-i18n="labelTimeAdjust">記錄時間微調</label>
                 <div class="btn-group" style="grid-template-columns: repeat(3, 1fr);">
-                    <button class="btn active" onclick="setTime('feeding', 0, this)">現在</button>
-                    <button class="btn" onclick="setTime('feeding', 10, this)">-10分</button>
-                    <button class="btn" onclick="setTime('feeding', 20, this)">-20分</button>
-                    <button class="btn" onclick="setTime('feeding', 30, this)">-30分</button>
-                    <button class="btn" onclick="setTime('feeding', 45, this)">-45分</button>
-                    <button class="btn" onclick="setTime('feeding', 60, this)">-60分</button>
+                    <button class="btn active" onclick="setTime('feeding', 0, this)" data-i18n="now">現在</button>
+                    <button class="btn" onclick="setTime('feeding', 10, this)" data-i18n="min10">-10分</button>
+                    <button class="btn" onclick="setTime('feeding', 20, this)" data-i18n="min20">-20分</button>
+                    <button class="btn" onclick="setTime('feeding', 30, this)" data-i18n="min30">-30分</button>
+                    <button class="btn" onclick="setTime('feeding', 45, this)" data-i18n="min45">-45分</button>
+                    <button class="btn" onclick="setTime('feeding', 60, this)" data-i18n="min60">-60分</button>
                 </div>
             </div>
             <div class="col" style="flex: 0.8;">
-                <label class="label">吃奶種類</label>
+                <label class="label" data-i18n="labelFeedType">吃奶種類</label>
                 <div class="btn-group" id="type-btns" style="grid-template-columns: repeat(2, 1fr);">
-                    <button class="btn type-btn active" data-value="formula" onclick="setType('formula', this)">配方奶</button>
-                    <button class="btn type-btn" data-value="breastmilk" onclick="setType('breastmilk', this)">人奶(樽)</button>
-                    <button class="btn type-btn" data-value="direct" onclick="setType('direct', this)">親餵</button>
-                    <button class="btn type-btn" data-value="pump" onclick="setType('pump', this)">泵奶</button>
+                    <button class="btn type-btn active" data-value="formula" onclick="setType('formula', this)" data-i18n="formula">配方奶</button>
+                    <button class="btn type-btn" data-value="breastmilk" onclick="setType('breastmilk', this)" data-i18n="breastmilk">人奶(樽)</button>
+                    <button class="btn type-btn" data-value="direct" onclick="setType('direct', this)" data-i18n="direct">親餵</button>
+                    <button class="btn type-btn" data-value="pump" onclick="setType('pump', this)" data-i18n="pump">泵奶</button>
                 </div>
             </div>
         </div>
@@ -177,16 +181,16 @@
         <div id="formula-section" class="section">
             <div class="row">
                 <div class="col split-divider" style="flex: 0.8;">
-                    <label class="label">牌子及型號</label>
-                    <input type="text" class="input-text" placeholder="例如：Illuma 1段" id="formula-brand">
+                    <label class="label" data-i18n="labelBrand">牌子及型號</label>
+                    <input type="text" class="input-text" data-i18n-placeholder="brandPlaceholder" placeholder="例如：Illuma 1段" id="formula-brand">
                     <div id="recent-brand-area" style="margin-top: 8px; display: none;">
-                        <label class="label" style="font-size: 0.85rem; margin-bottom: 4px;">最近使用：</label>
+                        <label class="label" style="font-size: 0.85rem; margin-bottom: 4px;" data-i18n="labelRecent">最近使用：</label>
                         <div class="btn-group" id="recent-brand-list" style="grid-template-columns: repeat(2, 1fr); gap: 6px;"></div>
                     </div>
-                    <input type="number" class="input-number" placeholder="或手動輸入 ML" id="formula-volume" style="margin-top: 10px;">
+                    <input type="number" class="input-number" data-i18n-placeholder="mlPlaceholder" placeholder="或手動輸入 ML" id="formula-volume" style="margin-top: 10px;">
                 </div>
                 <div class="col" style="flex: 1.2;">
-                    <label class="label">快速選擇奶量 (ML)</label>
+                    <label class="label" data-i18n="labelQuickMl">快速選擇奶量 (ML)</label>
                     <div class="btn-group" style="grid-template-columns: repeat(3, 1fr);">
                         <button class="btn" onclick="document.getElementById('formula-volume').value=60">60</button>
                         <button class="btn" onclick="document.getElementById('formula-volume').value=90">90</button>
@@ -200,18 +204,18 @@
         </div>
 
         <div id="milk-volume-section" class="section hidden">
-            <label class="label">奶量 (ML)</label>
-            <input type="number" class="input-number" placeholder="請手動輸入 ML 數" id="breastmilk-volume">
+            <label class="label" data-i18n="labelMl">奶量 (ML)</label>
+            <input type="number" class="input-number" data-i18n-placeholder="manualMlPlaceholder" placeholder="請手動輸入 ML 數" id="breastmilk-volume">
         </div>
 
         <div id="direct-section" class="section hidden">
             <div class="row">
                 <div class="col split-divider">
-                    <label class="label">親餵時長 (分鐘)</label>
-                    <input type="number" class="input-number" placeholder="手動輸入分鐘" id="direct-duration">
+                    <label class="label" data-i18n="labelDuration">親餵時長 (分鐘)</label>
+                    <input type="number" class="input-number" data-i18n-placeholder="durationPlaceholder" placeholder="手動輸入分鐘" id="direct-duration">
                 </div>
                 <div class="col">
-                    <label class="label">快速選擇</label>
+                    <label class="label" data-i18n="labelQuickSelect">快速選擇</label>
                     <div class="btn-group" style="grid-template-columns: repeat(5, 1fr);">
                         <button class="btn" onclick="document.getElementById('direct-duration').value=5">5</button>
                         <button class="btn" onclick="document.getElementById('direct-duration').value=10">10</button>
@@ -223,30 +227,30 @@
             </div>
         </div>
 
-        <button class="submit-btn" id="btn-submit-feeding" onclick="submitData('feeding')">儲存吃奶紀錄</button>
+        <button class="submit-btn" id="btn-submit-feeding" onclick="submitData('feeding')" data-i18n="saveFeeding">儲存吃奶紀錄</button>
     </div>
 
     <div id="diaper-card" class="card">
-        <h2>🧻 換尿片紀錄 <span id="time-diaper" class="time-display">--:--</span></h2>
+        <h2><span data-i18n="diaperTitle">🧻 換尿片紀錄</span> <span id="time-diaper" class="time-display">--:--</span></h2>
         
         <div class="row section">
             <div class="col split-divider" style="flex: 1.2;">
-                <label class="label">記錄時間微調</label>
+                <label class="label" data-i18n="labelTimeAdjust">記錄時間微調</label>
                 <div class="btn-group" style="grid-template-columns: repeat(2, 1fr);">
-                    <button class="btn active" onclick="setTime('diaper', 0, this)">現在</button>
-                    <button class="btn" onclick="setTime('diaper', 10, this)">-10分</button>
-                    <button class="btn" onclick="setTime('diaper', 20, this)">-20分</button>
-                    <button class="btn" onclick="setTime('diaper', 30, this)">-30分</button>
+                    <button class="btn active" onclick="setTime('diaper', 0, this)" data-i18n="now">現在</button>
+                    <button class="btn" onclick="setTime('diaper', 10, this)" data-i18n="min10">-10分</button>
+                    <button class="btn" onclick="setTime('diaper', 20, this)" data-i18n="min20">-20分</button>
+                    <button class="btn" onclick="setTime('diaper', 30, this)" data-i18n="min30">-30分</button>
                 </div>
             </div>
             <div class="col" style="flex: 0.8;">
-                <label class="label">基本狀態</label>
+                <label class="label" data-i18n="labelBasicStatus">基本狀態</label>
                 <div class="btn-group" style="grid-template-columns: 1fr;">
-                    <button class="btn pee-btn" onclick="toggleActive(this)">有小便 💦</button>
+                    <button class="btn pee-btn" onclick="toggleActive(this)" data-i18n="pee">有小便 💦</button>
                 </div>
                 <div class="btn-group" id="poo-toggle-btns" style="grid-template-columns: repeat(2, 1fr); margin-top: 8px;">
-                    <button class="btn poo-choice active" data-value="no" onclick="setPoo('no', this)">沒大便</button>
-                    <button class="btn poo-choice" data-value="yes" onclick="setPoo('yes', this)">有大便 💩</button>
+                    <button class="btn poo-choice active" data-value="no" onclick="setPoo('no', this)" data-i18n="noPoo">沒大便</button>
+                    <button class="btn poo-choice" data-value="yes" onclick="setPoo('yes', this)" data-i18n="poo">有大便 💩</button>
                 </div>
             </div>
         </div>
@@ -254,17 +258,17 @@
         <div id="poo-details" class="section hidden" style="background: var(--btn-bg); padding: 12px; border-radius: 10px; border: 2px dashed var(--border-color);">
             <div class="row">
                 <div class="col split-divider">
-                    <label class="label">大便顏色</label>
+                    <label class="label" data-i18n="labelPooColor">大便顏色</label>
                     <div class="btn-group" id="poo-color-btns" style="grid-template-columns: repeat(2, 1fr);">
-                        <button class="btn poo-color" data-value="yellow" onclick="selectPooColor(this)">🟡 黃色</button>
-                        <button class="btn poo-color" data-value="brown" onclick="selectPooColor(this)">🟤 啡色</button>
-                        <button class="btn poo-color" data-value="green" onclick="selectPooColor(this)">🟢 綠色</button>
-                        <button class="btn poo-color" data-value="other" onclick="selectPooColor(this)">⚪ 其他</button>
+                        <button class="btn poo-color" data-value="yellow" onclick="selectPooColor(this)" data-i18n="colorYellow">🟡 黃色</button>
+                        <button class="btn poo-color" data-value="brown" onclick="selectPooColor(this)" data-i18n="colorBrown">🟤 啡色</button>
+                        <button class="btn poo-color" data-value="green" onclick="selectPooColor(this)" data-i18n="colorGreen">🟢 綠色</button>
+                        <button class="btn poo-color" data-value="other" onclick="selectPooColor(this)" data-i18n="colorOther">⚪ 其他</button>
                     </div>
-                    <input type="text" id="poo-color-other" class="input-text hidden" style="margin-top: 8px;" placeholder="請輸入顏色">
+                    <input type="text" id="poo-color-other" class="input-text hidden" style="margin-top: 8px;" data-i18n-placeholder="otherColorPlaceholder" placeholder="請輸入顏色">
                 </div>
                 <div class="col">
-                    <label class="label">大便量</label>
+                    <label class="label" data-i18n="labelPooAmount">大便量</label>
                     <div class="btn-group" id="poo-amount-btns" style="grid-template-columns: repeat(3, 1fr);">
                         <button class="btn poo-amount active" data-value="XS" onclick="singleSelectBtn(this, 'poo-amount-btns')">XS</button>
                         <button class="btn poo-amount" data-value="S" onclick="singleSelectBtn(this, 'poo-amount-btns')">S</button>
@@ -275,51 +279,56 @@
                 </div>
             </div>
         </div>
-        <button class="submit-btn" id="btn-submit-diaper" onclick="submitData('diaper')">儲存尿片紀錄</button>
+        <button class="submit-btn" id="btn-submit-diaper" onclick="submitData('diaper')" data-i18n="saveDiaper">儲存尿片紀錄</button>
     </div>
 
     <div id="sleep-card" class="card">
-        <h2>💤 睡眠紀錄 <span id="time-sleep" class="time-display">--:--</span></h2>
+        <h2><span data-i18n="sleepTitle">💤 睡眠紀錄</span> <span id="time-sleep" class="time-display">--:--</span></h2>
         
         <div class="row section">
             <div class="col split-divider">
-                <label class="label">發生時間</label>
+                <label class="label" data-i18n="labelEventTime">發生時間</label>
                 <div class="btn-group" style="grid-template-columns: repeat(3, 1fr);">
-                    <button class="btn active" onclick="setTime('sleep', 0, this)">現在</button>
-                    <button class="btn" onclick="setTime('sleep', 10, this)">-10分</button>
-                    <button class="btn" onclick="setTime('sleep', 20, this)">-20分</button>
-                    <button class="btn" onclick="setTime('sleep', 30, this)">-30分</button>
-                    <button class="btn" onclick="setTime('sleep', 45, this)">-45分</button>
-                    <button class="btn" onclick="setTime('sleep', 60, this)">-60分</button>
+                    <button class="btn active" onclick="setTime('sleep', 0, this)" data-i18n="now">現在</button>
+                    <button class="btn" onclick="setTime('sleep', 10, this)" data-i18n="min10">-10分</button>
+                    <button class="btn" onclick="setTime('sleep', 20, this)" data-i18n="min20">-20分</button>
+                    <button class="btn" onclick="setTime('sleep', 30, this)" data-i18n="min30">-30分</button>
+                    <button class="btn" onclick="setTime('sleep', 45, this)" data-i18n="min45">-45分</button>
+                    <button class="btn" onclick="setTime('sleep', 60, this)" data-i18n="min60">-60分</button>
                 </div>
             </div>
             <div class="col">
-                <label class="label">睡眠狀態</label>
+                <label class="label" data-i18n="labelSleepStatus">睡眠狀態</label>
                 <div class="btn-group" id="sleep-action-btns" style="grid-template-columns: 1fr;">
-                    <button class="btn sleep-action active" data-value="start_sleep" onclick="singleSelectBtn(this, 'sleep-action-btns')" style="padding: 15px;">開始睡眠 (入睡) 🌙</button>
-                    <button class="btn sleep-action" data-value="end_sleep" onclick="singleSelectBtn(this, 'sleep-action-btns')" style="padding: 15px;">結束睡眠 (醒來) ☀️</button>
+                    <button class="btn sleep-action active" data-value="start_sleep" onclick="singleSelectBtn(this, 'sleep-action-btns')" data-i18n="sleepStart" style="padding: 15px;">開始睡眠 (入睡) 🌙</button>
+                    <button class="btn sleep-action" data-value="end_sleep" onclick="singleSelectBtn(this, 'sleep-action-btns')" data-i18n="sleepEnd" style="padding: 15px;">結束睡眠 (醒來) ☀️</button>
                 </div>
             </div>
         </div>
-        <button class="submit-btn" id="btn-submit-sleep" onclick="submitData('sleep')">儲存睡眠紀錄</button>
+        <button class="submit-btn" id="btn-submit-sleep" onclick="submitData('sleep')" data-i18n="saveSleep">儲存睡眠紀錄</button>
+    </div>
+
+    <div id="redpacket-card" class="card hidden">
+        <h2><span data-i18n="navRedPacket">🧧 利是紀錄</span></h2>
+        <p style="text-align: center; color: var(--text-muted);">公測開啟後將顯示完整功能。</p>
     </div>
 
     <div id="log-card" class="card">
-        <h2>📅 過去 24 小時動態日誌</h2>
-        <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: -10px;">顯示從此刻起，往前推算 24 小時內的所有紀錄。</p>
+        <h2><span data-i18n="timelineTitle">📅 24小時日誌</span></h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: -10px;" data-i18n="logDesc">顯示從此刻起，往前推算 24 小時內的所有紀錄。</p>
 
         <div class="summary-grid">
             <div class="summary-box">
-                <div class="summary-title">總奶量</div>
+                <div class="summary-title" data-i18n="sumMilk">總奶量</div>
                 <div class="summary-value"><span id="sum-milk-val">0</span> <span style="font-size: 0.8rem">ml</span></div>
             </div>
             <div class="summary-box">
-                <div class="summary-title">換尿片</div>
-                <div class="summary-value"><span id="sum-diaper-val">0</span> <span style="font-size: 0.8rem">次</span></div>
+                <div class="summary-title" data-i18n="sumDiaper">換尿片</div>
+                <div class="summary-value"><span id="sum-diaper-val">0</span> <span style="font-size: 0.8rem" data-i18n="unitTimes">次</span></div>
             </div>
             <div class="summary-box">
-                <div class="summary-title">睡眠動態</div>
-                <div class="summary-value"><span id="sum-sleep-val">0</span> <span style="font-size: 0.8rem">次</span></div>
+                <div class="summary-title" data-i18n="sumSleep">睡眠動態</div>
+                <div class="summary-value"><span id="sum-sleep-val">0</span> <span style="font-size: 0.8rem" data-i18n="unitTimes">次</span></div>
             </div>
         </div>
 
@@ -328,28 +337,28 @@
 
     <div id="history-card" class="card">
         <h2>
-            📊 統計趨勢圖表
-            <select id="stats-range" class="input-date" style="width: auto; padding: 5px; font-size: 0.9rem;" onchange="loadDashboardData()">
-                <option value="7">最近 7 天</option>
-                <option value="14">最近 14 天</option>
-                <option value="30">最近 1 個月</option>
-                <option value="90">最近 3 個月</option>
-                <option value="180">最近半年</option>
-                <option value="365">最近一年</option>
+            <span data-i18n="historyTitle">📊 統計趨勢圖表</span>
+            <select id="stats-range" class="input-select" style="width: auto; padding: 5px; font-size: 0.9rem;" onchange="loadDashboardData()">
+                <option value="7" data-i18n="range7">最近 7 天</option>
+                <option value="14" data-i18n="range14">最近 14 天</option>
+                <option value="30" data-i18n="range30">最近 1 個月</option>
+                <option value="90" data-i18n="range90">最近 3 個月</option>
+                <option value="180" data-i18n="range180">最近半年</option>
+                <option value="365" data-i18n="range365">最近一年</option>
             </select>
         </h2>
         
         <div style="margin-bottom: 20px;">
-            <label class="label" style="font-size:0.95rem;">🍼 每日總奶量與親餵時間</label>
+            <label class="label" style="font-size:0.95rem;" data-i18n="chartTitleMilk">🍼 每日總奶量與親餵時間</label>
             <div class="chart-container" style="height: 220px; margin-bottom: 25px;"><canvas id="milkChart"></canvas></div>
             
-            <label class="label" style="font-size:0.95rem;">🤱 每日泵奶量 (ml)</label>
+            <label class="label" style="font-size:0.95rem;" data-i18n="chartTitlePump">🤱 每日泵奶量 (ml)</label>
             <div class="chart-container" style="height: 180px; margin-bottom: 25px;"><canvas id="pumpChart"></canvas></div>
             
-            <label class="label" style="font-size:0.95rem;">💤 每日總睡眠時數 (小時)</label>
+            <label class="label" style="font-size:0.95rem;" data-i18n="chartTitleSleep">💤 每日總睡眠時數 (小時)</label>
             <div class="chart-container" style="height: 180px; margin-bottom: 25px;"><canvas id="sleepChart"></canvas></div>
             
-            <label class="label" style="font-size:0.95rem;">🧻 每日換尿片次數</label>
+            <label class="label" style="font-size:0.95rem;" data-i18n="chartTitleDiaper">🧻 每日換尿片次數</label>
             <div class="chart-container" style="height: 180px;"><canvas id="diaperChart"></canvas></div>
         </div>
     </div>
@@ -357,23 +366,27 @@
 
 <div class="modal" id="settings-modal">
     <div class="modal-content">
-        <h2 style="font-size: 1.2rem;">⚙️ 設定名稱</h2>
+        <h2 style="font-size: 1.2rem;" data-i18n="settingsTitle">⚙️ 設定名稱</h2>
         <div class="section">
-            <label class="label">👶 第一位寶寶</label>
-            <input type="text" id="input-baby1-name" class="input-text" placeholder="例如：大寶">
+            <label class="label" data-i18n="firstBaby">👶 第一位寶寶</label>
+            <input type="text" id="input-baby1-name" class="input-text" data-i18n-placeholder="settingsPlaceholder1" placeholder="例如：大寶">
         </div>
         <div class="section">
-            <label class="label">👶 第二位寶寶</label>
-            <input type="text" id="input-baby2-name" class="input-text" placeholder="例如：二寶">
+            <label class="label" data-i18n="secondBaby">👶 第二位寶寶</label>
+            <input type="text" id="input-baby2-name" class="input-text" data-i18n-placeholder="settingsPlaceholder2" placeholder="例如：二寶">
         </div>
-        <button class="submit-btn" style="margin-top: 5px; padding: 12px; font-size: 1rem;" onclick="saveBabyNames()">💾 儲存 (同步雲端)</button>
-        <button class="btn" style="width: 100%; margin-top: 8px; padding: 10px;" onclick="closeSettingsModal()">取消</button>
+        <div class="section hidden" id="setting-baby3">
+            <label class="label" data-i18n="thirdBaby">👶 第三位寶寶</label>
+            <input type="text" id="input-baby3-name" class="input-text" data-i18n-placeholder="settingsPlaceholder3" placeholder="例如：三寶">
+        </div>
+        <button class="submit-btn" style="margin-top: 5px; padding: 12px; font-size: 1rem;" onclick="saveBabyNames()" data-i18n="saveSettingsBtn">💾 儲存 (同步雲端)</button>
+        <button class="btn" style="width: 100%; margin-top: 8px; padding: 10px;" onclick="closeSettingsModal()" data-i18n="cancelBtn">取消</button>
     </div>
 </div>
 
 <script>
     // ==========================================
-    // 🚨 在此填寫你的 Firebase 金鑰 🚨
+    // 🚨 記得把你的 Firebase 金鑰貼回來！ 🚨
     // ==========================================
 const firebaseConfig = {
   apiKey: "AIzaSyBAExf2aDgBP8UrCMKlpB4C8US-fCuf4Xg",
@@ -393,11 +406,81 @@ const firebaseConfig = {
         googleProvider = new firebase.auth.GoogleAuthProvider();
     }
 
-    let babies = { baby1: "大寶", baby2: "二寶" };
+    // ===== 雙語字典設定 =====
+    const translations = {
+        zh: {
+            appTitle: "👶 寶寶紀錄", emailPlaceholder: "電子郵件 Email", pwPlaceholder: "密碼 Password",
+            btnLogin: "Email 登入", btnRegister: "註冊新帳號", orText: "或", btnGoogleLogin: "使用 Google 登入",
+            navFeeding: "🍼 吃奶", navDiaper: "🧻 尿片", navSleep: "💤 睡眠", navLog: "📅 24h 日誌", navHistory: "📊 趨勢圖表", navRedPacket: "🧧 利是紀錄",
+            btnExportCSV: "📥 匯出 CSV", btnSettings: "⚙️ 設定名稱", btnLogout: "🚪 登出帳號", btnThemeDark: "🌙 切換夜間", btnThemeLight: "☀️ 切換日間",
+            tabBaby1: "大寶", tabBaby2: "二寶", tabBaby3: "三寶",
+            feedingTitle: "🍼 吃奶紀錄", labelTimeAdjust: "時間微調", now: "現在",
+            min10: "-10分", min20: "-20分", min30: "-30分", min45: "-45分", min60: "-60分",
+            labelFeedType: "吃奶種類", formula: "配方奶", breastmilk: "人奶(樽)", direct: "親餵", pump: "泵奶",
+            labelBrand: "牌子及型號", brandPlaceholder: "例如：Illuma 1段", labelRecent: "最近使用：",
+            mlPlaceholder: "或手動輸入 ML", labelQuickMl: "快速選擇奶量", labelMl: "奶量 (ML)", manualMlPlaceholder: "請手動輸入 ML",
+            labelDuration: "親餵時長(分)", durationPlaceholder: "手動輸入分鐘", labelQuickSelect: "快速選擇", saveFeeding: "儲存吃奶紀錄",
+            diaperTitle: "🧻 換尿片紀錄", labelBasicStatus: "基本狀態", pee: "有小便 💦", noPoo: "沒大便", poo: "有大便 💩",
+            labelPooColor: "大便顏色", colorYellow: "🟡 黃", colorBrown: "🟤 啡", colorGreen: "🟢 綠", colorOther: "⚪ 其他",
+            otherColorPlaceholder: "請填寫顏色", labelPooAmount: "大便量", saveDiaper: "儲存尿片紀錄",
+            sleepTitle: "💤 睡眠紀錄", labelEventTime: "時間", labelSleepStatus: "狀態",
+            sleepStart: "開始睡眠 (入睡) 🌙", sleepEnd: "結束睡眠 (醒來) ☀️", saveSleep: "儲存睡眠紀錄",
+            settingsTitle: "⚙️ 設定名稱", firstBaby: "第一位寶寶", secondBaby: "第二位寶寶", thirdBaby: "第三位寶寶",
+            settingsPlaceholder1: "例如：大寶", settingsPlaceholder2: "例如：二寶", settingsPlaceholder3: "例如：三寶", saveSettingsBtn: "💾 儲存 (同步雲端)", cancelBtn: "取消",
+            alertSettingsSaved: "✅ 設定已同步到雲端！", saving: "儲存中...", alertSuccess: "✅ 成功儲存", alertError: "❌ 錯誤：",
+            historyTitle: "📊 統計趨勢圖表", sumMilk: "總奶量", sumDiaper: "換尿片", sumSleep: "睡眠動態", timelineTitle: "📅 24小時日誌",
+            logDesc: "顯示從此刻起，往前推算 24 小時內的所有紀錄。", unitTimes: "次",
+            deleteConfirm: "確定要刪除這筆紀錄嗎？", emptyHistory: "過去 24 小時內沒有任何紀錄喔！",
+            range7: "最近 7 天", range14: "最近 14 天", range30: "最近 1 個月", range90: "最近 3 個月", range180: "最近半年", range365: "最近一年",
+            chartTitleMilk: "🍼 每日總奶量與親餵時間", chartTitlePump: "🤱 每日泵奶量 (ml)", chartTitleSleep: "💤 每日總睡眠時數 (小時)", chartTitleDiaper: "🧻 每日換尿片次數",
+            lblFormula: "配方奶", lblBreast: "人奶樽", lblDirect: "親餵", lblPump: "泵奶", lblTimeMin: "時間(分)", lblMilkMl: "奶量(ml)", lblHours: "小時"
+        },
+        en: {
+            appTitle: "👶 Baby Tracker", emailPlaceholder: "Email", pwPlaceholder: "Password",
+            btnLogin: "Login", btnRegister: "Register", orText: "OR", btnGoogleLogin: "Google Login",
+            navFeeding: "🍼 Feeding", navDiaper: "🧻 Diaper", navSleep: "💤 Sleep", navLog: "📅 24h Log", navHistory: "📊 Charts", navRedPacket: "🧧 Red Packet",
+            btnExportCSV: "📥 Export CSV", btnSettings: "⚙️ Settings", btnLogout: "🚪 Logout", btnThemeDark: "🌙 Dark", btnThemeLight: "☀️ Light",
+            tabBaby1: "Baby 1", tabBaby2: "Baby 2", tabBaby3: "Baby 3",
+            feedingTitle: "🍼 Feeding", labelTimeAdjust: "Time", now: "Now",
+            min10: "-10m", min20: "-20m", min30: "-30m", min45: "-45m", min60: "-60m",
+            labelFeedType: "Type", formula: "Formula", breastmilk: "Breastmilk", direct: "Nursing", pump: "Pump",
+            labelBrand: "Brand", brandPlaceholder: "e.g., Illuma", labelRecent: "Recent:",
+            mlPlaceholder: "Enter ML", labelQuickMl: "Quick Vol (ML)", labelMl: "Volume (ML)", manualMlPlaceholder: "Enter ML",
+            labelDuration: "Duration(min)", durationPlaceholder: "Minutes", labelQuickSelect: "Quick Select", saveFeeding: "Save Feeding",
+            diaperTitle: "🧻 Diaper", labelBasicStatus: "Status", pee: "Pee 💦", noPoo: "No Poo", poo: "Poo 💩",
+            labelPooColor: "Color", colorYellow: "🟡 Yel", colorBrown: "🟤 Brn", colorGreen: "🟢 Grn", colorOther: "⚪ Oth",
+            otherColorPlaceholder: "Custom color", labelPooAmount: "Amount", saveDiaper: "Save Diaper",
+            sleepTitle: "💤 Sleep", labelEventTime: "Time", labelSleepStatus: "Status",
+            sleepStart: "Asleep 🌙", sleepEnd: "Awake ☀️", saveSleep: "Save Sleep",
+            settingsTitle: "⚙️ Settings", firstBaby: "First Baby", secondBaby: "Second Baby", thirdBaby: "Third Baby",
+            settingsPlaceholder1: "e.g., Baby 1", settingsPlaceholder2: "e.g., Baby 2", settingsPlaceholder3: "e.g., Baby 3", saveSettingsBtn: "💾 Save (Sync)", cancelBtn: "Cancel",
+            alertSettingsSaved: "✅ Saved to cloud!", saving: "Saving...", alertSuccess: "✅ Saved", alertError: "❌ Error: ",
+            historyTitle: "📊 History Trend", sumMilk: "Total Milk", sumDiaper: "Diapers", sumSleep: "Sleep Logs", timelineTitle: "📅 24-Hour Log",
+            logDesc: "Showing all records within the past 24 hours from now.", unitTimes: "times",
+            deleteConfirm: "Delete this record?", emptyHistory: "No records in the last 24 hours!",
+            range7: "Last 7 Days", range14: "Last 14 Days", range30: "Last 1 Month", range90: "Last 3 Months", range180: "Last 6 Months", range365: "Last 1 Year",
+            chartTitleMilk: "🍼 Daily Total Milk & Nursing", chartTitlePump: "🤱 Daily Pump Vol (ml)", chartTitleSleep: "💤 Daily Sleep (Hours)", chartTitleDiaper: "🧻 Daily Diapers",
+            lblFormula: "Formula", lblBreast: "Breastmilk", lblDirect: "Nursing", lblPump: "Pump", lblTimeMin: "Time(min)", lblMilkMl: "Vol(ml)", lblHours: "Hours"
+        }
+    };
+
+    let currentLang = localStorage.getItem('appLang') || 'zh';
+    let babies = { baby1: "", baby2: "", baby3: "" };
     let currentBabyId = "baby1";
     let historyCharts = { milk: null, pump: null, diaper: null, sleep: null }; 
 
-    // ===== 寶寶名稱同步邏輯 =====
+    function updateLanguage() {
+        document.querySelectorAll('[data-i18n]').forEach(el => el.innerText = translations[currentLang][el.getAttribute('data-i18n')]);
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => el.placeholder = translations[currentLang][el.getAttribute('data-i18n-placeholder')]);
+        document.getElementById('lang-toggle-btn').innerText = currentLang === 'zh' ? '🌐 English' : '🌐 中文';
+        let isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        document.getElementById('theme-toggle-btn').innerText = isDark ? translations[currentLang].btnThemeLight : translations[currentLang].btnThemeDark;
+        updateBabyUI();
+        if(document.getElementById('log-card').classList.contains('active') || document.getElementById('history-card').classList.contains('active')) loadDashboardData(); 
+    }
+
+    function toggleLanguage() { currentLang = currentLang === 'zh' ? 'en' : 'zh'; localStorage.setItem('appLang', currentLang); updateLanguage(); }
+
     async function loadBabySettingsFromDB() {
         if(!db || !auth.currentUser) return;
         try {
@@ -406,37 +489,22 @@ const firebaseConfig = {
                 let data = doc.data();
                 if(data.baby1) babies.baby1 = data.baby1;
                 if(data.baby2) babies.baby2 = data.baby2;
+                if(data.baby3) babies.baby3 = data.baby3;
+            } else {
+                babies.baby1 = translations[currentLang].tabBaby1;
+                babies.baby2 = translations[currentLang].tabBaby2;
+                babies.baby3 = translations[currentLang].tabBaby3;
             }
             updateBabyUI();
-        } catch(e) { console.error("無法讀取名稱設定，請確保已更新 Firestore 規則。", e); }
+        } catch(e) { console.error("Error loading settings", e); }
     }
 
     function updateBabyUI() {
-        document.getElementById('tab-baby1').innerText = `👶 ${babies.baby1}`;
-        document.getElementById('tab-baby2').innerText = `👶 ${babies.baby2}`;
+        document.getElementById('tab-baby1').innerText = `👶 ${babies.baby1 || translations[currentLang].tabBaby1}`;
+        document.getElementById('tab-baby2').innerText = `👶 ${babies.baby2 || translations[currentLang].tabBaby2}`;
+        document.getElementById('tab-baby3').innerText = `👶 ${babies.baby3 || translations[currentLang].tabBaby3}`;
     }
 
-    async function saveBabyNames() {
-        let n1 = document.getElementById('input-baby1-name').value.trim(); 
-        let n2 = document.getElementById('input-baby2-name').value.trim();
-        if(n1) babies.baby1 = n1; if(n2) babies.baby2 = n2;
-        if(auth.currentUser) {
-            try { 
-                await db.collection("user_settings").doc(auth.currentUser.uid).set(babies); 
-                alert("✅ 設定已成功同步到雲端！");
-            } catch(e) { alert("❌ 儲存失敗，請檢查 Firestore 安全規則。\n" + e.message); }
-        }
-        updateBabyUI(); closeSettingsModal();
-    }
-
-    function openSettingsModal() {
-        document.getElementById('input-baby1-name').value = babies.baby1; 
-        document.getElementById('input-baby2-name').value = babies.baby2;
-        document.getElementById('settings-modal').classList.add('active'); 
-        if(window.innerWidth <= 850) toggleSidebar(); 
-    }
-    function closeSettingsModal() { document.getElementById('settings-modal').classList.remove('active'); }
-    
     function switchBaby(babyId) {
         currentBabyId = babyId;
         document.querySelectorAll('.baby-tab').forEach(t => t.classList.remove('active'));
@@ -444,10 +512,32 @@ const firebaseConfig = {
         if(document.getElementById('log-card').classList.contains('active') || document.getElementById('history-card').classList.contains('active')) loadDashboardData();
     }
 
-    // ===== 登入與介面切換 =====
+    function openSettingsModal() {
+        document.getElementById('input-baby1-name').value = babies.baby1; 
+        document.getElementById('input-baby2-name').value = babies.baby2;
+        document.getElementById('input-baby3-name').value = babies.baby3;
+        document.getElementById('settings-modal').classList.add('active'); 
+        if(window.innerWidth <= 850) toggleSidebar(); 
+    }
+    function closeSettingsModal() { document.getElementById('settings-modal').classList.remove('active'); }
+    
+    async function saveBabyNames() {
+        let n1 = document.getElementById('input-baby1-name').value.trim(); 
+        let n2 = document.getElementById('input-baby2-name').value.trim();
+        let n3 = document.getElementById('input-baby3-name').value.trim();
+        if(n1) babies.baby1 = n1; if(n2) babies.baby2 = n2; if(n3) babies.baby3 = n3;
+        if(auth.currentUser) {
+            try { 
+                await db.collection("user_settings").doc(auth.currentUser.uid).set(babies); 
+                alert(translations[currentLang].alertSettingsSaved);
+            } catch(e) { alert("Error: " + e.message); }
+        }
+        updateBabyUI(); closeSettingsModal();
+    }
+
     function showError(msg) { document.getElementById('auth-error-msg').innerText = msg; }
-    function registerUser() { let e = document.getElementById('auth-email').value; let p = document.getElementById('auth-password').value; if(e&&p) auth.createUserWithEmailAndPassword(e, p).catch(err => showError(err.message)); else showError('請輸入 Email 和密碼'); }
-    function loginUser() { let e = document.getElementById('auth-email').value; let p = document.getElementById('auth-password').value; if(e&&p) auth.signInWithEmailAndPassword(e, p).catch(err => showError(err.message)); else showError('請輸入 Email 和密碼'); }
+    function registerUser() { let e = document.getElementById('auth-email').value; let p = document.getElementById('auth-password').value; if(e&&p) auth.createUserWithEmailAndPassword(e, p).catch(err => showError(err.message)); else showError('Please enter Email & Password'); }
+    function loginUser() { let e = document.getElementById('auth-email').value; let p = document.getElementById('auth-password').value; if(e&&p) auth.signInWithEmailAndPassword(e, p).catch(err => showError(err.message)); else showError('Please enter Email & Password'); }
     function loginWithGoogle() { auth.signInWithPopup(googleProvider).catch(err => showError(err.message)); }
     function logoutUser() { auth.signOut().then(() => { if(window.innerWidth <= 850) toggleSidebar(); }); }
 
@@ -488,7 +578,7 @@ const firebaseConfig = {
         document.querySelectorAll('.card').forEach(c => c.classList.remove('active')); document.getElementById(tab + '-card').classList.add('active');
         
         if (tab === 'log' || tab === 'history') { loadDashboardData(); }
-        else { let firstBtn = document.getElementById(tab + '-card').querySelector('.btn-group button'); if(firstBtn) setTime(tab, 0, firstBtn); }
+        else if (tab !== 'redpacket') { let firstBtn = document.getElementById(tab + '-card').querySelector('.btn-group button'); if(firstBtn) setTime(tab, 0, firstBtn); }
         if(window.innerWidth <= 850) toggleSidebar();
     }
 
@@ -505,7 +595,6 @@ const firebaseConfig = {
     function setPoo(status, btn) { document.querySelectorAll('#poo-toggle-btns .btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); if(status === 'yes') document.getElementById('poo-details').classList.remove('hidden'); else document.getElementById('poo-details').classList.add('hidden'); }
     function restoreLastBrand() { let lastBrand = localStorage.getItem('lastFormulaBrand'); if (lastBrand) document.getElementById('formula-brand').value = lastBrand; }
 
-    // ===== 資料寫入與讀取 =====
     async function fetchRecentBrands() {
         if(!db || !auth.currentUser) return;
         try {
@@ -526,8 +615,8 @@ const firebaseConfig = {
     }
 
     async function submitData(category) {
-        if(!db) return alert("請先設定 firebaseConfig"); if(!auth.currentUser) return alert("請先登入！");
-        let submitBtn = document.getElementById('btn-submit-' + category); let originalText = submitBtn.innerText; submitBtn.innerText = "儲存中..."; submitBtn.disabled = true;
+        if(!db) return alert("Please set firebaseConfig"); if(!auth.currentUser) return alert("Please Login!");
+        let submitBtn = document.getElementById('btn-submit-' + category); let originalText = submitBtn.innerText; submitBtn.innerText = translations[currentLang].saving; submitBtn.disabled = true;
 
         let dataToSave = { userId: auth.currentUser.uid, babyId: currentBabyId, babyName: babies[currentBabyId], category: category, recordTime: recordTimes[category], createdAt: firebase.firestore.FieldValue.serverTimestamp() };
 
@@ -547,11 +636,11 @@ const firebaseConfig = {
         } else if (category === 'sleep') { dataToSave.sleepStatus = document.querySelector('.sleep-action.active').getAttribute('data-value'); }
 
         try {
-            await db.collection("baby_records").add(dataToSave); alert(`✅ 成功儲存 【${babies[currentBabyId]}】 的紀錄！`);
+            await db.collection("baby_records").add(dataToSave); alert(`${translations[currentLang].alertSuccess} 【${babies[currentBabyId]}】!`);
             document.querySelectorAll('input').forEach(input => { if(input.id !== 'auth-email' && input.id !== 'auth-password') input.value = ''; });
             document.getElementById('poo-color-other').classList.add('hidden'); restoreLastBrand(); fetchRecentBrands();
             let firstBtn = document.getElementById(category + '-card').querySelector('.btn-group button'); if(firstBtn) setTime(category, 0, firstBtn);
-        } catch (error) { alert("錯誤：" + error.message); } finally { submitBtn.innerText = originalText; submitBtn.disabled = false; }
+        } catch (error) { alert(translations[currentLang].alertError + error.message); } finally { submitBtn.innerText = originalText; submitBtn.disabled = false; }
     }
 
     async function loadDashboardData() {
@@ -562,7 +651,7 @@ const firebaseConfig = {
 
         const range = parseInt(document.getElementById('stats-range').value) || 7;
         const listDiv = document.getElementById('log-list');
-        if(isLogTab) listDiv.innerHTML = '<div style="text-align:center;">載入中...</div>';
+        if(isLogTab) listDiv.innerHTML = '<div style="text-align:center;">Loading...</div>';
 
         // 過去 24 小時基準點
         const now = new Date();
@@ -621,18 +710,19 @@ const firebaseConfig = {
                     
                     if (r.category === 'feeding') {
                         icon = '🍼';
-                        if(r.feedingType === 'direct') { desc = `親餵 (${r.durationMins} 分鐘)`; }
-                        else if(r.feedingType === 'pump') { desc = `泵奶 ${r.volumeML}ml`; }
-                        else { desc = `${r.feedingType==='formula'?'配方奶':'人奶'} ${r.volumeML}ml`; if(r.brand && r.brand !== '未填寫') desc += ` [${r.brand}]`; dayTotalMilk += r.volumeML; }
+                        if(r.feedingType === 'direct') { desc = `${translations[currentLang].lblDirect} (${r.durationMins} min)`; }
+                        else if(r.feedingType === 'pump') { desc = `${translations[currentLang].lblPump} ${r.volumeML}ml`; }
+                        else { desc = `${r.feedingType==='formula'?translations[currentLang].lblFormula:translations[currentLang].lblBreast} ${r.volumeML}ml`; if(r.brand && r.brand !== '未填寫') desc += ` [${r.brand}]`; dayTotalMilk += r.volumeML; }
                     } 
                     else if (r.category === 'diaper') {
                         icon = '🧻'; dayDiaperCount++; let arr = [];
-                        if(r.hasPee) arr.push("小便");
-                        if(r.hasPoo) { let p = "大便"; if(r.pooColor !== 'none') p += `(色:${r.pooColor}, 量:${r.pooAmount})`; arr.push(p); }
-                        if(arr.length===0) arr.push("沒大便"); desc = arr.join(' / ');
+                        let txtPee = currentLang==='zh'?"小便":"Pee"; let txtPoo = currentLang==='zh'?"大便":"Poo"; let txtNoPoo = currentLang==='zh'?"沒大便":"No Poo";
+                        if(r.hasPee) arr.push(txtPee);
+                        if(r.hasPoo) { let p = txtPoo; if(r.pooColor !== 'none') p += `(${r.pooColor}, ${r.pooAmount})`; arr.push(p); }
+                        if(arr.length===0) arr.push(txtNoPoo); desc = arr.join(' / ');
                     } 
                     else if (r.category === 'sleep') {
-                        icon = '💤'; daySleepCount++; desc = (r.sleepStatus === 'start_sleep') ? "開始睡覺" : "結束睡眠";
+                        icon = '💤'; daySleepCount++; desc = (r.sleepStatus === 'start_sleep') ? translations[currentLang].sleepStart : translations[currentLang].sleepEnd;
                     }
 
                     listHtml = `
@@ -641,13 +731,13 @@ const firebaseConfig = {
                                 <div class="history-time"><span style="font-size:0.8rem; color:#888;">${displayDate}</span> ${h}:${m} ${icon}</div>
                                 <div class="history-detail">${desc}</div>
                             </div>
-                            <button class="delete-btn" onclick="deleteRecord('${r.id}')">刪除</button>
+                            <button class="delete-btn" onclick="deleteRecord('${r.id}')">Del</button>
                         </div>` + listHtml;
                 }
             });
 
             if(isLogTab) {
-                if(listHtml === '') listDiv.innerHTML = `<div style="text-align:center; color: var(--text-muted); padding: 20px;">過去 24 小時內沒有任何紀錄喔！</div>`;
+                if(listHtml === '') listDiv.innerHTML = `<div style="text-align:center; color: var(--text-muted); padding: 20px;">${translations[currentLang].emptyHistory}</div>`;
                 else listDiv.innerHTML = listHtml; 
                 document.getElementById('sum-milk-val').innerText = dayTotalMilk;
                 document.getElementById('sum-diaper-val').innerText = dayDiaperCount;
@@ -656,21 +746,21 @@ const firebaseConfig = {
 
             if(isHistoryTab) {
                 renderFeedingStackedChart('milkChart', labels, dailyStats);
-                renderSingleBarChart('pumpChart', 'pump', labels, Object.values(dailyStats).map(d => d.pump), '#E91E63', 'ml');
-                renderSingleBarChart('sleepChart', 'sleep', labels, Object.values(dailyStats).map(d => (d.sleepMins/60).toFixed(1)), '#673AB7', '小時');
-                renderSingleBarChart('diaperChart', 'diaper', labels, Object.values(dailyStats).map(d => d.diaper), '#FF9800', '次');
+                renderSingleBarChart('pumpChart', 'pump', labels, Object.values(dailyStats).map(d => d.pump), '#E91E63', translations[currentLang].lblMilkMl);
+                renderSingleBarChart('sleepChart', 'sleep', labels, Object.values(dailyStats).map(d => (d.sleepMins/60).toFixed(1)), '#673AB7', translations[currentLang].lblHours);
+                renderSingleBarChart('diaperChart', 'diaper', labels, Object.values(dailyStats).map(d => d.diaper), '#FF9800', translations[currentLang].unitTimes);
             }
 
-        } catch(e) { console.error(e); if(isLogTab) listDiv.innerHTML = "載入失敗"; }
+        } catch(e) { console.error(e); if(isLogTab) listDiv.innerHTML = "Error loading"; }
     }
 
     // ===== 匯出 CSV 檔案 =====
     async function exportCSV() {
-        if(!db || !auth.currentUser) return alert("請先登入！");
+        if(!db || !auth.currentUser) return alert("Please Login!");
         try {
             const snap = await db.collection("baby_records").where("userId", "==", auth.currentUser.uid).get();
-            let csv = '\uFEFF'; // 確保 Excel 讀取 UTF-8 正常
-            csv += "日期,時間,寶寶名稱,紀錄類別,紀錄內容\n";
+            let csv = '\uFEFF'; 
+            csv += (currentLang === 'zh' ? "日期,時間,寶寶名稱,紀錄類別,紀錄內容\n" : "Date,Time,Baby Name,Category,Details\n");
             
             let records = [];
             snap.forEach(doc => {
@@ -681,16 +771,16 @@ const firebaseConfig = {
             records.forEach(r => {
                 let dateStr = `${r.time.getFullYear()}/${String(r.time.getMonth()+1).padStart(2,'0')}/${String(r.time.getDate()).padStart(2,'0')}`;
                 let timeStr = `${String(r.time.getHours()).padStart(2,'0')}:${String(r.time.getMinutes()).padStart(2,'0')}`;
-                let cat = r.category === 'feeding' ? '吃奶' : (r.category === 'diaper' ? '換尿片' : '睡眠');
+                let cat = r.category === 'feeding' ? (currentLang==='zh'?'吃奶':'Feeding') : (r.category === 'diaper' ? (currentLang==='zh'?'換尿片':'Diaper') : (currentLang==='zh'?'睡眠':'Sleep'));
                 let detail = "";
                 
                 if(r.category === 'feeding') {
-                    let t = r.feedingType==='formula'?'配方奶':(r.feedingType==='breastmilk'?'人奶樽':(r.feedingType==='pump'?'泵奶':'親餵'));
-                    detail = `${t} ${r.volumeML ? r.volumeML+'ml' : r.durationMins+'分鐘'} ${r.brand && r.brand!=='未填寫'?r.brand:''}`;
+                    let t = r.feedingType==='formula'?translations[currentLang].lblFormula:(r.feedingType==='breastmilk'?translations[currentLang].lblBreast:(r.feedingType==='pump'?translations[currentLang].lblPump:translations[currentLang].lblDirect));
+                    detail = `${t} ${r.volumeML ? r.volumeML+'ml' : r.durationMins+(currentLang==='zh'?'分鐘':'min')} ${r.brand && r.brand!=='未填寫'?r.brand:''}`;
                 } else if(r.category === 'diaper') {
-                    detail = `${r.hasPee?'有小便':''} ${r.hasPoo?'有大便':''} ${r.pooColor&&r.pooColor!=='none'?'(色:'+r.pooColor+')':''} ${r.pooAmount&&r.pooAmount!=='none'?'(量:'+r.pooAmount+')':''}`;
+                    detail = `${r.hasPee?(currentLang==='zh'?'有小便':'Pee'):''} ${r.hasPoo?(currentLang==='zh'?'有大便':'Poo'):''} ${r.pooColor&&r.pooColor!=='none'?'('+r.pooColor+')':''} ${r.pooAmount&&r.pooAmount!=='none'?'('+r.pooAmount+')':''}`;
                 } else if(r.category === 'sleep') {
-                    detail = r.sleepStatus === 'start_sleep' ? '開始入睡' : '醒來';
+                    detail = r.sleepStatus === 'start_sleep' ? translations[currentLang].sleepStart : translations[currentLang].sleepEnd;
                 }
                 csv += `${dateStr},${timeStr},${r.babyName || ''},${cat},"${detail.trim()}"\n`;
             });
@@ -698,12 +788,11 @@ const firebaseConfig = {
             const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
             const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
-            link.setAttribute("href", url); link.setAttribute("download", "寶寶完整紀錄.csv");
+            link.setAttribute("href", url); link.setAttribute("download", currentLang==='zh'?"寶寶完整紀錄.csv":"Baby_Records.csv");
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
-        } catch(e) { alert("匯出失敗：" + e.message); }
+        } catch(e) { alert("Error: " + e.message); }
     }
 
-    // 圖表渲染工具 (不變)
     function renderFeedingStackedChart(canvasId, labels, stats) {
         const ctx = document.getElementById(canvasId).getContext('2d');
         if(historyCharts['milk']) historyCharts['milk'].destroy();
@@ -715,9 +804,9 @@ const firebaseConfig = {
             data: {
                 labels: labels,
                 datasets: [
-                    { label: '配方奶(ml)', data: Object.values(stats).map(d => d.formula), backgroundColor: '#2196F3', stack: 'Stack 0', yAxisID: 'y' },
-                    { label: '人奶樽(ml)', data: Object.values(stats).map(d => d.breastmilk), backgroundColor: '#4CAF50', stack: 'Stack 0', yAxisID: 'y' },
-                    { label: '親餵(分)', data: Object.values(stats).map(d => d.direct), backgroundColor: '#FF9800', stack: 'Stack 1', yAxisID: 'y1' }
+                    { label: translations[currentLang].lblFormula, data: Object.values(stats).map(d => d.formula), backgroundColor: '#2196F3', stack: 'Stack 0', yAxisID: 'y' },
+                    { label: translations[currentLang].lblBreast, data: Object.values(stats).map(d => d.breastmilk), backgroundColor: '#4CAF50', stack: 'Stack 0', yAxisID: 'y' },
+                    { label: translations[currentLang].lblDirect, data: Object.values(stats).map(d => d.direct), backgroundColor: '#FF9800', stack: 'Stack 1', yAxisID: 'y1' }
                 ]
             },
             options: {
@@ -725,8 +814,8 @@ const firebaseConfig = {
                 plugins: { legend: { display: true, labels: { color: textColor } } },
                 scales: {
                     x: { grid: { display: false }, ticks: { color: textColor, maxTicksLimit: 15 } },
-                    y: { type: 'linear', display: true, position: 'left', title: { display: true, text: '奶量(ml)', color: textColor }, grid: { color: gridColor }, ticks: { color: textColor } },
-                    y1: { type: 'linear', display: true, position: 'right', title: { display: true, text: '時間(分)', color: textColor }, grid: { drawOnChartArea: false }, ticks: { color: textColor } }
+                    y: { type: 'linear', display: true, position: 'left', title: { display: true, text: translations[currentLang].lblMilkMl, color: textColor }, grid: { color: gridColor }, ticks: { color: textColor } },
+                    y1: { type: 'linear', display: true, position: 'right', title: { display: true, text: translations[currentLang].lblTimeMin, color: textColor }, grid: { drawOnChartArea: false }, ticks: { color: textColor } }
                 }
             }
         });
@@ -752,10 +841,13 @@ const firebaseConfig = {
         });
     }
 
-    async function deleteRecord(docId) { if(confirm("確定刪除？")) { try { await db.collection("baby_records").doc(docId).delete(); loadDashboardData(); } catch(e) { alert("刪除失敗：" + e.message); } } }
+    async function deleteRecord(docId) { if(confirm(translations[currentLang].deleteConfirm)) { try { await db.collection("baby_records").doc(docId).delete(); loadDashboardData(); } catch(e) { alert("Error: " + e.message); } } }
 
     window.onload = function() {
-        initTheme(); setTime('feeding', 0, document.querySelector('#feeding-card .btn-group button')); setTime('diaper', 0, document.querySelector('#diaper-card .btn-group button')); setTime('sleep', 0, document.querySelector('#sleep-card .btn-group button'));
+        initTheme(); updateLanguage(); 
+        setTime('feeding', 0, document.querySelector('#feeding-card .btn-group button')); 
+        setTime('diaper', 0, document.querySelector('#diaper-card .btn-group button')); 
+        setTime('sleep', 0, document.querySelector('#sleep-card .btn-group button'));
         restoreLastBrand(); if(window.innerWidth <= 850) document.getElementById('desktop-title').style.display = 'none';
     };
 </script>

@@ -481,15 +481,16 @@ const firebaseConfig = {
 
     function toggleLanguage() { currentLang = currentLang === 'zh' ? 'en' : 'zh'; localStorage.setItem('appLang', currentLang); updateLanguage(); }
 
-    async function loadBabySettingsFromDB() {
+async function loadBabySettingsFromDB() {
         if(!db || !auth.currentUser) return;
         try {
             const doc = await db.collection("user_settings").doc(auth.currentUser.uid).get();
             if(doc.exists) {
                 let data = doc.data();
-                if(data.baby1) babies.baby1 = data.baby1;
-                if(data.baby2) babies.baby2 = data.baby2;
-                if(data.baby3) babies.baby3 = data.baby3;
+                // 💡 修正：如果檔案存在，但沒有寶寶名稱(例如剛寫入Email時)，就給他預設值！
+                babies.baby1 = data.baby1 ? data.baby1 : translations[currentLang].tabBaby1;
+                babies.baby2 = data.baby2 ? data.baby2 : translations[currentLang].tabBaby2;
+                babies.baby3 = data.baby3 ? data.baby3 : translations[currentLang].tabBaby3;
             } else {
                 babies.baby1 = translations[currentLang].tabBaby1;
                 babies.baby2 = translations[currentLang].tabBaby2;
@@ -497,6 +498,27 @@ const firebaseConfig = {
             }
             updateBabyUI();
         } catch(e) { console.error("Error loading settings", e); }
+    }
+
+    async function saveBabyNames() {
+        let n1 = document.getElementById('input-baby1-name').value.trim(); 
+        let n2 = document.getElementById('input-baby2-name').value.trim();
+        let n3 = document.getElementById('input-baby3-name').value.trim();
+        if(n1) babies.baby1 = n1; if(n2) babies.baby2 = n2; if(n3) babies.baby3 = n3;
+        
+        if(auth.currentUser) {
+            try { 
+                // 🚨 修正：寫入時必須指定 { merge: true }，才不會把 Email 蓋掉！
+                await db.collection("user_settings").doc(auth.currentUser.uid).set({
+                    baby1: babies.baby1,
+                    baby2: babies.baby2,
+                    baby3: babies.baby3
+                }, { merge: true }); 
+                
+                alert(translations[currentLang].alertSettingsSaved);
+            } catch(e) { alert("Error: " + e.message); }
+        }
+        updateBabyUI(); closeSettingsModal();
     }
 
     function updateBabyUI() {

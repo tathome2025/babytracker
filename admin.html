@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👶 系統管理員後台</title>
+    <style>
+        :root { --theme-color: #d32f2f; --bg-color: #f4f7f6; --card-bg: #ffffff; --text-color: #333333; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 20px; }
+        
+        #auth-section { display: flex; flex-direction: column; max-width: 350px; margin: 100px auto; background: var(--card-bg); padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-top: 5px solid var(--theme-color); }
+        .input-text { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
+        .btn { width: 100%; padding: 12px; background: var(--theme-color); color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn:hover { background: #b71c1c; }
+        .btn.outline { background: transparent; color: var(--text-color); border: 1px solid #ccc; margin-top: 10px; }
+        
+        #admin-dashboard { display: none; max-width: 1000px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #ccc; padding-bottom: 10px; }
+        
+        .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px; }
+        .stat-card { background: var(--card-bg); padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-align: center; border-left: 5px solid var(--theme-color); }
+        .stat-value { font-size: 2rem; font-weight: bold; color: var(--theme-color); }
+        
+        table { width: 100%; border-collapse: collapse; background: var(--card-bg); box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-radius: 10px; overflow: hidden; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background-color: #ffebee; color: #b71c1c; font-weight: bold; }
+        tr:hover { background-color: #f9f9f9; }
+        .delete-btn { background: #ffcdd2; color: #c62828; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .delete-btn:hover { background: #ef9a9a; }
+    </style>
+    
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+    <div id="auth-section">
+        <h2 style="text-align: center; margin-top: 0;">🛡️ 系統管理員登入</h2>
+        <input type="email" id="email" class="input-text" placeholder="管理員 Email">
+        <input type="password" id="password" class="input-text" placeholder="密碼">
+        <button class="btn" onclick="loginAdmin()">登入後台</button>
+    </div>
+
+    <div id="admin-dashboard">
+        <div class="header">
+            <h2>🛡️ 寶寶紀錄 - 超級管理員後台</h2>
+            <div>
+                <span id="admin-email" style="margin-right: 15px; font-weight: bold;"></span>
+                <button class="btn outline" style="width: auto; padding: 8px 15px; margin: 0;" onclick="logout()">登出</button>
+            </div>
+        </div>
+
+        <div class="stat-grid">
+            <div class="stat-card">
+                <div style="color: #666;">系統總數據量</div>
+                <div class="stat-value" id="total-records">0</div>
+            </div>
+            <div class="stat-card">
+                <div style="color: #666;">活躍用戶 UID 數量</div>
+                <div class="stat-value" id="total-users">0</div>
+            </div>
+        </div>
+
+        <h3>📋 全站用戶資料總覽 (群組依 UID)</h3>
+        <p style="font-size: 0.9rem; color: #666;">注意：此處列出有寫入資料的用戶。若要徹底刪除登入帳號，請前往 <a href="https://console.firebase.google.com/" target="_blank">Firebase Console</a>。</p>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>用戶 UID</th>
+                    <th>擁有紀錄筆數</th>
+                    <th>最後活動時間</th>
+                    <th>危險操作</th>
+                </tr>
+            </thead>
+            <tbody id="users-table-body">
+                <tr><td colspan="4" style="text-align:center;">資料載入中...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // ==========================================
+        // 🚨 1. 在此填寫你的 Firebase Config 🚨
+        // ==========================================
+const firebaseConfig = {
+  apiKey: "AIzaSyBAExf2aDgBP8UrCMKlpB4C8US-fCuf4Xg",
+  authDomain: "babytrackerweb-c6a26.firebaseapp.com",
+  projectId: "babytrackerweb-c6a26",
+  storageBucket: "babytrackerweb-c6a26.firebasestorage.app",
+  messagingSenderId: "297032381661",
+  appId: "1:297032381661:web:a583efe8c9abb1f68dd734",
+  measurementId: "G-YRLJW2P55F"
+};
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        // ==========================================
+        // 🚨 2. 在此填寫你設定的「超級管理員 Email」 🚨
+        // ==========================================
+        const ADMIN_EMAIL = "tathome2025@gmail.com"; // 必須與 Firestore Rules 裡寫的一模一樣
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                if (user.email === ADMIN_EMAIL) {
+                    document.getElementById('auth-section').style.display = 'none';
+                    document.getElementById('admin-dashboard').style.display = 'block';
+                    document.getElementById('admin-email').innerText = `👤 管理員: ${user.email}`;
+                    loadAllData();
+                } else {
+                    alert("⚠️ 權限不足：此信箱不是系統管理員！");
+                    auth.signOut();
+                }
+            } else {
+                document.getElementById('auth-section').style.display = 'flex';
+                document.getElementById('admin-dashboard').style.display = 'none';
+            }
+        });
+
+        function loginAdmin() {
+            const e = document.getElementById('email').value;
+            const p = document.getElementById('password').value;
+            auth.signInWithEmailAndPassword(e, p).catch(err => alert("登入失敗: " + err.message));
+        }
+
+        function logout() { auth.signOut(); }
+
+        // 載入全站數據
+        async function loadAllData() {
+            try {
+                // 利用超級管理員權限讀取「整個資料庫」的所有紀錄
+                const snapshot = await db.collection("baby_records").get();
+                
+                let totalRecords = 0;
+                let userMap = {}; // 用來統計每個 UID 的數據
+
+                snapshot.forEach(doc => {
+                    totalRecords++;
+                    let data = doc.data();
+                    let uid = data.userId;
+                    let recordTime = (data.recordTime && data.recordTime.toDate) ? data.recordTime.toDate() : new Date(data.recordTime);
+
+                    if (!userMap[uid]) {
+                        userMap[uid] = { count: 0, lastActive: recordTime };
+                    }
+                    
+                    userMap[uid].count++;
+                    if (recordTime > userMap[uid].lastActive) {
+                        userMap[uid].lastActive = recordTime;
+                    }
+                });
+
+                document.getElementById('total-records').innerText = totalRecords;
+                document.getElementById('total-users').innerText = Object.keys(userMap).length;
+
+                renderTable(userMap);
+            } catch (error) {
+                console.error(error);
+                alert("讀取資料失敗，請確認 Firestore Rules 是否已設定為管理員 Email。");
+            }
+        }
+
+        function renderTable(userMap) {
+            const tbody = document.getElementById('users-table-body');
+            tbody.innerHTML = "";
+
+            let usersArray = Object.keys(userMap).map(uid => {
+                return { uid: uid, count: userMap[uid].count, lastActive: userMap[uid].lastActive };
+            });
+
+            // 依最後活動時間排序 (最新的在上面)
+            usersArray.sort((a, b) => b.lastActive - a.lastActive);
+
+            if(usersArray.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='4' style='text-align:center;'>系統尚無任何資料</td></tr>";
+                return;
+            }
+
+            usersArray.forEach(user => {
+                let timeStr = `${user.lastActive.getFullYear()}/${user.lastActive.getMonth()+1}/${user.lastActive.getDate()} ${String(user.lastActive.getHours()).padStart(2,'0')}:${String(user.lastActive.getMinutes()).padStart(2,'0')}`;
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td style="font-family: monospace;">${user.uid}</td>
+                        <td><span style="background: #e3f2fd; color: #1565c0; padding: 3px 8px; border-radius: 12px; font-weight: bold;">${user.count} 筆</span></td>
+                        <td>${timeStr}</td>
+                        <td>
+                            <button class="delete-btn" onclick="deleteAllDataForUser('${user.uid}')">🗑️ 清空此用戶資料</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // 刪除特定用戶的所有資料
+        async function deleteAllDataForUser(uid) {
+            let confirmMsg = prompt(`⚠️ 警告：這將徹底刪除用戶 (UID: ${uid}) 的「所有資料紀錄」。\n此動作無法復原！\n請輸入 "DELETE" 以確認執行：`);
+            if (confirmMsg === "DELETE") {
+                try {
+                    // 找出該用戶的所有資料
+                    const snapshot = await db.collection("baby_records").where("userId", "==", uid).get();
+                    
+                    // Firebase 批次刪除 (Batch)
+                    const batch = db.batch();
+                    snapshot.forEach(doc => {
+                        batch.delete(doc.ref);
+                    });
+                    
+                    // 順便把他的用戶設定也刪掉
+                    const settingRef = db.collection("user_settings").doc(uid);
+                    batch.delete(settingRef);
+
+                    await batch.commit();
+                    alert(`✅ 已成功清空該用戶共 ${snapshot.size} 筆資料！`);
+                    loadAllData(); // 重新整理畫面
+                } catch (error) {
+                    alert("刪除失敗：" + error.message);
+                }
+            }
+        }
+    </script>
+</body>
+</html>

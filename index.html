@@ -102,6 +102,35 @@
         .profile-text-row { font-size: 1.1rem; margin-bottom: 8px; color: var(--text-color); }
         .edit-icon-btn { position: absolute; right: 15px; top: 15px; background: white; border: 1px solid var(--border-color); padding: 5px 10px; border-radius: 5px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
 
+        /* 🔥 趴撐計時器 UI */
+        .timer-circle {
+            width: 160px; 
+            height: 160px;
+            border-radius: 50%;
+            border: 6px solid #8BC34A;
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            font-size: 2.2rem; 
+            font-weight: 900; 
+            font-variant-numeric: tabular-nums;
+            color: var(--text-color);
+            margin: 10px auto 25px;
+            background-color: var(--card-bg);
+            transition: box-shadow 0.3s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .timer-circle.active {
+            animation: timerPulse 2s infinite;
+        }
+
+        @keyframes timerPulse {
+            0% { box-shadow: 0 0 0 0 rgba(139, 195, 74, 0.6); }
+            70% { box-shadow: 0 0 0 20px rgba(139, 195, 74, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(139, 195, 74, 0); }
+        }
+
         @media (max-width: 850px) {
             body { flex-direction: column; height: auto; min-height: 100dvh; overflow: visible; }
             .mobile-header { display: flex; }
@@ -558,31 +587,30 @@
             <button id="mode-btn-tummy" class="btn outline" style="width: auto; padding: 6px 12px; font-size: 0.9rem;" onclick="toggleManualMode('tummy')" data-i18n="btnManualMode">📅 補登過去紀錄</button>
         </h2>
         
-        <div class="row section">
-            <div class="col split-divider">
-                <label class="label" data-i18n="labelEventTime">發生時間</label>
-                <div id="quick-time-tummy" class="btn-group" style="grid-template-columns: repeat(3, 1fr);">
-                    <button class="btn active" onclick="setTime('tummy', 0, this)" data-i18n="now">現在</button>
-                    <button class="btn" onclick="setTime('tummy', 5, this)">-5分</button>
-                    <button class="btn" onclick="setTime('tummy', 10, this)" data-i18n="min10">-10分</button>
-                    <button class="btn" onclick="setTime('tummy', 15, this)">-15分</button>
-                    <button class="btn" onclick="setTime('tummy', 20, this)" data-i18n="min20">-20分</button>
-                    <button class="btn" onclick="setTime('tummy', 30, this)" data-i18n="min30">-30分</button>
-                </div>
-                <div id="manual-time-tummy" class="hidden">
+        <div id="live-tummy-section" class="section">
+            <div class="timer-circle" id="tummy-timer-circle">
+                <span id="tummy-timer-display">00:00</span>
+            </div>
+            <div class="btn-group" style="grid-template-columns: 1fr 1fr; margin-bottom: 10px;">
+                <button id="tummy-start-btn" onclick="startTummyTimer()" class="btn" style="background-color: #8BC34A; color: white; border-color: #8BC34A; padding: 15px; font-size: 1.2rem;" data-i18n="btnStartTimer">開始計時</button>
+                <button id="tummy-stop-btn" onclick="stopTummyTimer()" class="btn" style="background-color: #f44336; color: white; border-color: #f44336; padding: 15px; font-size: 1.2rem; opacity: 0.5;" disabled data-i18n="btnStopTimer">完成並紀錄</button>
+            </div>
+        </div>
+
+        <div id="manual-tummy-section" class="section hidden">
+            <div class="row">
+                <div class="col split-divider">
+                    <label class="label" data-i18n="labelEventTime">發生時間</label>
                     <input type="datetime-local" id="input-manual-tummy" class="input-date" onchange="setManualTime('tummy', this.value)">
                     <p style="font-size: 0.85rem; color: #E91E63; margin-top: 5px;" data-i18n="manualNotice">* 您正在補登過去的紀錄</p>
                 </div>
-            </div>
-            <div class="col">
-                <label class="label" data-i18n="labelTummyStatus">趴撐狀態</label>
-                <div class="btn-group" id="tummy-action-btns" style="grid-template-columns: 1fr;">
-                    <button class="btn tummy-action active" data-value="start_tummy" onclick="singleSelectBtn(this, 'tummy-action-btns')" data-i18n="tummyStart" style="padding: 15px;">開始趴撐 🐢</button>
-                    <button class="btn tummy-action" data-value="end_tummy" onclick="singleSelectBtn(this, 'tummy-action-btns')" data-i18n="tummyEnd" style="padding: 15px;">結束趴撐 🛌</button>
+                <div class="col">
+                    <label class="label" data-i18n="labelTummyDuration">趴撐時長 (分鐘)</label>
+                    <input type="number" id="manual-tummy-duration" class="input-number" placeholder="輸入分鐘數">
                 </div>
             </div>
+            <button class="submit-btn" id="btn-submit-tummy" onclick="submitData('tummy')" data-i18n="saveTummy" style="background:#8BC34A; margin-top: 15px;">儲存趴撐紀錄</button>
         </div>
-        <button class="submit-btn" id="btn-submit-tummy" onclick="submitData('tummy')" data-i18n="saveTummy" style="background:#8BC34A">儲存趴撐紀錄</button>
     </div>
 
     <div id="log-card" class="card">
@@ -726,7 +754,7 @@ const firebaseConfig = {
             sleepStart: "開始睡眠 (入睡) 🌙", sleepEnd: "結束睡眠 (醒來) ☀️", saveSleep: "儲存睡眠紀錄",
             tempTitle: "🌡️ 體溫紀錄", labelTemp: "體溫 (°C)", saveTemp: "儲存體溫紀錄", chartTitleTemp: "🌡️ 每日最高體溫 (°C)",
             bathTitle: "🛀 沖涼紀錄", labelBathStatus: "沖涼打卡", bathRecord: "紀錄沖涼 🛀", saveBath: "🛀 一鍵儲存沖涼紀錄",
-            tummyTitle: "🐢 趴撐紀錄", labelTummyStatus: "趴撐狀態", tummyStart: "開始趴撐 🐢", tummyEnd: "結束趴撐 🛌", saveTummy: "儲存趴撐紀錄",
+            tummyTitle: "🐢 趴撐紀錄", labelTummyDuration: "趴撐時長 (分鐘)", btnStartTimer: "開始計時", btnStopTimer: "完成並紀錄", saveTummy: "儲存趴撐紀錄",
             birthProfile: "👶 出生資料", labelBirthDate: "出生日期", labelBirthTime: "出生時間", labelBirthLoc: "出生地點", placeholderLoc: "醫院或診所名稱",
             labelBirthWeight: "出生體重", labelBirthHeight: "出生身高", saveProfile: "💾 儲存出生資料", profileSaved: "✅ 出生資料已更新！",
             growthTitle: "📏 成長紀錄新增", labelGrowthDate: "記錄日期", labelHeight: "身高 (cm)", labelWeight: "體重 (kg)", saveGrowth: "新增成長紀錄",
@@ -762,7 +790,7 @@ const firebaseConfig = {
             sleepStart: "Asleep 🌙", sleepEnd: "Awake ☀️", saveSleep: "Save Sleep",
             tempTitle: "🌡️ Temperature", labelTemp: "Temp (°C)", saveTemp: "Save Temp", chartTitleTemp: "🌡️ Daily Max Temperature (°C)",
             bathTitle: "🛀 Bath", labelBathStatus: "Status", bathRecord: "Record Bath 🛀", saveBath: "🛀 One-Click Save Bath",
-            tummyTitle: "🐢 Tummy Time", labelTummyStatus: "Status", tummyStart: "Start Tummy 🐢", tummyEnd: "End Tummy 🛌", saveTummy: "Save Tummy",
+            tummyTitle: "🐢 Tummy Time", labelTummyDuration: "Duration (mins)", btnStartTimer: "Start Timer", btnStopTimer: "Finish & Save", saveTummy: "Save Tummy",
             birthProfile: "👶 Birth Profile", labelBirthDate: "Birth Date", labelBirthTime: "Birth Time", labelBirthLoc: "Location", placeholderLoc: "Hospital/Clinic",
             labelBirthWeight: "Birth Wt", labelBirthHeight: "Birth Ht", saveProfile: "💾 Save Profile", profileSaved: "✅ Profile saved!",
             growthTitle: "📏 Add Growth Record", labelGrowthDate: "Record Date", labelHeight: "Height (cm)", labelWeight: "Weight (kg)", saveGrowth: "Save Growth",
@@ -958,15 +986,31 @@ const firebaseConfig = {
         isManualMode[cat] = !isManualMode[cat];
         let quickDiv = document.getElementById(`quick-time-${cat}`); let manualDiv = document.getElementById(`manual-time-${cat}`); let btn = document.getElementById(`mode-btn-${cat}`);
         if (isManualMode[cat]) {
-            quickDiv.classList.add('hidden'); manualDiv.classList.remove('hidden');
+            if (quickDiv) quickDiv.classList.add('hidden'); 
+            if (manualDiv) manualDiv.classList.remove('hidden');
+            if (cat === 'tummy') {
+                document.getElementById('live-tummy-section').classList.add('hidden');
+                document.getElementById('manual-tummy-section').classList.remove('hidden');
+            }
             btn.innerText = translations[currentLang].btnBackToNow; btn.style.background = "#FF9800"; btn.style.color = "white"; btn.style.border = "none";
             let tzoffset = (new Date()).getTimezoneOffset() * 60000;
-            document.getElementById(`input-manual-${cat}`).value = (new Date(recordTimes[cat] - tzoffset)).toISOString().slice(0, 16);
+            let el = document.getElementById(`input-manual-${cat}`);
+            if (el) el.value = (new Date(recordTimes[cat] - tzoffset)).toISOString().slice(0, 16);
             isTimeFrozen[cat] = true;
         } else {
-            quickDiv.classList.remove('hidden'); manualDiv.classList.add('hidden');
+            if (quickDiv) quickDiv.classList.remove('hidden'); 
+            if (manualDiv) manualDiv.classList.add('hidden');
+            if (cat === 'tummy') {
+                document.getElementById('live-tummy-section').classList.remove('hidden');
+                document.getElementById('manual-tummy-section').classList.add('hidden');
+            }
             btn.innerText = translations[currentLang].btnManualMode; btn.style.background = "transparent"; btn.style.color = "var(--theme-color)"; btn.style.border = "1px solid var(--theme-color)";
-            let firstBtn = quickDiv.querySelector('button'); if(firstBtn) setTime(cat, 0, firstBtn);
+            if (quickDiv) { 
+                let firstBtn = quickDiv.querySelector('button'); 
+                if (firstBtn) setTime(cat, 0, firstBtn); 
+            } else if (cat === 'tummy') {
+                setTime('tummy', 0, null);
+            }
         }
     }
 
@@ -987,7 +1031,8 @@ const firebaseConfig = {
         else if (tab === 'growth') { setLocalDate('growth-date'); updateProfileUI(); } 
         else if (tab !== 'redpacket') { 
             if(isManualMode[tab]) toggleManualMode(tab); 
-            let firstBtn = document.getElementById(tab + '-card').querySelector('.btn-group button'); if(firstBtn) setTime(tab, 0, firstBtn); 
+            let quickDiv = document.getElementById(`quick-time-${tab}`);
+            if (quickDiv) { let firstBtn = quickDiv.querySelector('button'); if(firstBtn) setTime(tab, 0, firstBtn); }
         }
         if(window.innerWidth <= 850) toggleSidebar();
     }
@@ -1023,6 +1068,81 @@ const firebaseConfig = {
                 document.getElementById('recent-brand-area').style.display = 'block';
             }
         } catch (error) {}
+    }
+
+    // 🔥 趴撐計時器邏輯
+    let tummySeconds = 0;
+    let tummyInterval = null;
+
+    function updateTummyDisplay() {
+        let m = Math.floor(tummySeconds / 60).toString().padStart(2, '0');
+        let s = (tummySeconds % 60).toString().padStart(2, '0');
+        document.getElementById('tummy-timer-display').innerText = `${m}:${s}`;
+    }
+
+    function startTummyTimer() {
+        if (tummyInterval) return; 
+        document.getElementById('tummy-timer-circle').classList.add('active');
+        document.getElementById('tummy-start-btn').disabled = true;
+        document.getElementById('tummy-start-btn').style.opacity = '0.5';
+        document.getElementById('tummy-stop-btn').disabled = false;
+        document.getElementById('tummy-stop-btn').style.opacity = '1';
+
+        tummyInterval = setInterval(() => {
+            tummySeconds++;
+            updateTummyDisplay();
+        }, 1000);
+    }
+
+    async function stopTummyTimer() {
+        if (!tummyInterval) return;
+        clearInterval(tummyInterval);
+        tummyInterval = null;
+
+        document.getElementById('tummy-timer-circle').classList.remove('active');
+        document.getElementById('tummy-start-btn').disabled = false;
+        document.getElementById('tummy-start-btn').style.opacity = '1';
+        document.getElementById('tummy-stop-btn').disabled = true;
+        document.getElementById('tummy-stop-btn').style.opacity = '0.5';
+
+        if (tummySeconds === 0) {
+            alert(currentLang === 'zh' ? "時間為 0，未儲存紀錄。" : "Time is 0, record not saved.");
+            return;
+        }
+
+        let durationMinutes = Math.round(tummySeconds / 60);
+        if (durationMinutes === 0 && tummySeconds > 0) durationMinutes = 1; 
+
+        if(!db) return alert("Please set firebaseConfig"); 
+        if(!auth.currentUser) return alert("Please Login!");
+
+        let submitBtn = document.getElementById('tummy-stop-btn'); 
+        let originalText = submitBtn.innerText; 
+        submitBtn.innerText = translations[currentLang].saving; 
+        submitBtn.disabled = true;
+
+        let dataToSave = { 
+            userId: auth.currentUser.uid, 
+            babyId: currentBabyId, 
+            babyName: babies[currentBabyId], 
+            category: 'tummy', 
+            recordTime: new Date(), 
+            durationMins: durationMinutes,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp() 
+        };
+
+        try {
+            await db.collection("baby_records").add(dataToSave); 
+            alert(`${translations[currentLang].alertSuccess} 【${babies[currentBabyId]}】!`);
+            tummySeconds = 0;
+            updateTummyDisplay();
+            loadDashboardData();
+        } catch (error) { 
+            alert(translations[currentLang].alertError + error.message); 
+        } finally { 
+            submitBtn.innerText = originalText; 
+            // 保持完成按鈕禁用，直到下次開始
+        }
     }
 
     async function submitData(category) {
@@ -1065,7 +1185,9 @@ const firebaseConfig = {
             dataToSave.temp = Number(document.getElementById('temp-val').value) || null;
             if(!dataToSave.temp) { submitBtn.innerText = originalText; submitBtn.disabled = false; return alert(currentLang==='zh'?"請輸入體溫！":"Please enter temperature!"); }
         } else if (category === 'bath') { dataToSave.bathStatus = 'start_bath'; 
-        } else if (category === 'tummy') { dataToSave.tummyStatus = document.querySelector('.tummy-action.active').getAttribute('data-value'); 
+        } else if (category === 'tummy') { 
+            dataToSave.durationMins = Number(document.getElementById('manual-tummy-duration').value) || null;
+            if(!dataToSave.durationMins) { submitBtn.innerText = originalText; submitBtn.disabled = false; return alert(currentLang==='zh'?"請輸入趴撐時長！":"Please enter duration!"); }
         } else if (category === 'growth') {
             dataToSave.height = Number(document.getElementById('growth-height').value) || null; dataToSave.weight = Number(document.getElementById('growth-weight').value) || null;
             if(!dataToSave.height && !dataToSave.weight) { submitBtn.innerText = originalText; submitBtn.disabled = false; return alert(currentLang==='zh'?"請至少填寫身高或體重！":"Please enter height or weight!"); }
@@ -1078,7 +1200,8 @@ const firebaseConfig = {
             
             if (category !== 'growth') { 
                 if(isManualMode[category]) toggleManualMode(category);
-                let firstBtn = document.getElementById(category + '-card').querySelector('.btn-group button'); if(firstBtn) setTime(category, 0, firstBtn); 
+                let quickDiv = document.getElementById(`quick-time-${category}`);
+                if(quickDiv) { let firstBtn = quickDiv.querySelector('button'); if(firstBtn) setTime(category, 0, firstBtn); }
             }
         } catch (error) { alert(translations[currentLang].alertError + error.message); } finally { submitBtn.innerText = originalText; submitBtn.disabled = false; }
     }
@@ -1095,6 +1218,7 @@ const firebaseConfig = {
 
         const now = new Date();
         const past24h = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+        const past12h = new Date(now.getTime() - 12 * 60 * 60 * 1000);
 
         let labels = [];
         let dailyStats = {};
@@ -1118,7 +1242,7 @@ const firebaseConfig = {
             
             let lastSleepStart = null; let lastTummyStart = null;
             let dayTotalFed = 0; let dayTotalPump = 0; let dayDiaperCount = 0; let daySleepMins = 0; 
-            let lastBathTime = null; // 🔥 追蹤最後一次沖涼時間
+            let lastBathTime = null; 
             let listHtml = '';
 
             allRecords.forEach(r => {
@@ -1135,15 +1259,19 @@ const firebaseConfig = {
                 }
 
                 if (r.category === 'tummy') {
-                    if (r.tummyStatus === 'start_tummy') { lastTummyStart = r.time; }
-                    else if (r.tummyStatus === 'end_tummy' && lastTummyStart) {
-                        let diffMins = (r.time - lastTummyStart) / 1000 / 60;
-                        if (dailyStats[rDate]) dailyStats[rDate].tummyMins += diffMins;
-                        lastTummyStart = null;
+                    if (r.durationMins) {
+                        if (dailyStats[rDate]) dailyStats[rDate].tummyMins += r.durationMins;
+                    } else {
+                        // 相容舊資料邏輯
+                        if (r.tummyStatus === 'start_tummy') { lastTummyStart = r.time; }
+                        else if (r.tummyStatus === 'end_tummy' && lastTummyStart) {
+                            let diffMins = (r.time - lastTummyStart) / 1000 / 60;
+                            if (dailyStats[rDate]) dailyStats[rDate].tummyMins += diffMins;
+                            lastTummyStart = null;
+                        }
                     }
                 }
 
-                // 🔥 記錄最新一次沖涼時間
                 if (r.category === 'bath') {
                     lastBathTime = r.time;
                 }
@@ -1209,7 +1337,14 @@ const firebaseConfig = {
                     else if (r.category === 'sleep') { icon = '💤'; desc = (r.sleepStatus === 'start_sleep') ? translations[currentLang].sleepStart : translations[currentLang].sleepEnd; }
                     else if (r.category === 'temp') { icon = '🌡️'; desc = `${translations[currentLang].labelTemp}: ${r.temp}°C`; }
                     else if (r.category === 'bath') { icon = '🛀'; desc = translations[currentLang].bathRecord || '紀錄沖涼'; }
-                    else if (r.category === 'tummy') { icon = '🐢'; desc = (r.tummyStatus === 'start_tummy') ? translations[currentLang].tummyStart : translations[currentLang].tummyEnd; }
+                    else if (r.category === 'tummy') { 
+                        icon = '🐢'; 
+                        if (r.durationMins) {
+                            desc = `${translations[currentLang].tummyTitle} (${r.durationMins} min)`;
+                        } else {
+                            desc = (r.tummyStatus === 'start_tummy') ? translations[currentLang].tummyStart : translations[currentLang].tummyEnd; 
+                        }
+                    }
                     else if (r.category === 'growth') {
                         icon = '📏'; let arr = [];
                         if (r.height) arr.push(`${translations[currentLang].lblHeight}: ${r.height}cm`);
@@ -1236,14 +1371,13 @@ const firebaseConfig = {
                 document.getElementById('sum-diaper-val').innerText = dayDiaperCount;
                 document.getElementById('sum-sleep-val').innerText = (daySleepMins / 60).toFixed(1);
                 
-                // 🔥 計算下次沖涼時間與超時警告
                 let bathDisplay = "--";
                 let bathStyle = "color: #00838f;";
                 if (lastBathTime) {
                     let nextBathTime = new Date(lastBathTime.getTime() + 24 * 60 * 60 * 1000);
                     if (now > nextBathTime) {
                         bathDisplay = translations[currentLang].overdueBath;
-                        bathStyle = "color: #d32f2f; font-weight: 900; font-size: 1.2rem;"; // 超時顯示粗體紅字
+                        bathStyle = "color: #d32f2f; font-weight: 900; font-size: 1.2rem;"; 
                     } else {
                         let mm = String(nextBathTime.getMonth() + 1).padStart(2, '0');
                         let dd = String(nextBathTime.getDate()).padStart(2, '0');
@@ -1306,7 +1440,12 @@ const firebaseConfig = {
                 } else if(r.category === 'sleep') { detail = r.sleepStatus === 'start_sleep' ? translations[currentLang].sleepStart : translations[currentLang].sleepEnd;
                 } else if(r.category === 'temp') { detail = `${r.temp}°C`;
                 } else if(r.category === 'bath') { detail = translations[currentLang].bathRecord || '紀錄沖涼';
-                } else if(r.category === 'tummy') { detail = r.tummyStatus === 'start_tummy' ? translations[currentLang].tummyStart : translations[currentLang].tummyEnd;
+                } else if(r.category === 'tummy') { 
+                    if (r.durationMins) {
+                        detail = `${translations[currentLang].tummyTitle} ${r.durationMins} min`;
+                    } else {
+                        detail = r.tummyStatus === 'start_tummy' ? translations[currentLang].tummyStart : translations[currentLang].tummyEnd;
+                    }
                 } else if(r.category === 'growth') {
                     let hStr = r.height ? (currentLang==='zh'?'身高:':'H:') + r.height + 'cm' : '';
                     let wStr = r.weight ? (currentLang==='zh'?'體重:':'W:') + r.weight + 'kg' : ''; detail = `${hStr} ${wStr}`.trim();
@@ -1359,7 +1498,7 @@ const firebaseConfig = {
         setTime('sleep', 0, document.querySelector('#sleep-card .btn-group button'));
         setTime('temp', 0, document.querySelector('#temp-card .btn-group button'));
         setTime('bath', 0, document.querySelector('#bath-card .btn-group button'));
-        setTime('tummy', 0, document.querySelector('#tummy-card .btn-group button'));
+        
         restoreLastBrand(); if(window.innerWidth <= 850) document.getElementById('desktop-title').style.display = 'none';
     };
 </script>

@@ -357,10 +357,22 @@
             </div>
         </div>
 
-        <div id="milk-volume-section" class="section hidden">
-            <label class="label"><span data-i18n="labelBreastVol">人奶量</span>: <span id="breastmilk-val-display" style="color:var(--theme-color); font-size:1.4rem;">150</span> ML</label>
-            <input type="range" id="breastmilk-volume" min="10" max="300" step="10" value="150" oninput="document.getElementById('breastmilk-val-display').innerText=this.value">
-        </div>
+<div id="milk-volume-section" class="section hidden" style="margin-bottom: 20px;">
+    <label class="label"><span data-i18n="labelBreastVol">人奶量</span>: <span id="breastmilk-val-display" style="color:var(--theme-color); font-size:1.4rem;">150</span> ML</label>
+    <input type="range" id="breastmilk-volume" min="10" max="300" step="10" value="150" oninput="document.getElementById('breastmilk-val-display').innerText=this.value" style="width: 100%; margin-bottom: 15px;">
+    
+    <label class="label" style="margin-bottom: 10px; font-size: 0.9rem; color: var(--text-muted);" data-i18n="labelQuickMl">快速選擇 (ML)</label>
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+        <button class="btn" onclick="document.getElementById('breastmilk-volume').value=30; document.getElementById('breastmilk-val-display').innerText='30';">30</button>
+        <button class="btn" onclick="document.getElementById('breastmilk-volume').value=60; document.getElementById('breastmilk-val-display').innerText='60';">60</button>
+        <button class="btn" onclick="document.getElementById('breastmilk-volume').value=90; document.getElementById('breastmilk-val-display').innerText='90';">90</button>
+        <button class="btn" onclick="document.getElementById('breastmilk-volume').value=120; document.getElementById('breastmilk-val-display').innerText='120';">120</button>
+        <button class="btn" onclick="document.getElementById('breastmilk-volume').value=150; document.getElementById('breastmilk-val-display').innerText='150';">150</button>
+        <button class="btn" onclick="document.getElementById('breastmilk-volume').value=180; document.getElementById('breastmilk-val-display').innerText='180';">180</button>
+        <button class="btn" onclick="document.getElementById('breastmilk-volume').value=210; document.getElementById('breastmilk-val-display').innerText='210';">210</button>
+        <button class="btn" onclick="document.getElementById('breastmilk-volume').value=240; document.getElementById('breastmilk-val-display').innerText='240';">240</button>
+    </div>
+</div>
 
         <div id="direct-section" class="section hidden">
             <label class="label" data-i18n="labelDuration">親餵時長 (分鐘)</label>
@@ -384,19 +396,22 @@
             </div>
         </div>
 
-        <div id="pump-section" class="section hidden">
-            <label class="label" data-i18n="labelPumpVol">泵奶量 (ML)</label>
-            <div class="row">
-                <div class="col split-divider">
-                    <div style="font-weight:bold; color:var(--theme-color); margin-bottom:5px;"><span data-i18n="lblLeft">左胸 (L)</span>: <span id="pump-left-display" style="font-size:1.3rem;">0</span> ML</div>
-                    <input type="range" id="pump-left" min="0" max="300" step="10" value="0" oninput="document.getElementById('pump-left-display').innerText=this.value">
-                </div>
-                <div class="col">
-                    <div style="font-weight:bold; color:var(--theme-color); margin-bottom:5px;"><span data-i18n="lblRight">右胸 (R)</span>: <span id="pump-right-display" style="font-size:1.3rem;">0</span> ML</div>
-                    <input type="range" id="pump-right" min="0" max="300" step="10" value="0" oninput="document.getElementById('pump-right-display').innerText=this.value">
-                </div>
-            </div>
-        </div>
+<div id="pump-section" class="section hidden" style="margin-bottom: 20px;">
+    <label class="label"><span data-i18n="labelPumpVol">泵奶量</span>: <span id="pump-val-display" style="color:var(--theme-color); font-size:1.4rem;">150</span> ML</label>
+    <input type="range" id="pump-volume" min="10" max="300" step="10" value="150" oninput="document.getElementById('pump-val-display').innerText=this.value" style="width: 100%; margin-bottom: 15px;">
+    
+    <label class="label" style="margin-bottom: 10px; font-size: 0.9rem; color: var(--text-muted);" data-i18n="labelQuickMl">快速選擇 (ML)</label>
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+        <button class="btn" onclick="document.getElementById('pump-volume').value=30; document.getElementById('pump-val-display').innerText='30';">30</button>
+        <button class="btn" onclick="document.getElementById('pump-volume').value=60; document.getElementById('pump-val-display').innerText='60';">60</button>
+        <button class="btn" onclick="document.getElementById('pump-volume').value=90; document.getElementById('pump-val-display').innerText='90';">90</button>
+        <button class="btn" onclick="document.getElementById('pump-volume').value=120; document.getElementById('pump-val-display').innerText='120';">120</button>
+        <button class="btn" onclick="document.getElementById('pump-volume').value=150; document.getElementById('pump-val-display').innerText='150';">150</button>
+        <button class="btn" onclick="document.getElementById('pump-volume').value=180; document.getElementById('pump-val-display').innerText='180';">180</button>
+        <button class="btn" onclick="document.getElementById('pump-volume').value=210; document.getElementById('pump-val-display').innerText='210';">210</button>
+        <button class="btn" onclick="document.getElementById('pump-volume').value=240; document.getElementById('pump-val-display').innerText='240';">240</button>
+    </div>
+</div>
 
         <button class="submit-btn" id="btn-submit-feeding" onclick="submitData('feeding')" data-i18n="saveFeeding">儲存吃奶紀錄</button>
     </div>

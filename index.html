@@ -893,6 +893,9 @@ const firebaseConfig = {
         document.querySelectorAll('.baby-tab').forEach(t => t.classList.remove('active'));
         document.getElementById(`tab-${babyId}`).classList.add('active'); restoreLastBrand();
         updateProfileUI();
+
+        initSleepStatusListener();
+        
         if(document.getElementById('log-card').classList.contains('active') || document.getElementById('history-card').classList.contains('active')) loadDashboardData();
     }
 
@@ -923,6 +926,8 @@ const firebaseConfig = {
                 if (typeof loadDashboardData === "function") {
                     loadDashboardData(); 
                 }
+
+                initSleepStatusListener();
                 
             } else { 
                 overlay.style.display = 'flex'; document.getElementById('user-info').innerText = ''; 
@@ -1543,59 +1548,71 @@ let tummyStartTime = 0; let tummyInterval = null;
         restoreLastBrand(); if(window.innerWidth <= 850) document.getElementById('desktop-title').style.display = 'none';
    
 
-    let globalSleepTimer = null;
+let globalSleepTimer = null;
+    let sleepStatusUnsubscribe = null;
 
     function initSleepStatusListener() {
-        console.log("偵測系統：已啟動睡眠狀態監聽..."); 
+        // 如果還沒登入，就不啟動
+        if (!auth.currentUser) return; 
 
-        let query = db.collection("baby_records");
-        
-        // 【重要】如果您有登入系統，通常需要只監聽自己的資料，請解除下一行的註解並確認您的 uid 變數名稱 (例如 currentUser.uid 或 currentUid)
-        // query = query.where("uid", "==", currentUid); 
+        // 每次切換寶寶時，先停止前一個寶寶的監聽
+        if (sleepStatusUnsubscribe) {
+            sleepStatusUnsubscribe();
+        }
 
-        query.orderBy("timestamp", "desc")
-          .limit(20)
-          .onSnapshot((snapshot) => {
-              console.log("偵測系統：收到 Firebase 資料庫更新！抓到 " + snapshot.docs.length + " 筆紀錄");
-              
-              const banner = document.getElementById('sleep-status-banner');
-              const durationText = document.getElementById('sleep-duration-text');
-              if (!banner || !durationText) return;
-              
-              // 找尋最新的一筆睡眠紀錄
-              let lastSleepRecord = null;
-              for (let doc of snapshot.docs) {
-                  let data = doc.data();
-                  if (data.category === 'sleep') {
-                      lastSleepRecord = data;
-                      break;
-                  }
-              }
-              
-              if (!lastSleepRecord || lastSleepRecord.sleepStatus !== 'start_sleep') {
-                  banner.style.display = 'none';
-                  if (globalSleepTimer) clearInterval(globalSleepTimer);
-                  return;
-              }
-              
-              banner.style.display = 'block';
-              if (globalSleepTimer) clearInterval(globalSleepTimer);
-              
-              const updateDuration = () => {
-                  const now = new Date().getTime();
-                  const diffMs = now - lastSleepRecord.timestamp;
-                  const diffMins = Math.floor(diffMs / 60000);
-                  const hrs = Math.floor(diffMins / 60);
-                  const mins = diffMins % 60;
-                  durationText.innerText = hrs > 0 ? `${hrs} 小時 ${mins} 分鐘` : `${diffMins} 分鐘`;
-              };
-              
-              updateDuration();
-              globalSleepTimer = setInterval(updateDuration, 60000);
-          }, (error) => {
-              // 如果 Firebase 報錯，會顯示在這裡！
-              console.error("偵測系統：Firebase 監聽失敗，原因：", error);
-          });
+        // 啟動即時監聽 (針對當前用戶與當前選擇的寶寶)
+        sleepStatusUnsubscribe = db.collection("baby_records")
+            .where("userId", "==", auth.currentUser.uid)
+            .where("babyId", "==", currentBabyId)
+            .onSnapshot((snapshot) => {
+                const banner = document.getElementById('sleep-status-banner');
+                const durationText = document.getElementById('sleep-duration-text');
+                if (!banner || !durationText) return;
+
+                // 篩選出睡眠紀錄，並轉換時間格式
+                let sleepRecords = [];
+                snapshot.forEach(doc => {
+                    let data = doc.data();
+                    if(data.category === 'sleep') {
+                        data.timeMs = (data.recordTime && data.recordTime.toDate) ? data.recordTime.toDate().getTime() : new Date(data.recordTime).getTime();
+                        sleepRecords.push(data);
+                    }
+                });
+
+                if (sleepRecords.length === 0) {
+                    banner.style.display = 'none';
+                    if (globalSleepTimer) clearInterval(globalSleepTimer);
+                    return;
+                }
+
+                // 將睡眠紀錄依時間由新到舊排序
+                sleepRecords.sort((a, b) => b.timeMs - a.timeMs);
+                let latestRecord = sleepRecords[0];
+
+                // 如果最新的一筆紀錄是「開始睡眠」，顯示橫幅並開始計時
+                if (latestRecord.sleepStatus === 'start_sleep') {
+                    banner.style.display = 'block';
+                    if (globalSleepTimer) clearInterval(globalSleepTimer);
+
+                    const updateDuration = () => {
+                        const now = new Date().getTime();
+                        const diffMs = now - latestRecord.timeMs;
+                        let diffMins = Math.floor(diffMs / 60000);
+                        if (diffMins < 0) diffMins = 0; // 防呆機制
+                        
+                        const hrs = Math.floor(diffMins / 60);
+                        const mins = diffMins % 60;
+                        durationText.innerText = hrs > 0 ? `${hrs} 小時 ${mins} 分鐘` : `${diffMins} 分鐘`;
+                    };
+
+                    updateDuration(); // 立即更新一次
+                    globalSleepTimer = setInterval(updateDuration, 60000); // 之後每分鐘更新
+                } else {
+                    // 如果最新的一筆是結束睡眠，隱藏橫幅
+                    banner.style.display = 'none';
+                    if (globalSleepTimer) clearInterval(globalSleepTimer);
+                }
+            });
     }
     
     };

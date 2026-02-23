@@ -8,18 +8,25 @@
         :root {
             --bg-color: #f4f7f6; --sidebar-bg: #ffffff; --card-bg: #ffffff; --text-color: #333333;
             --text-muted: #666666; --border-color: #e0e0e0; --btn-bg: #f9f9f9; --theme-color: #E91E63; 
-            --theme-light: rgba(233, 30, 99, 0.1); --red-packet-bg: #fff5f5; --red-packet-border: #ffcccc; --red-packet-text: #d32f2f;
+            --theme-light: rgba(233, 30, 99, 0.1);
         }
         [data-theme="dark"] {
             --bg-color: #121212; --sidebar-bg: #1e1e1e; --card-bg: #242424; --text-color: #e0e0e0;
-            --text-muted: #aaaaaa; --border-color: #444444; --btn-bg: #2c2c2c; --red-packet-bg: #3b1a1a; --red-packet-border: #5c2b2b; --red-packet-text: #ff8a8a;
+            --text-muted: #aaaaaa; --border-color: #444444; --btn-bg: #2c2c2c;
         }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; display: flex; height: 100dvh; overflow: hidden; transition: 0.3s; }
         
+        /* 🔥 登入頁版面排版 */
         #auth-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--bg-color); z-index: 3000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
-        .auth-card { background: var(--card-bg); padding: 30px 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; border-top: 6px solid var(--theme-color); }
-        .auth-title { font-size: 1.6rem; font-weight: bold; margin-bottom: 15px; color: var(--text-color); }
-        .auth-input { width: 100%; padding: 12px; border: 2px solid var(--border-color); border-radius: 10px; font-size: 1rem; box-sizing: border-box; background: var(--btn-bg); color: var(--text-color); margin-bottom: 12px; }
+        .auth-container { display: flex; flex-direction: row-reverse; align-items: center; justify-content: center; gap: 50px; max-width: 900px; width: 100%; }
+        .auth-intro { flex: 1; text-align: center; color: var(--text-color); }
+        .auth-intro h1 { font-size: 2.2rem; color: var(--theme-color); margin-bottom: 10px; }
+        .auth-intro p { font-size: 1.1rem; color: var(--text-muted); margin-bottom: 25px; line-height: 1.6; padding: 0 20px; }
+        .auth-intro img { width: 100%; max-width: 280px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); object-fit: cover; }
+        .auth-card { background: var(--card-bg); padding: 40px 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 350px; text-align: center; border-top: 6px solid var(--theme-color); flex-shrink: 0; }
+        
+        .auth-title { font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; color: var(--text-color); }
+        .auth-input { width: 100%; padding: 12px; border: 2px solid var(--border-color); border-radius: 10px; font-size: 1rem; box-sizing: border-box; background: var(--btn-bg); color: var(--text-color); margin-bottom: 15px; }
         .auth-btn { width: 100%; padding: 12px; background: var(--theme-color); color: white; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-bottom: 12px; transition: 0.2s; box-shadow: 0 4px 10px var(--theme-light); }
         .auth-btn.outline { background: transparent; color: var(--theme-color); border: 2px solid var(--theme-color); box-shadow: none; }
         .auth-btn.google { background: #ffffff; color: #444; border: 1px solid #ccc; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 0; }
@@ -91,7 +98,7 @@
         .edit-icon-btn { position: absolute; right: 15px; top: 15px; background: white; border: 1px solid var(--border-color); padding: 5px 10px; border-radius: 5px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .chart-container { position: relative; width: 100%; margin-bottom: 20px; }
 
-        /* 🔥 計時器 UI */
+        /* 計時器 UI */
         .timer-circle {
             width: 160px; height: 160px; border-radius: 50%; border: 6px solid var(--theme-color);
             display: flex; align-items: center; justify-content: center;
@@ -112,7 +119,7 @@
             100% { box-shadow: 0 0 0 0 rgba(103, 58, 183, 0); }
         }
 
-        /* 🔥 Slider (時間/奶量) UI */
+        /* Slider UI */
         input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; margin: 10px 0; }
         input[type=range]::-webkit-slider-thumb {
             -webkit-appearance: none; height: 26px; width: 26px; border-radius: 50%;
@@ -121,9 +128,9 @@
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 8px; cursor: pointer; background: var(--border-color); border-radius: 4px; }
         [data-theme="dark"] input[type=range]::-webkit-slider-runnable-track { background: #555; }
 
-        /* 🔥 體溫專屬山火漸層 Slider */
+        /* 🔥 山火指數體溫漸層 Slider */
         .temp-slider-track::-webkit-slider-runnable-track {
-            background: linear-gradient(to right, #4fc3f7 0%, #4fc3f7 22.5%, #8bc34a 22.5%, #8bc34a 50%, #f44336 50%, #f44336 100%) !important;
+            background: linear-gradient(to right, #2196F3 0%, #2196F3 22.5%, #4CAF50 22.5%, #4CAF50 50%, #F44336 50%, #F44336 100%) !important;
         }
 
         @media (max-width: 850px) {
@@ -137,6 +144,10 @@
             .summary-grid { grid-template-columns: repeat(3, 1fr); }
             .full-width-box { grid-column: span 3; }
             .time-display { font-size: 1rem; padding: 4px 10px; }
+            
+            /* 🔥 手機版登入頁排版：簡介在上，登入在下 */
+            .auth-container { flex-direction: column; gap: 30px; }
+            .auth-intro h1 { font-size: 1.8rem; }
         }
     </style>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
@@ -147,19 +158,25 @@
 <body>
 
 <div id="auth-overlay">
-    <div class="auth-card">
-        <img src="https://raw.githubusercontent.com/tathome2025/babytracker/refs/heads/main/square.jpg" alt="Welcome to Baby Tracker" style="width: 100%; max-width: 220px; border-radius: 20px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); object-fit: cover;">
-        <div class="auth-title" data-i18n="loginTitle">登入寶寶成長紀錄</div>
-        <div id="auth-error-msg" class="auth-error"></div>
-        <input type="email" id="auth-email" class="auth-input" data-i18n-placeholder="emailPlaceholder" placeholder="電子郵件 Email">
-        <input type="password" id="auth-password" class="auth-input" data-i18n-placeholder="pwPlaceholder" placeholder="密碼 Password">
-        <button class="auth-btn" onclick="loginUser()" data-i18n="btnLogin" style="background:#E91E63;">Email 登入</button>
-        <button class="auth-btn outline" onclick="registerUser()" data-i18n="btnRegister" style="color:#E91E63; border-color:#E91E63;">註冊新帳號</button>
-        <div class="auth-divider" data-i18n="orText">或</div>
-        <button class="auth-btn google" onclick="loginWithGoogle()">
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="20" height="20">
-            <span data-i18n="btnGoogleLogin">使用 Google 登入</span>
-        </button>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-title" data-i18n="loginTitle">登入寶寶成長紀錄</div>
+            <div id="auth-error-msg" class="auth-error"></div>
+            <input type="email" id="auth-email" class="auth-input" data-i18n-placeholder="emailPlaceholder" placeholder="電子郵件 Email">
+            <input type="password" id="auth-password" class="auth-input" data-i18n-placeholder="pwPlaceholder" placeholder="密碼 Password">
+            <button class="auth-btn" onclick="loginUser()" data-i18n="btnLogin">Email 登入</button>
+            <button class="auth-btn outline" onclick="registerUser()" data-i18n="btnRegister">註冊新帳號</button>
+            <div class="auth-divider" data-i18n="orText">或</div>
+            <button class="auth-btn google" onclick="loginWithGoogle()">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="20" height="20">
+                <span data-i18n="btnGoogleLogin">使用 Google 登入</span>
+            </button>
+        </div>
+        <div class="auth-intro">
+            <h1 data-i18n="appTitle">寶寶成長紀錄</h1>
+            <p data-i18n="appDesc">輕鬆紀錄寶寶吃奶、睡眠、換尿片等日常，一目了然的統計圖表，伴隨寶寶健康成長。</p>
+            <img src="https://raw.githubusercontent.com/tathome2025/babytracker/refs/heads/main/square.jpg" alt="Preview">
+        </div>
     </div>
 </div>
 
@@ -285,7 +302,10 @@
         <h2>
             <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
                 <span data-i18n="feedingTitle">🍼 吃奶紀錄</span>
-                <div class="time-wrapper"><span class="time-label" data-i18n="currentTime">現在時間：</span><span id="time-feeding" class="time-display">--/-- --:--</span></div>
+                <div class="time-wrapper">
+                    <span class="time-label" data-i18n="currentTime">現在時間：</span>
+                    <span id="time-feeding" class="time-display">--/-- --:--</span>
+                </div>
             </div>
             <button id="mode-btn-feeding" class="btn outline" style="width: auto; padding: 6px 12px; font-size: 0.9rem;" onclick="toggleManualMode('feeding')" data-i18n="btnManualMode">📅 補登過去紀錄</button>
         </h2>
@@ -320,13 +340,26 @@
                 <label class="label" style="font-size: 0.85rem; margin-bottom: 4px;" data-i18n="labelRecent">最近使用：</label>
                 <div class="btn-group" id="recent-brand-list" style="grid-template-columns: repeat(2, 1fr); gap: 6px;"></div>
             </div>
-            <label class="label" style="margin-top:10px;"><span data-i18n="labelFormulaVol">配方奶量</span>: <span id="formula-val-display" style="color:var(--theme-color); font-size:1.3rem;">150</span> ML</label>
-            <input type="range" id="formula-volume" min="10" max="300" step="10" value="150" class="milk-slider" oninput="document.getElementById('formula-val-display').innerText=this.value">
+            
+            <label class="label" style="margin-top:10px;"><span data-i18n="labelFormulaVol">配方奶量</span>: <span id="formula-val-display" style="color:var(--theme-color); font-size:1.4rem;">150</span> ML</label>
+            <input type="range" id="formula-volume" min="10" max="300" step="10" value="150" oninput="document.getElementById('formula-val-display').innerText=this.value">
+            
+            <label class="label" style="margin-top:15px;" data-i18n="labelQuickMl">快速選擇</label>
+            <div class="btn-group" style="grid-template-columns: repeat(4, 1fr);">
+                <button class="btn" onclick="setSliderVal('formula-volume', 'formula-val-display', 30)">30</button>
+                <button class="btn" onclick="setSliderVal('formula-volume', 'formula-val-display', 60)">60</button>
+                <button class="btn" onclick="setSliderVal('formula-volume', 'formula-val-display', 90)">90</button>
+                <button class="btn" onclick="setSliderVal('formula-volume', 'formula-val-display', 120)">120</button>
+                <button class="btn" onclick="setSliderVal('formula-volume', 'formula-val-display', 150)">150</button>
+                <button class="btn" onclick="setSliderVal('formula-volume', 'formula-val-display', 180)">180</button>
+                <button class="btn" onclick="setSliderVal('formula-volume', 'formula-val-display', 210)">210</button>
+                <button class="btn" onclick="setSliderVal('formula-volume', 'formula-val-display', 240)">240</button>
+            </div>
         </div>
 
         <div id="milk-volume-section" class="section hidden">
-            <label class="label"><span data-i18n="labelBreastVol">人奶量</span>: <span id="breastmilk-val-display" style="color:var(--theme-color); font-size:1.3rem;">150</span> ML</label>
-            <input type="range" id="breastmilk-volume" min="10" max="300" step="10" value="150" class="milk-slider" oninput="document.getElementById('breastmilk-val-display').innerText=this.value">
+            <label class="label"><span data-i18n="labelBreastVol">人奶量</span>: <span id="breastmilk-val-display" style="color:var(--theme-color); font-size:1.4rem;">150</span> ML</label>
+            <input type="range" id="breastmilk-volume" min="10" max="300" step="10" value="150" oninput="document.getElementById('breastmilk-val-display').innerText=this.value">
         </div>
 
         <div id="direct-section" class="section hidden">
@@ -355,12 +388,12 @@
             <label class="label" data-i18n="labelPumpVol">泵奶量 (ML)</label>
             <div class="row">
                 <div class="col split-divider">
-                    <div style="font-weight:bold; color:var(--theme-color); margin-bottom:5px;"><span data-i18n="lblLeft">左胸 (L)</span>: <span id="pump-left-display" style="font-size:1.2rem;">0</span></div>
-                    <input type="range" id="pump-left" min="0" max="300" step="10" value="0" class="milk-slider" oninput="document.getElementById('pump-left-display').innerText=this.value">
+                    <div style="font-weight:bold; color:var(--theme-color); margin-bottom:5px;"><span data-i18n="lblLeft">左胸 (L)</span>: <span id="pump-left-display" style="font-size:1.3rem;">0</span> ML</div>
+                    <input type="range" id="pump-left" min="0" max="300" step="10" value="0" oninput="document.getElementById('pump-left-display').innerText=this.value">
                 </div>
                 <div class="col">
-                    <div style="font-weight:bold; color:var(--theme-color); margin-bottom:5px;"><span data-i18n="lblRight">右胸 (R)</span>: <span id="pump-right-display" style="font-size:1.2rem;">0</span></div>
-                    <input type="range" id="pump-right" min="0" max="300" step="10" value="0" class="milk-slider" oninput="document.getElementById('pump-right-display').innerText=this.value">
+                    <div style="font-weight:bold; color:var(--theme-color); margin-bottom:5px;"><span data-i18n="lblRight">右胸 (R)</span>: <span id="pump-right-display" style="font-size:1.3rem;">0</span> ML</div>
+                    <input type="range" id="pump-right" min="0" max="300" step="10" value="0" oninput="document.getElementById('pump-right-display').innerText=this.value">
                 </div>
             </div>
         </div>
@@ -449,7 +482,7 @@
         </h2>
         
         <div id="live-sleep-section" class="section">
-            <div class="timer-circle" id="sleep-timer-circle" style="border-color: #673AB7;">
+            <div class="timer-circle" id="sleep-timer-circle" style="border-color: #673AB7; color: #673AB7;">
                 <span id="sleep-timer-display">00:00:00</span>
             </div>
             <div class="btn-group" style="grid-template-columns: 1fr; margin-bottom: 10px;">
@@ -497,14 +530,13 @@
             </div>
             <div class="col">
                 <label class="label" data-i18n="labelTemp">滑動輸入體溫 (°C)</label>
-                <div style="text-align: center; font-size: 2.2rem; font-weight: 900; color: var(--theme-color); margin: 10px 0;" id="temp-display">36.5 <span style="font-size:1.2rem;">°C</span></div>
+                <div style="text-align: center; font-size: 2.5rem; font-weight: 900; color: #4CAF50; margin: 10px 0;" id="temp-display">36.5 <span style="font-size:1.2rem;">°C</span></div>
                 
-                <input type="range" id="temp-val" min="34.0" max="42.0" step="0.1" value="36.5" class="temp-slider-track" oninput="document.getElementById('temp-display').innerHTML = parseFloat(this.value).toFixed(1) + ' <span style=\'font-size:1.2rem;\'>°C</span>'">
+                <input type="range" id="temp-val" min="34.0" max="42.0" step="0.1" value="36.5" class="temp-slider-track" oninput="updateTempColor(this.value)">
                 
-                <div style="display:flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted); font-weight:bold;">
+                <div style="display:flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-muted); font-weight:bold;">
                     <span style="color:#2196F3;">34.0</span>
-                    <span style="color:#4CAF50;">35.8 (正常)</span>
-                    <span style="color:#F44336;">38.0 (發燒)</span>
+                    <span style="color:#4CAF50;">35.8~38.0 (正常)</span>
                     <span style="color:#F44336;">42.0</span>
                 </div>
             </div>
@@ -546,12 +578,12 @@
         </h2>
         
         <div id="live-tummy-section" class="section">
-            <div class="timer-circle" id="tummy-timer-circle">
+            <div class="timer-circle" id="tummy-timer-circle" style="border-color: #8BC34A; color: #8BC34A;">
                 <span id="tummy-timer-display">00:00</span>
             </div>
             <div class="btn-group" style="grid-template-columns: 1fr; margin-bottom: 10px;">
-                <button id="tummy-start-btn" onclick="startTummyTimer()" class="btn" style="background-color: #8BC34A; color: white; border-color: #8BC34A; padding: 15px; font-size: 1.2rem;" data-i18n="btnStartTimer">開始計時</button>
-                <button id="tummy-stop-btn" onclick="stopTummyTimer()" class="btn hidden" style="background-color: #f44336; color: white; border-color: #f44336; padding: 15px; font-size: 1.2rem;" data-i18n="btnStopTimer">完成並紀錄</button>
+                <button id="tummy-start-btn" onclick="startTummyTimer()" class="btn" style="background-color: #8BC34A; color: white; border-color: #8BC34A; padding: 15px; font-size: 1.2rem;" data-i18n="btnStartTimer">▶ 開始計時</button>
+                <button id="tummy-stop-btn" onclick="stopTummyTimer()" class="btn hidden" style="background-color: #f44336; color: white; border-color: #f44336; padding: 15px; font-size: 1.2rem;" data-i18n="btnStopTimer">⏹ 完成並紀錄</button>
             </div>
         </div>
 
@@ -618,6 +650,26 @@
     </div>
 </div>
 
+<div class="modal" id="settings-modal">
+    <div class="modal-content">
+        <h2 style="font-size: 1.2rem;" data-i18n="settingsTitle">⚙️ 設定寶寶名稱</h2>
+        <div class="section">
+            <label class="label" data-i18n="firstBaby">👶 第一位寶寶</label>
+            <input type="text" id="input-baby1-name" class="input-text" data-i18n-placeholder="settingsPlaceholder1" placeholder="例如：大寶">
+        </div>
+        <div class="section">
+            <label class="label" data-i18n="secondBaby">👶 第二位寶寶</label>
+            <input type="text" id="input-baby2-name" class="input-text" data-i18n-placeholder="settingsPlaceholder2" placeholder="例如：二寶">
+        </div>
+        <div class="section hidden" id="setting-baby3">
+            <label class="label" data-i18n="thirdBaby">👶 第三位寶寶</label>
+            <input type="text" id="input-baby3-name" class="input-text" data-i18n-placeholder="settingsPlaceholder3" placeholder="例如：三寶">
+        </div>
+        <button class="submit-btn" style="margin-top: 5px; padding: 12px; font-size: 1rem;" onclick="saveBabyNames()" data-i18n="saveSettingsBtn">💾 儲存 (同步雲端)</button>
+        <button class="btn" style="width: 100%; margin-top: 8px; padding: 10px;" onclick="closeSettingsModal()" data-i18n="cancelBtn">取消</button>
+    </div>
+</div>
+
 <script>
     // ==========================================
     // 🚨 記得把你的 Firebase 金鑰貼回來！ 🚨
@@ -642,9 +694,9 @@ const firebaseConfig = {
 
     const translations = {
         zh: {
-            appTitle: "寶寶成長紀錄", loginTitle: "登入寶寶成長紀錄", emailPlaceholder: "電子郵件 Email", pwPlaceholder: "密碼 Password",
+            appTitle: "寶寶成長紀錄", appDesc: "輕鬆紀錄寶寶吃奶、睡眠、換尿片等日常，一目了然的統計圖表，伴隨寶寶健康成長。", loginTitle: "登入寶寶成長紀錄", emailPlaceholder: "電子郵件 Email", pwPlaceholder: "密碼 Password",
             btnLogin: "Email 登入", btnRegister: "註冊新帳號", orText: "或", btnGoogleLogin: "使用 Google 登入",
-            navFeeding: "🍼 吃奶", navDiaper: "🧻 尿片", navSleep: "💤 睡眠", navTemp: "🌡️ 體溫紀錄", navBath: "🛀 沖涼", navTummy: "🐢 趴撐練習", navGrowth: "📏 成長紀錄", navLog: "📅 24h 日誌", navHistory: "📊 趨勢圖表", navRedPacket: "🧧 利是紀錄",
+            navLog: "📅 24h 日誌", navGrowth: "📏 成長紀錄", navFeeding: "🍼 吃奶", navDiaper: "🧻 尿片", navSleep: "💤 睡眠", navTemp: "🌡️ 體溫紀錄", navBath: "🛀 沖涼", navTummy: "🐢 趴撐練習", navHistory: "📊 趨勢圖表", navRedPacket: "🧧 利是紀錄",
             btnExportCSV: "📥 匯出完整紀錄", btnSettings: "⚙️ 設定寶寶名稱", btnLogout: "🚪 登出帳號", btnThemeDark: "🌙 切換夜間", btnThemeLight: "☀️ 切換日間",
             tabBaby1: "大寶", tabBaby2: "二寶", tabBaby3: "三寶",
             currentTime: "現在時間：", lblLeft: "左胸 (L)", lblRight: "右胸 (R)", yes: "有 ✅", no: "無 ❌",
@@ -653,24 +705,24 @@ const firebaseConfig = {
             labelSliderNow: "現在 (0 分鐘前)",
             labelFeedType: "吃奶種類", formula: "配方奶", breastmilk: "人奶(樽)", direct: "親餵", pump: "泵奶",
             labelBrand: "牌子及型號", brandPlaceholder: "例如：Illuma 1段", labelRecent: "最近使用：",
-            labelFormulaVol: "配方奶量", labelBreastVol: "人奶量",
-            mlPlaceholder: "或手動輸入 ML", labelQuickMl: "快速選擇奶量 (ML)", labelMl: "奶量 (ML)", manualMlPlaceholder: "請手動輸入 ML",
+            labelFormulaVol: "配方奶量", labelBreastVol: "人奶量", labelQuickMl: "快速選擇",
+            mlPlaceholder: "或手動輸入 ML", labelMl: "奶量 (ML)", manualMlPlaceholder: "請手動輸入 ML",
             labelDuration: "親餵時長 (分鐘)", durationPlaceholder: "分鐘", labelPumpVol: "泵奶量 (ML)", saveFeeding: "儲存吃奶紀錄", btnStartTimer: "▶ 開始計時", btnStopTimer: "⏹ 停止",
             diaperTitle: "🧻 換尿片紀錄", labelBasicStatus: "基本狀態", pee: "有小便 💦", noPoo: "沒大便", poo: "有大便 💩",
             labelPooColor: "大便顏色", colorYellow: "🟡 黃", colorBrown: "🟤 啡", colorGreen: "🟢 綠", colorOther: "⚪ 其他",
             otherColorPlaceholder: "請填寫顏色", labelPooAmount: "大便量", labelRash: "尿布疹 (Diaper Rash)", rashNone: "無", rashMild: "輕微", rashMod: "中度", rashSevere: "嚴重", saveDiaper: "儲存尿片紀錄",
             sleepTitle: "💤 睡眠紀錄", labelEventTime: "發生時間", labelSleepStatus: "睡眠狀態", labelSleepDuration: "睡眠時長 (分鐘)",
             sleepStart: "開始睡覺", sleepEnd: "睡醒並紀錄", saveSleep: "儲存睡眠紀錄",
-            tempTitle: "🌡️ 體溫紀錄", labelTemp: "體溫 (°C)", saveTemp: "儲存體溫紀錄", chartTitleTemp: "🌡️ 每日最高體溫 (°C)",
+            tempTitle: "🌡️ 體溫紀錄", labelTemp: "滑動輸入體溫 (°C)", saveTemp: "儲存體溫紀錄", chartTitleTemp: "🌡️ 每日最高體溫 (°C)",
             bathTitle: "🛀 沖涼紀錄", labelBathStatus: "沖涼打卡", bathRecord: "紀錄沖涼 🛀", saveBath: "🛀 一鍵儲存沖涼紀錄",
-            tummyTitle: "🐢 趴撐練習紀錄", labelTummyDuration: "趴撐時長 (分鐘)", saveTummy: "儲存趴撐紀錄",
+            tummyTitle: "🐢 趴撐練習紀錄", labelTummyStatus: "趴撐狀態", labelTummyDuration: "趴撐時長 (分鐘)", tummyStart: "開始趴撐", tummyEnd: "結束趴撐", saveTummy: "儲存趴撐紀錄",
             birthProfile: "👶 出生資料", labelBirthDate: "出生日期", labelBirthTime: "出生時間", labelBirthLoc: "出生地點", placeholderLoc: "醫院或診所名稱",
             labelBirthWeight: "出生體重", labelBirthHeight: "出生身高", saveProfile: "💾 儲存出生資料", profileSaved: "✅ 出生資料已更新！",
             growthTitle: "📏 成長紀錄新增", labelGrowthDate: "記錄日期", labelHeight: "身高 (cm)", labelWeight: "體重 (kg)", saveGrowth: "新增成長紀錄",
             settingsTitle: "⚙️ 設定寶寶名稱", firstBaby: "第一位寶寶", secondBaby: "第二位寶寶", thirdBaby: "第三位寶寶",
             settingsPlaceholder1: "例如：大寶", settingsPlaceholder2: "例如：二寶", settingsPlaceholder3: "例如：三寶", saveSettingsBtn: "💾 儲存 (同步雲端)", cancelBtn: "取消",
             alertSettingsSaved: "✅ 設定已同步到雲端！", saving: "儲存中...", alertSuccess: "✅ 成功儲存", alertError: "❌ 錯誤：",
-            historyTitle: "📊 統計趨勢圖表", sumFed12h: "12h內吃奶量", sumPumped: "總泵奶量", sumDiaper: "換尿片", sumSleep: "睡眠時數", nextBath: "下次沖涼時間", overdueBath: "未沖涼 ⚠️", nextFeed: "🍼 下次餵奶時間參考",
+            historyTitle: "📊 統計趨勢圖表", sumFed12h: "12h內吃奶量", sumPumped: "總泵奶量", sumDiaper: "換尿片", sumSleep: "睡眠時數", nextBath: "下次沖涼時間", overdueBath: "未沖涼 ⚠️", nextFeed: "🍼 下次餵奶時間參考", timelineTitle: "📅 24小時日誌",
             logDesc: "顯示從此刻起，往前推算 24 小時內的所有紀錄。", unitTimes: "次", unitHours: "小時",
             deleteConfirm: "確定要刪除這筆紀錄嗎？", emptyHistory: "過去 24 小時內沒有任何紀錄喔！",
             range7: "最近 7 天", range14: "最近 14 天", range30: "最近 1 個月", range90: "最近 3 個月", range180: "最近半年", range365: "最近一年",
@@ -679,9 +731,9 @@ const firebaseConfig = {
             lblFormula: "配方奶", lblBreast: "人奶樽", lblDirect: "親餵", lblPump: "泵奶", lblTimeMin: "時間(分)", lblMilkMl: "奶量(ml)", lblHours: "小時", lblHeight: "身高(cm)", lblWeight: "體重(kg)", lblL: "左", lblR: "右"
         },
         en: {
-            appTitle: "Baby Tracker", loginTitle: "Login to Baby Tracker", emailPlaceholder: "Email", pwPlaceholder: "Password",
+            appTitle: "Baby Tracker", appDesc: "Easily track feeding, sleep, diapers, and growth. View intuitive charts for your baby's daily routine.", loginTitle: "Login to Baby Tracker", emailPlaceholder: "Email", pwPlaceholder: "Password",
             btnLogin: "Login", btnRegister: "Register", orText: "OR", btnGoogleLogin: "Google Login",
-            navFeeding: "🍼 Feeding", navDiaper: "🧻 Diaper", navSleep: "💤 Sleep", navTemp: "🌡️ Temp", navBath: "🛀 Bath", navTummy: "🐢 Tummy Time", navGrowth: "📏 Growth", navLog: "📅 24h Log", navHistory: "📊 Charts", navRedPacket: "🧧 Red Packet",
+            navLog: "📅 24h Log", navGrowth: "📏 Growth", navFeeding: "🍼 Feeding", navDiaper: "🧻 Diaper", navSleep: "💤 Sleep", navTemp: "🌡️ Temp", navBath: "🛀 Bath", navTummy: "🐢 Tummy Time", navHistory: "📊 Charts", navRedPacket: "🧧 Red Packet",
             btnExportCSV: "📥 Export Full Records", btnSettings: "⚙️ Set Baby Name", btnLogout: "🚪 Logout", btnThemeDark: "🌙 Dark", btnThemeLight: "☀️ Light",
             tabBaby1: "Baby 1", tabBaby2: "Baby 2", tabBaby3: "Baby 3",
             currentTime: "Time: ", lblLeft: "Left (L)", lblRight: "Right (R)", yes: "Yes ✅", no: "No ❌",
@@ -690,17 +742,17 @@ const firebaseConfig = {
             labelSliderNow: "Now (0 mins ago)",
             labelFeedType: "Type", formula: "Formula", breastmilk: "Breastmilk", direct: "Nursing", pump: "Pump",
             labelBrand: "Brand", brandPlaceholder: "e.g., Illuma", labelRecent: "Recent:",
-            labelFormulaVol: "Formula Vol", labelBreastVol: "Breastmilk Vol",
-            mlPlaceholder: "Enter ML", labelQuickMl: "Quick Vol (ML)", labelMl: "Volume (ML)", manualMlPlaceholder: "Enter ML",
+            labelFormulaVol: "Formula Vol", labelQuickMl: "Quick Select", labelBreastVol: "Breastmilk Vol",
+            mlPlaceholder: "Enter ML", labelMl: "Volume (ML)", manualMlPlaceholder: "Enter ML",
             labelDuration: "Nursing (mins)", durationPlaceholder: "Mins", labelPumpVol: "Pump Vol (ML)", saveFeeding: "Save Feeding", btnStartTimer: "▶ Start", btnStopTimer: "⏹ Stop",
             diaperTitle: "🧻 Diaper", labelBasicStatus: "Status", pee: "Pee 💦", noPoo: "No Poo", poo: "Poo 💩",
             labelPooColor: "Color", colorYellow: "🟡 Yel", colorBrown: "🟤 Brn", colorGreen: "🟢 Grn", colorOther: "⚪ Oth",
             otherColorPlaceholder: "Custom color", labelPooAmount: "Amount", labelRash: "Diaper Rash", rashNone: "None", rashMild: "Mild", rashMod: "Mod", rashSevere: "Severe", saveDiaper: "Save Diaper",
             sleepTitle: "💤 Sleep", labelEventTime: "Time", labelSleepStatus: "Status", labelSleepDuration: "Sleep Duration (mins)",
             sleepStart: "Start Sleep", sleepEnd: "Wake & Save", saveSleep: "Save Sleep",
-            tempTitle: "🌡️ Temperature", labelTemp: "Temp (°C)", saveTemp: "Save Temp", chartTitleTemp: "🌡️ Daily Max Temperature (°C)",
+            tempTitle: "🌡️ Temperature", labelTemp: "Slide Temp (°C)", saveTemp: "Save Temp", chartTitleTemp: "🌡️ Daily Max Temperature (°C)",
             bathTitle: "🛀 Bath", labelBathStatus: "Status", bathRecord: "Record Bath 🛀", saveBath: "🛀 One-Click Save Bath",
-            tummyTitle: "🐢 Tummy Time", labelTummyDuration: "Duration (mins)", saveTummy: "Save Tummy",
+            tummyTitle: "🐢 Tummy Time", labelTummyStatus: "Status", labelTummyDuration: "Duration (mins)", tummyStart: "Start Tummy", tummyEnd: "End Tummy", saveTummy: "Save Tummy",
             birthProfile: "👶 Birth Profile", labelBirthDate: "Birth Date", labelBirthTime: "Birth Time", labelBirthLoc: "Location", placeholderLoc: "Hospital/Clinic",
             labelBirthWeight: "Birth Wt", labelBirthHeight: "Birth Ht", saveProfile: "💾 Save Profile", profileSaved: "✅ Profile saved!",
             growthTitle: "📏 Add Growth Record", labelGrowthDate: "Record Date", labelHeight: "Height (cm)", labelWeight: "Weight (kg)", saveGrowth: "Save Growth",
@@ -886,7 +938,6 @@ const firebaseConfig = {
         let el = document.getElementById('time-' + cat); if(el) el.innerText = displayStr; 
     }
     
-    // 時間滑桿同步功能
     function syncSliderTime(cat, val) {
         let minsAgo = parseInt(val);
         let label = document.getElementById('slider-label-' + cat);
@@ -934,6 +985,12 @@ const firebaseConfig = {
     setInterval(() => { ['feeding', 'diaper', 'sleep', 'temp', 'bath', 'tummy'].forEach(cat => { if (!isTimeFrozen[cat]) { recordTimes[cat] = new Date(); renderTimeDisplay(cat); }}); }, 1000);
 
     function addVal(id, amt) { let el = document.getElementById(id); let curr = Number(el.value) || 0; el.value = curr + amt; }
+    
+    // 🔥 用於快捷鍵聯動 Slider
+    function setSliderVal(sliderId, displayId, val) {
+        document.getElementById(sliderId).value = val;
+        document.getElementById(displayId).innerText = val;
+    }
 
     function switchTab(tab, btn, colorHex) {
         document.documentElement.style.setProperty('--theme-color', colorHex);
@@ -984,6 +1041,14 @@ const firebaseConfig = {
         } catch (error) {}
     }
 
+    function updateTempColor(val) {
+        let tempDisplay = document.getElementById('temp-display');
+        tempDisplay.innerHTML = parseFloat(val).toFixed(1) + ' <span style="font-size:1.2rem;">°C</span>';
+        if (val < 35.8) tempDisplay.style.color = '#2196F3';
+        else if (val <= 38.0) tempDisplay.style.color = '#4CAF50';
+        else tempDisplay.style.color = '#F44336';
+    }
+
     function updateFeedInterval() {
         let val = parseFloat(document.getElementById('feed-interval-input').value);
         if (!isNaN(val) && val > 0) {
@@ -997,73 +1062,51 @@ const firebaseConfig = {
         document.getElementById('feed-interval-label').innerText = txt;
     }
 
-    // 🔥 趴撐圓形計時器邏輯
-    let tummyStartTime = 0;
-    let tummyInterval = null;
+    // 🔥 計時器邏輯
+    let tummyStartTime = 0; let tummyInterval = null;
+    let sleepStartTime = 0; let sleepInterval = null;
+    let nurseStartTime = { left: 0, right: 0 }; let nurseInterval = { left: null, right: null };
 
     function startTummyTimer() {
-        if (tummyInterval) return; 
-        tummyStartTime = Date.now();
+        if (tummyInterval) return; tummyStartTime = Date.now();
         document.getElementById('tummy-timer-circle').classList.add('active');
         document.getElementById('tummy-start-btn').classList.add('hidden');
         document.getElementById('tummy-stop-btn').classList.remove('hidden');
-
         tummyInterval = setInterval(() => {
             let s = Math.floor((Date.now() - tummyStartTime) / 1000);
-            let mText = Math.floor(s / 60).toString().padStart(2, '0');
-            let sText = (s % 60).toString().padStart(2, '0');
+            let mText = Math.floor(s / 60).toString().padStart(2, '0'); let sText = (s % 60).toString().padStart(2, '0');
             document.getElementById('tummy-timer-display').innerText = `${mText}:${sText}`;
         }, 1000);
     }
-
     async function stopTummyTimer() {
-        if (!tummyInterval) return;
-        clearInterval(tummyInterval);
-        tummyInterval = null;
+        if (!tummyInterval) return; clearInterval(tummyInterval); tummyInterval = null;
         document.getElementById('tummy-timer-circle').classList.remove('active');
-
         let elapsedSecs = Math.floor((Date.now() - tummyStartTime) / 1000);
         if (elapsedSecs === 0) {
             alert(currentLang === 'zh' ? "時間為 0，未儲存紀錄。" : "Time is 0, record not saved.");
-            document.getElementById('tummy-stop-btn').classList.add('hidden');
-            document.getElementById('tummy-start-btn').classList.remove('hidden');
-            return;
+            document.getElementById('tummy-stop-btn').classList.add('hidden'); document.getElementById('tummy-start-btn').classList.remove('hidden'); return;
         }
-
-        let durationMinutes = Math.round(elapsedSecs / 60);
-        if (durationMinutes === 0 && elapsedSecs > 0) durationMinutes = 1; 
-
+        let durationMinutes = Math.round(elapsedSecs / 60); if (durationMinutes === 0 && elapsedSecs > 0) durationMinutes = 1; 
         if(!db) return alert("Please set firebaseConfig"); if(!auth.currentUser) return alert("Please Login!");
-
         let submitBtn = document.getElementById('tummy-stop-btn'); let originalText = submitBtn.innerText; 
         submitBtn.innerText = translations[currentLang].saving; submitBtn.disabled = true;
-
         let dataToSave = { userId: auth.currentUser.uid, babyId: currentBabyId, babyName: babies[currentBabyId], category: 'tummy', recordTime: new Date(), durationMins: durationMinutes, createdAt: firebase.firestore.FieldValue.serverTimestamp() };
-
         try {
             await db.collection("baby_records").add(dataToSave); 
             alert(`${translations[currentLang].alertSuccess} 【${babies[currentBabyId]}】!`);
-            document.getElementById('tummy-timer-display').innerText = "00:00";
-            loadDashboardData();
+            document.getElementById('tummy-timer-display').innerText = "00:00"; loadDashboardData();
         } catch (error) { alert(translations[currentLang].alertError + error.message); } 
         finally { 
             submitBtn.innerText = originalText; submitBtn.disabled = false;
-            document.getElementById('tummy-stop-btn').classList.add('hidden');
-            document.getElementById('tummy-start-btn').classList.remove('hidden');
+            document.getElementById('tummy-stop-btn').classList.add('hidden'); document.getElementById('tummy-start-btn').classList.remove('hidden');
         }
     }
 
-    // 🔥 睡眠圓形計時器邏輯
-    let sleepStartTime = 0;
-    let sleepInterval = null;
-
     function startSleepTimer() {
-        if (sleepInterval) return; 
-        sleepStartTime = Date.now();
+        if (sleepInterval) return; sleepStartTime = Date.now();
         document.getElementById('sleep-timer-circle').classList.add('active-purple');
         document.getElementById('sleep-start-btn').classList.add('hidden');
         document.getElementById('sleep-stop-btn').classList.remove('hidden');
-
         sleepInterval = setInterval(() => {
             let s = Math.floor((Date.now() - sleepStartTime) / 1000);
             let hText = Math.floor(s / 3600).toString().padStart(2, '0');
@@ -1072,47 +1115,29 @@ const firebaseConfig = {
             document.getElementById('sleep-timer-display').innerText = `${hText}:${mText}:${sText}`;
         }, 1000);
     }
-
     async function stopSleepTimer() {
-        if (!sleepInterval) return;
-        clearInterval(sleepInterval);
-        sleepInterval = null;
+        if (!sleepInterval) return; clearInterval(sleepInterval); sleepInterval = null;
         document.getElementById('sleep-timer-circle').classList.remove('active-purple');
-
         let elapsedSecs = Math.floor((Date.now() - sleepStartTime) / 1000);
         if (elapsedSecs === 0) {
             alert(currentLang === 'zh' ? "時間為 0，未儲存紀錄。" : "Time is 0, record not saved.");
-            document.getElementById('sleep-stop-btn').classList.add('hidden');
-            document.getElementById('sleep-start-btn').classList.remove('hidden');
-            return;
+            document.getElementById('sleep-stop-btn').classList.add('hidden'); document.getElementById('sleep-start-btn').classList.remove('hidden'); return;
         }
-
-        let durationMinutes = Math.round(elapsedSecs / 60);
-        if (durationMinutes === 0 && elapsedSecs > 0) durationMinutes = 1; 
-
+        let durationMinutes = Math.round(elapsedSecs / 60); if (durationMinutes === 0 && elapsedSecs > 0) durationMinutes = 1; 
         if(!db) return alert("Please set firebaseConfig"); if(!auth.currentUser) return alert("Please Login!");
-
         let submitBtn = document.getElementById('sleep-stop-btn'); let originalText = submitBtn.innerText; 
         submitBtn.innerText = translations[currentLang].saving; submitBtn.disabled = true;
-
         let dataToSave = { userId: auth.currentUser.uid, babyId: currentBabyId, babyName: babies[currentBabyId], category: 'sleep', recordTime: new Date(), durationMins: durationMinutes, createdAt: firebase.firestore.FieldValue.serverTimestamp() };
-
         try {
             await db.collection("baby_records").add(dataToSave); 
             alert(`${translations[currentLang].alertSuccess} 【${babies[currentBabyId]}】!`);
-            document.getElementById('sleep-timer-display').innerText = "00:00:00";
-            loadDashboardData();
+            document.getElementById('sleep-timer-display').innerText = "00:00:00"; loadDashboardData();
         } catch (error) { alert(translations[currentLang].alertError + error.message); } 
         finally { 
             submitBtn.innerText = originalText; submitBtn.disabled = false;
-            document.getElementById('sleep-stop-btn').classList.add('hidden');
-            document.getElementById('sleep-start-btn').classList.remove('hidden');
+            document.getElementById('sleep-stop-btn').classList.add('hidden'); document.getElementById('sleep-start-btn').classList.remove('hidden');
         }
     }
-
-    // 🔥 親餵左右胸計時器邏輯
-    let nurseStartTime = { left: 0, right: 0 };
-    let nurseInterval = { left: null, right: null };
 
     function toggleNurseTimer(side) {
         let btn = document.getElementById('nurse-' + side + '-btn');
@@ -1120,23 +1145,17 @@ const firebaseConfig = {
         let inputField = document.getElementById('direct-' + side);
 
         if (nurseInterval[side]) {
-            // Stop
-            clearInterval(nurseInterval[side]);
-            nurseInterval[side] = null;
+            clearInterval(nurseInterval[side]); nurseInterval[side] = null;
             let elapsedMins = Math.round((Date.now() - nurseStartTime[side]) / 60000);
             if (elapsedMins === 0) elapsedMins = 1;
             let currentVal = Number(inputField.value) || 0;
             inputField.value = currentVal + elapsedMins;
-            
             btn.innerText = translations[currentLang].btnStartTimer || '▶ 開始計時';
-            btn.style.background = '#2196F3';
-            timeDisplay.innerText = '00:00';
+            btn.style.background = '#2196F3'; timeDisplay.innerText = '00:00';
         } else {
-            // Start
             nurseStartTime[side] = Date.now();
             btn.innerText = translations[currentLang].btnStopTimer || '⏹ 停止';
             btn.style.background = '#f44336';
-            
             nurseInterval[side] = setInterval(() => {
                 let s = Math.floor((Date.now() - nurseStartTime[side]) / 1000);
                 let mText = Math.floor(s / 60).toString().padStart(2, '0');
@@ -1203,7 +1222,7 @@ const firebaseConfig = {
             
             if (category !== 'growth') { 
                 if(isManualMode[category]) toggleManualMode(category);
-                resetSlider(category);
+                resetSlider(category); 
             }
         } catch (error) { alert(translations[currentLang].alertError + error.message); } finally { submitBtn.innerText = originalText; submitBtn.disabled = false; }
     }

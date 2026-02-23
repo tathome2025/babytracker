@@ -912,10 +912,18 @@ const firebaseConfig = {
         auth.onAuthStateChanged(user => {
             let overlay = document.getElementById('auth-overlay');
             if (user) { 
-                overlay.style.display = 'none'; document.getElementById('user-info').innerText = `👤 ${user.email}`; 
+                overlay.style.display = 'none'; 
+                document.getElementById('user-info').innerText = `👤 ${user.email}`; 
+                
                 db.collection("user_settings").doc(user.uid).set({ email: user.email }, { merge: true })
-                .then(() => loadBabySettingsFromDB()).catch(e => { console.error(e); loadBabySettingsFromDB(); });
+                .then(() => loadBabySettingsFromDB())
+                .catch(e => { console.error(e); loadBabySettingsFromDB(); });
                 fetchRecentBrands(); 
+// 【關鍵修復】確保確認登入身分後，立刻讀取 24h 日誌紀錄！
+                if (typeof loadDashboardData === "function") {
+                    loadDashboardData(); 
+                }
+                
             } else { 
                 overlay.style.display = 'flex'; document.getElementById('user-info').innerText = ''; 
             }

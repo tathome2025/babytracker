@@ -171,6 +171,9 @@
                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="20" height="20">
                 <span data-i18n="btnGoogleLogin">使用 Google 登入</span>
             </button>
+            <button onclick="startDemo()" style="width: 100%; padding: 12px; background: #e8f5e9; color: #4CAF50; border: 1px solid #4CAF50; border-radius: 8px; font-size: 1.1rem; cursor: pointer; font-weight: bold;">
+            👀 免登記體驗 (Demo Mode)
+        </button>
         </div>
         <div class="auth-intro">
             <h1 data-i18n="appTitle">寶寶成長紀錄</h1>
@@ -1571,6 +1574,85 @@ const firebaseConfig = {
         
         restoreLastBrand(); if(window.innerWidth <= 850) document.getElementById('desktop-title').style.display = 'none';
     };
+
+// ==========================================
+// 需求2 & 3：免登記體驗 (Demo Mode) 邏輯
+// ==========================================
+let isDemoMode = false;
+let demoClickCount = 0;
+let demoTimer = null;
+
+function startDemo() {
+    isDemoMode = true;
+    demoClickCount = 0;
+    
+    // 隱藏登入介面
+    document.getElementById('auth-overlay').style.display = 'none';
+    
+    // 注入 Sample Data 讓用戶預覽介面
+    if(document.getElementById('sum-milk-val')) document.getElementById('sum-milk-val').innerText = "380";
+    if(document.getElementById('sum-pump-val')) document.getElementById('sum-pump-val').innerText = "250";
+    if(document.getElementById('sum-diaper-val')) document.getElementById('sum-diaper-val').innerText = "4";
+    if(document.getElementById('sum-sleep-val')) document.getElementById('sum-sleep-val').innerText = "6.5";
+    
+    // 注入假的時間軸紀錄
+    let demoList = document.getElementById('log-list');
+    if(demoList) {
+        demoList.innerHTML = `
+            <div style="padding: 15px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between;">
+                <span>🍼 剛剛</span><span style="font-weight:bold; color:var(--theme-color);">配方奶 120ml</span>
+            </div>
+            <div style="padding: 15px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between;">
+                <span>🧻 2小時前</span><span style="font-weight:bold; color:#FF9800;">換尿片 (濕+便便)</span>
+            </div>
+            <div style="padding: 15px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between;">
+                <span>💤 4小時前</span><span style="font-weight:bold; color:#3F51B5;">睡眠 2.5小時</span>
+            </div>
+        `;
+    }
+
+    // 監聽全局點擊次數 (延遲綁定以免一開始的點擊被算入)
+    setTimeout(() => {
+        document.body.addEventListener('click', trackDemoClicks);
+    }, 500);
+    
+    // 設置 1 分鐘計時器
+    demoTimer = setTimeout(() => {
+        showDemoRegisterPrompt();
+    }, 60000); // 60秒
+}
+
+function trackDemoClicks() {
+    if(!isDemoMode) return;
+    demoClickCount++;
+    // 點擊 10 次後觸發提示
+    if(demoClickCount >= 10) {
+        showDemoRegisterPrompt();
+    }
+}
+
+function showDemoRegisterPrompt() {
+    if(!isDemoMode) return;
+    
+    // 彈出提示，並強調完全免費
+    alert("⏳ 體驗時間結束！\n\n本 App 是【完全免費使用】的！\n立即花 1 分鐘登記專屬帳號，即可永久保存寶寶的所有紀錄與成長圖表！");
+    
+    // 結束 Demo，清理計時器與監聽器，返回登入頁
+    isDemoMode = false;
+    clearTimeout(demoTimer);
+    document.body.removeEventListener('click', trackDemoClicks);
+    
+    // 顯示登入畫面並清空 Demo 數據
+    document.getElementById('auth-overlay').style.display = 'flex';
+    if(document.getElementById('log-list')) document.getElementById('log-list').innerHTML = ''; 
+    
+    // 數據歸零
+    if(document.getElementById('sum-milk-val')) document.getElementById('sum-milk-val').innerText = "0";
+    if(document.getElementById('sum-pump-val')) document.getElementById('sum-pump-val').innerText = "0";
+    if(document.getElementById('sum-diaper-val')) document.getElementById('sum-diaper-val').innerText = "0";
+    if(document.getElementById('sum-sleep-val')) document.getElementById('sum-sleep-val').innerText = "0";
+}
+    
 </script>
 
 </body>

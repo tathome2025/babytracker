@@ -709,7 +709,6 @@ const firebaseConfig = {
         db = firebase.firestore();
         auth = firebase.auth();
         googleProvider = new firebase.auth.GoogleAuthProvider();
-        document.getElementById('auth-overlay').style.display = 'none';
     }
 
     const translations = {
@@ -789,7 +788,6 @@ const firebaseConfig = {
         }
     };
 
-    let loadDashboardData();
     let currentLang = localStorage.getItem('appLang') || 'zh';
     let babies = { baby1: "", baby2: "", baby3: "" };
     let babyProfiles = { baby1: {}, baby2: {}, baby3: {} };

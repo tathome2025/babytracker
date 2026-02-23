@@ -909,32 +909,39 @@ const firebaseConfig = {
     function logoutUser() { auth.signOut().then(() => { if(window.innerWidth <= 850) toggleSidebar(); }); }
 
     if(auth) {
-        auth.onAuthStateChanged(user => {
+auth.onAuthStateChanged(user => {
             let overlay = document.getElementById('auth-overlay');
             if (user) { 
                 overlay.style.display = 'none'; 
-                document.getElementById('user-info').innerText = `👤 ${user.email}`; 
+                if (document.getElementById('user-info')) document.getElementById('user-info').innerText = `👤 ${user.email}`; 
                 
                 db.collection("user_settings").doc(user.uid).set({ email: user.email }, { merge: true })
-                .then(() => loadBabySettingsFromDB())
-                .catch(e => { console.error(e); loadBabySettingsFromDB(); });
-                fetchRecentBrands(); 
-// 【關鍵修復】確保確認登入身分後，立刻讀取 24h 日誌紀錄！
+                .then(() => { if (typeof loadBabySettingsFromDB === "function") loadBabySettingsFromDB(); })
+                .catch(e => { console.error(e); if (typeof loadBabySettingsFromDB === "function") loadBabySettingsFromDB(); });
+                
+                if (typeof fetchRecentBrands === "function") fetchRecentBrands(); 
+                
                 if (typeof loadDashboardData === "function") {
                     loadDashboardData(); 
+                }
 
-                    // 【新增這行】啟動跨設備計時器監聽
-                listenToActiveTimer(user.uid);
+                // 【新增這行】啟動跨設備計時器監聽
+                if (typeof listenToActiveTimer === "function") {
+                    listenToActiveTimer(user.uid);
                 }
                 
             } else { 
-                overlay.style.display = 'flex'; document.getElementById('user-info').innerText = ''; 
-            }
-            // 【新增這行】登出時停止監聽
-                if (sleepSyncUnsubscribe) sleepSyncUnsubscribe();
+                if (typeof isDemoMode === "undefined" || !isDemoMode) {
+                    overlay.style.display = 'flex'; 
+                    if (document.getElementById('user-info')) document.getElementById('user-info').innerText = ''; 
+                }
+                
+                // 【新增這行】登出時停止監聽
+                if (typeof sleepSyncUnsubscribe !== "undefined" && sleepSyncUnsubscribe !== null) {
+                    sleepSyncUnsubscribe();
+                }
             }
         });
-    }
 
     function toggleSidebar() {
         let sidebar = document.getElementById('sidebar'); let overlay = document.getElementById('sidebar-overlay');

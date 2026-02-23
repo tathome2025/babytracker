@@ -497,6 +497,9 @@
                 <span data-i18n="sleepTitle">💤 睡眠紀錄</span>
                 <div class="time-wrapper"><span class="time-label" data-i18n="currentTime">現在時間：</span><span id="time-sleep" class="time-display">--/-- --:--</span></div>
             </div>
+            <div id="sleep-status-banner" style="display: none; background: #ede7f6; color: #5e35b1; padding: 12px; border-radius: 8px; text-align: center; margin-bottom: 15px; font-weight: bold; border: 1px solid #d1c4e9;">
+            😴 寶寶正在睡眠中... 已睡 <span id="sleep-duration-text">0 分鐘</span>
+        </div>
             <button id="mode-btn-sleep" class="btn outline" style="width: auto; padding: 6px 12px; font-size: 0.9rem;" onclick="toggleManualMode('sleep')" data-i18n="btnManualMode">📅 補登過去紀錄</button>
         </h2>
         
@@ -1538,6 +1541,9 @@ let tummyStartTime = 0; let tummyInterval = null;
         switchTab('log', document.querySelector('.nav-btn'), '#E91E63');
         
         restoreLastBrand(); if(window.innerWidth <= 850) document.getElementById('desktop-title').style.display = 'none';
+   
+        initSleepStatusListener();
+    
     };
 
 // ==========================================
@@ -1617,6 +1623,53 @@ function showDemoRegisterPrompt() {
     if(document.getElementById('sum-diaper-val')) document.getElementById('sum-diaper-val').innerText = "0";
     if(document.getElementById('sum-sleep-val')) document.getElementById('sum-sleep-val').innerText = "0";
 }
+
+let globalSleepTimer = null;
+
+    function initSleepStatusListener() {
+        // 即時監聽最近的資料庫變動 (抓取最新 20 筆在前端過濾，以避免 Firebase 索引報錯)
+        db.collection("baby_records")
+          .orderBy("timestamp", "desc")
+          .limit(20)
+          .onSnapshot((snapshot) => {
+              const banner = document.getElementById('sleep-status-banner');
+              const durationText = document.getElementById('sleep-duration-text');
+              if (!banner || !durationText) return;
+              
+              // 找尋最新的一筆睡眠紀錄
+              let lastSleepRecord = null;
+              for (let doc of snapshot.docs) {
+                  let data = doc.data();
+                  if (data.category === 'sleep') {
+                      lastSleepRecord = data;
+                      break;
+                  }
+              }
+              
+              // 如果最後一筆不是「開始睡眠」(例如是結束，或根本沒紀錄)，則隱藏橫幅
+              if (!lastSleepRecord || lastSleepRecord.sleepStatus !== 'start_sleep') {
+                  banner.style.display = 'none';
+                  if (globalSleepTimer) clearInterval(globalSleepTimer);
+                  return;
+              }
+              
+              // 如果是「開始睡眠」，顯示橫幅並開始跨設備計時
+              banner.style.display = 'block';
+              if (globalSleepTimer) clearInterval(globalSleepTimer);
+              
+              const updateDuration = () => {
+                  const now = new Date().getTime();
+                  const diffMs = now - lastSleepRecord.timestamp;
+                  const diffMins = Math.floor(diffMs / 60000);
+                  const hrs = Math.floor(diffMins / 60);
+                  const mins = diffMins % 60;
+                  durationText.innerText = hrs > 0 ? `${hrs} 小時 ${mins} 分鐘` : `${diffMins} 分鐘`;
+              };
+              
+              updateDuration(); // 立即顯示當前已過時間
+              globalSleepTimer = setInterval(updateDuration, 60000); // 每分鐘自動更新畫面
+          });
+    }
     
 </script>
 

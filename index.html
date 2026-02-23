@@ -922,10 +922,16 @@ const firebaseConfig = {
 // 【關鍵修復】確保確認登入身分後，立刻讀取 24h 日誌紀錄！
                 if (typeof loadDashboardData === "function") {
                     loadDashboardData(); 
+
+                    // 【新增這行】啟動跨設備計時器監聽
+                listenToActiveTimer(user.uid);
                 }
                 
             } else { 
                 overlay.style.display = 'flex'; document.getElementById('user-info').innerText = ''; 
+            }
+            // 【新增這行】登出時停止監聽
+                if (sleepSyncUnsubscribe) sleepSyncUnsubscribe();
             }
         });
     }
@@ -1093,6 +1099,12 @@ const firebaseConfig = {
     let tummyStartTime = 0; let tummyInterval = null;
     let sleepStartTime = 0; let sleepInterval = null;
     let nurseStartTime = { left: 0, right: 0 }; let nurseInterval = { left: null, right: null };
+// ==========================================
+// 睡眠計時器 (跨設備雲端同步版)
+// ==========================================
+let sleepTimerInterval = null;
+let activeSleepStartTime = null;
+let sleepSyncUnsubscribe = null;
 
     function startTummyTimer() {
         if (tummyInterval) return; tummyStartTime = Date.now();
@@ -1129,42 +1141,97 @@ const firebaseConfig = {
         }
     }
 
-    function startSleepTimer() {
-        if (sleepInterval) return; sleepStartTime = Date.now();
-        document.getElementById('sleep-timer-circle').classList.add('active-purple');
-        document.getElementById('sleep-start-btn').classList.add('hidden');
-        document.getElementById('sleep-stop-btn').classList.remove('hidden');
-        sleepInterval = setInterval(() => {
-            let s = Math.floor((Date.now() - sleepStartTime) / 1000);
-            let hText = Math.floor(s / 3600).toString().padStart(2, '0');
-            let mText = Math.floor((s % 3600) / 60).toString().padStart(2, '0');
-            let sText = (s % 60).toString().padStart(2, '0');
-            document.getElementById('sleep-timer-display').innerText = `${hText}:${mText}:${sText}`;
-        }, 1000);
+// 1. 開始計時 (將開始時間寫入 Firebase)
+function startSleepTimer() {
+    let user = firebase.auth().currentUser;
+    if(!user) {
+        alert("請先登入！");
+        return;
     }
-    async function stopSleepTimer() {
-        if (!sleepInterval) return; clearInterval(sleepInterval); sleepInterval = null;
-        document.getElementById('sleep-timer-circle').classList.remove('active-purple');
-        let elapsedSecs = Math.floor((Date.now() - sleepStartTime) / 1000);
-        if (elapsedSecs === 0) {
-            alert(currentLang === 'zh' ? "時間為 0，未儲存紀錄。" : "Time is 0, record not saved.");
-            document.getElementById('sleep-stop-btn').classList.add('hidden'); document.getElementById('sleep-start-btn').classList.remove('hidden'); return;
+    
+    // 紀錄當下的時間戳記 (毫秒)
+    let startTime = Date.now();
+    
+    // 將狀態存入該用戶的設定檔中，所有設備都會收到更新
+    db.collection("user_settings").doc(user.uid).set({
+        activeSleepStart: startTime
+    }, { merge: true });
+}
+
+// 2. 停止計時並儲存數據
+function stopSleepTimer() {
+    let user = firebase.auth().currentUser;
+    if(!user || !activeSleepStartTime) return;
+
+    let endTime = Date.now();
+    // 計算經過的分鐘數 (四捨五入)
+    let durationMinutes = Math.round((endTime - activeSleepStartTime) / 60000);
+    if (durationMinutes < 1) durationMinutes = 1; // 至少紀錄 1 分鐘
+
+    // 步驟 A: 清除 Firebase 上的計時狀態 (這會觸發所有設備的 UI 重置)
+    db.collection("user_settings").doc(user.uid).update({
+        activeSleepStart: firebase.firestore.FieldValue.delete()
+    });
+
+    // 步驟 B: 將睡眠紀錄正式存入 baby_records 資料庫
+    db.collection("baby_records").add({
+        uid: user.uid,
+        type: 'sleep',
+        timestamp: endTime,  // 紀錄結束的時間
+        duration: durationMinutes,
+        detail: `💤 睡眠 ${durationMinutes} 分鐘`
+    }).then(() => {
+        // 重新讀取 24h 日誌以顯示最新紀錄
+        if (typeof loadDashboardData === "function") {
+            loadDashboardData();
         }
-        let durationMinutes = Math.round(elapsedSecs / 60); if (durationMinutes === 0 && elapsedSecs > 0) durationMinutes = 1; 
-        if(!db) return alert("Please set firebaseConfig"); if(!auth.currentUser) return alert("Please Login!");
-        let submitBtn = document.getElementById('sleep-stop-btn'); let originalText = submitBtn.innerText; 
-        submitBtn.innerText = translations[currentLang].saving; submitBtn.disabled = true;
-        let dataToSave = { userId: auth.currentUser.uid, babyId: currentBabyId, babyName: babies[currentBabyId], category: 'sleep', recordTime: new Date(), durationMins: durationMinutes, createdAt: firebase.firestore.FieldValue.serverTimestamp() };
-        try {
-            await db.collection("baby_records").add(dataToSave); 
-            alert(`${translations[currentLang].alertSuccess} 【${babies[currentBabyId]}】!`);
-            document.getElementById('sleep-timer-display').innerText = "00:00:00"; loadDashboardData();
-        } catch (error) { alert(translations[currentLang].alertError + error.message); } 
-        finally { 
-            submitBtn.innerText = originalText; submitBtn.disabled = false;
-            document.getElementById('sleep-stop-btn').classList.add('hidden'); document.getElementById('sleep-start-btn').classList.remove('hidden');
+    }).catch(err => {
+        console.error("儲存睡眠紀錄失敗:", err);
+    });
+}
+
+// 3. 負責讓畫面上數字跳動的 UI 函數
+function runSleepUI() {
+    document.getElementById('sleep-start-btn').classList.add('hidden');
+    document.getElementById('sleep-stop-btn').classList.remove('hidden');
+    
+    clearInterval(sleepTimerInterval); // 清除舊的計時器防止重複執行
+    
+    sleepTimerInterval = setInterval(() => {
+        let elapsed = Date.now() - activeSleepStartTime;
+        
+        let s = Math.floor((elapsed / 1000) % 60);
+        let m = Math.floor((elapsed / 60000) % 60);
+        let h = Math.floor(elapsed / 3600000);
+        
+        document.getElementById('sleep-timer-display').innerText = 
+            `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    }, 1000);
+}
+
+// 4. 即時監聽 Firebase 狀態 (這是跨設備同步的核心)
+function listenToActiveTimer(uid) {
+    if (sleepSyncUnsubscribe) sleepSyncUnsubscribe(); // 取消舊的監聽
+    
+    // onSnapshot 會即時監聽雲端資料庫的變化
+    sleepSyncUnsubscribe = db.collection("user_settings").doc(uid).onSnapshot(doc => {
+        if (doc.exists && doc.data().activeSleepStart) {
+            let startTimestamp = doc.data().activeSleepStart;
+            // 如果雲端時間與本地不同，更新並啟動計時器
+            if (activeSleepStartTime !== startTimestamp) {
+                activeSleepStartTime = startTimestamp;
+                runSleepUI();
+            }
+        } else {
+            // 雲端沒有計時器 (可能被其他設備停止了)，重置本地 UI
+            activeSleepStartTime = null;
+            clearInterval(sleepTimerInterval);
+            document.getElementById('sleep-start-btn').classList.remove('hidden');
+            document.getElementById('sleep-stop-btn').classList.add('hidden');
+            document.getElementById('sleep-timer-display').innerText = "00:00:00";
         }
-    }
+    });
+}
 
     function toggleNurseTimer(side) {
         let btn = document.getElementById('nurse-' + side + '-btn');

@@ -157,29 +157,21 @@
 </head>
 <body>
 
-<div id="auth-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-color); z-index: 9999; display: flex; align-items: center; justify-content: center;">
-    <div class="auth-card" style="background: var(--card-bg); padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 90%; max-width: 400px; text-align: center;">
-        
-        <div class="auth-title" style="font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; color: var(--text-color);" data-i18n="loginTitle">
-            登入寶寶成長紀錄<br>
-            <span style="font-size: 1rem; color: #4CAF50; font-weight: normal; margin-top: 8px; display: inline-block;">🎉 完全免費，無限儲存寶寶紀錄</span>
+<div id="auth-overlay">
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-title" data-i18n="loginTitle">登入寶寶成長紀錄</div>
+            <div id="auth-error-msg" class="auth-error"></div>
+            <input type="email" id="auth-email" class="auth-input" data-i18n-placeholder="emailPlaceholder" placeholder="電子郵件 Email">
+            <input type="password" id="auth-password" class="auth-input" data-i18n-placeholder="pwPlaceholder" placeholder="密碼 Password">
+            <button class="auth-btn" onclick="loginUser()" data-i18n="btnLogin">Email 登入</button>
+            <button class="auth-btn outline" onclick="registerUser()" data-i18n="btnRegister">註冊新帳號</button>
+            <div class="auth-divider" data-i18n="orText">或</div>
+            <button class="auth-btn google" onclick="loginWithGoogle()">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="20" height="20">
+                <span data-i18n="btnGoogleLogin">使用 Google 登入</span>
+            </button>
         </div>
-        
-        <div id="auth-error-msg" style="color: red; margin-bottom: 15px;"></div>
-        
-        <input type="email" id="auth-email" placeholder="Email" style="width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid var(--border-color); border-radius: 8px; box-sizing: border-box;">
-        <input type="password" id="auth-password" placeholder="密碼" style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid var(--border-color); border-radius: 8px; box-sizing: border-box;">
-        
-        <button onclick="loginUser()" style="width: 100%; padding: 12px; background: var(--theme-color); color: white; border: none; border-radius: 8px; font-size: 1.1rem; cursor: pointer; margin-bottom: 10px;">登入</button>
-        <button onclick="registerUser()" style="width: 100%; padding: 12px; background: transparent; color: var(--text-color); border: 1px solid var(--border-color); border-radius: 8px; font-size: 1.1rem; cursor: pointer; margin-bottom: 10px;">註冊新帳號</button>
-        
-        <div style="margin: 15px 0; color: var(--text-muted); font-size: 0.9rem;">或</div>
-        
-        <button onclick="startDemo()" style="width: 100%; padding: 12px; background: #e8f5e9; color: #4CAF50; border: 1px solid #4CAF50; border-radius: 8px; font-size: 1.1rem; cursor: pointer; font-weight: bold;">
-            👀 免登記體驗 (Demo Mode)
-        </button>
-    </div>
-</div>
         <div class="auth-intro">
             <h1 data-i18n="appTitle">寶寶成長紀錄</h1>
             <p data-i18n="appDesc">輕鬆紀錄寶寶吃奶、睡眠、換尿片等日常，一目了然的統計圖表，伴隨寶寶健康成長。</p>

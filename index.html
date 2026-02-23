@@ -905,7 +905,7 @@ const firebaseConfig = {
     function showError(msg) { document.getElementById('auth-error-msg').innerText = msg; }
     function registerUser() { let e = document.getElementById('auth-email').value; let p = document.getElementById('auth-password').value; if(e&&p) auth.createUserWithEmailAndPassword(e, p).catch(err => showError(err.message)); else showError('Please enter Email & Password'); }
     function loginUser() { let e = document.getElementById('auth-email').value; let p = document.getElementById('auth-password').value; if(e&&p) auth.signInWithEmailAndPassword(e, p).catch(err => showError(err.message)); else showError('Please enter Email & Password'); }
-    loadDashboardData();
+let loadDashboardData();
         })
         .catch((error) => {
             document.getElementById('auth-error-msg').innerText = error.message;

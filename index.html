@@ -491,7 +491,7 @@
         <button class="submit-btn" id="btn-submit-diaper" onclick="submitData('diaper')" data-i18n="saveDiaper">儲存尿片紀錄</button>
     </div>
 
-    <div id="sleep-card" class="card">
+<div id="sleep-card" class="card">
         <h2>
             <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
                 <span data-i18n="sleepTitle">💤 睡眠紀錄</span>
@@ -500,30 +500,27 @@
             <button id="mode-btn-sleep" class="btn outline" style="width: auto; padding: 6px 12px; font-size: 0.9rem;" onclick="toggleManualMode('sleep')" data-i18n="btnManualMode">📅 補登過去紀錄</button>
         </h2>
         
-        <div id="live-sleep-section" class="section">
-            <div class="timer-circle" id="sleep-timer-circle" style="border-color: #673AB7; color: #673AB7;">
-                <span id="sleep-timer-display">00:00:00</span>
-            </div>
-            <div class="btn-group" style="grid-template-columns: 1fr; margin-bottom: 10px;">
-                <button id="sleep-start-btn" onclick="startSleepTimer()" class="btn" style="background-color: #673AB7; color: white; border-color: #673AB7; padding: 15px; font-size: 1.2rem;" data-i18n="sleepStart">開始睡覺</button>
-                <button id="sleep-stop-btn" onclick="stopSleepTimer()" class="btn hidden" style="background-color: #f44336; color: white; border-color: #f44336; padding: 15px; font-size: 1.2rem;" data-i18n="sleepEnd">睡醒並紀錄</button>
-            </div>
-        </div>
-
-        <div id="manual-sleep-section" class="section hidden">
-            <div class="row">
-                <div class="col split-divider">
-                    <label class="label" data-i18n="labelEventTime">發生時間</label>
+        <div class="row section">
+            <div class="col split-divider">
+                <label class="label" data-i18n="labelEventTime">發生時間</label>
+                <div id="quick-time-sleep">
+                    <input type="range" id="slider-sleep" min="0" max="60" step="5" value="0" oninput="syncSliderTime('sleep', this.value)">
+                    <div id="slider-label-sleep" style="text-align:center; color:var(--theme-color); font-weight:bold; font-size:0.95rem;" data-i18n="labelSliderNow">現在 (0 分鐘前)</div>
+                </div>
+                <div id="manual-time-sleep" class="hidden">
                     <input type="datetime-local" id="input-manual-sleep" class="input-date" onchange="setManualTime('sleep', this.value)">
                     <p style="font-size: 0.85rem; color: #E91E63; margin-top: 5px;" data-i18n="manualNotice">* 您正在補登過去的紀錄</p>
                 </div>
-                <div class="col">
-                    <label class="label" data-i18n="labelSleepDuration">睡眠時長 (分鐘)</label>
-                    <input type="number" id="manual-sleep-duration" class="input-number" placeholder="輸入分鐘數">
+            </div>
+            <div class="col">
+                <label class="label" data-i18n="labelSleepStatus">睡眠狀態</label>
+                <div class="btn-group" id="sleep-action-btns" style="grid-template-columns: 1fr;">
+                    <button class="btn sleep-action active" data-value="start_sleep" onclick="singleSelectBtn(this, 'sleep-action-btns')" data-i18n="sleepStart" style="padding: 15px;">開始睡眠 (入睡) 🌙</button>
+                    <button class="btn sleep-action" data-value="end_sleep" onclick="singleSelectBtn(this, 'sleep-action-btns')" data-i18n="sleepEnd" style="padding: 15px;">結束睡眠 (醒來) ☀️</button>
                 </div>
             </div>
-            <button class="submit-btn" id="btn-submit-sleep" onclick="submitData('sleep')" data-i18n="saveSleep" style="background:#673AB7; margin-top: 15px;">儲存睡眠紀錄</button>
         </div>
+        <button class="submit-btn" id="btn-submit-sleep" onclick="submitData('sleep')" data-i18n="saveSleep" style="background:#673AB7; margin-top: 15px;">儲存睡眠紀錄</button>
     </div>
 
     <div id="temp-card" class="card">
@@ -982,14 +979,13 @@ const firebaseConfig = {
         if(slider) { slider.value = 0; syncSliderTime(cat, 0); }
     }
 
-    function toggleManualMode(cat) {
+function toggleManualMode(cat) {
         isManualMode[cat] = !isManualMode[cat];
         let quickDiv = document.getElementById(`quick-time-${cat}`); let manualDiv = document.getElementById(`manual-time-${cat}`); let btn = document.getElementById(`mode-btn-${cat}`);
         if (isManualMode[cat]) {
             if(quickDiv) quickDiv.classList.add('hidden'); 
             if(manualDiv) manualDiv.classList.remove('hidden');
             if(cat === 'tummy') { document.getElementById('live-tummy-section').classList.add('hidden'); document.getElementById('manual-tummy-section').classList.remove('hidden'); }
-            if(cat === 'sleep') { document.getElementById('live-sleep-section').classList.add('hidden'); document.getElementById('manual-sleep-section').classList.remove('hidden'); }
             
             btn.innerText = translations[currentLang].btnBackToNow; btn.style.background = "#FF9800"; btn.style.color = "white"; btn.style.border = "none";
             let tzoffset = (new Date()).getTimezoneOffset() * 60000;
@@ -1000,7 +996,6 @@ const firebaseConfig = {
             if(quickDiv) quickDiv.classList.remove('hidden'); 
             if(manualDiv) manualDiv.classList.add('hidden');
             if(cat === 'tummy') { document.getElementById('live-tummy-section').classList.remove('hidden'); document.getElementById('manual-tummy-section').classList.add('hidden'); }
-            if(cat === 'sleep') { document.getElementById('live-sleep-section').classList.remove('hidden'); document.getElementById('manual-sleep-section').classList.add('hidden'); }
             
             btn.innerText = translations[currentLang].btnManualMode; btn.style.background = "transparent"; btn.style.color = "var(--theme-color)"; btn.style.border = "1px solid var(--theme-color)";
             resetSlider(cat);
@@ -1089,9 +1084,7 @@ const firebaseConfig = {
         document.getElementById('feed-interval-label').innerText = txt;
     }
 
-    // 🔥 計時器邏輯
-    let tummyStartTime = 0; let tummyInterval = null;
-    let sleepStartTime = 0; let sleepInterval = null;
+let tummyStartTime = 0; let tummyInterval = null;
     let nurseStartTime = { left: 0, right: 0 }; let nurseInterval = { left: null, right: null };
 
     function startTummyTimer() {
@@ -1129,42 +1122,6 @@ const firebaseConfig = {
         }
     }
 
-    function startSleepTimer() {
-        if (sleepInterval) return; sleepStartTime = Date.now();
-        document.getElementById('sleep-timer-circle').classList.add('active-purple');
-        document.getElementById('sleep-start-btn').classList.add('hidden');
-        document.getElementById('sleep-stop-btn').classList.remove('hidden');
-        sleepInterval = setInterval(() => {
-            let s = Math.floor((Date.now() - sleepStartTime) / 1000);
-            let hText = Math.floor(s / 3600).toString().padStart(2, '0');
-            let mText = Math.floor((s % 3600) / 60).toString().padStart(2, '0');
-            let sText = (s % 60).toString().padStart(2, '0');
-            document.getElementById('sleep-timer-display').innerText = `${hText}:${mText}:${sText}`;
-        }, 1000);
-    }
-    async function stopSleepTimer() {
-        if (!sleepInterval) return; clearInterval(sleepInterval); sleepInterval = null;
-        document.getElementById('sleep-timer-circle').classList.remove('active-purple');
-        let elapsedSecs = Math.floor((Date.now() - sleepStartTime) / 1000);
-        if (elapsedSecs === 0) {
-            alert(currentLang === 'zh' ? "時間為 0，未儲存紀錄。" : "Time is 0, record not saved.");
-            document.getElementById('sleep-stop-btn').classList.add('hidden'); document.getElementById('sleep-start-btn').classList.remove('hidden'); return;
-        }
-        let durationMinutes = Math.round(elapsedSecs / 60); if (durationMinutes === 0 && elapsedSecs > 0) durationMinutes = 1; 
-        if(!db) return alert("Please set firebaseConfig"); if(!auth.currentUser) return alert("Please Login!");
-        let submitBtn = document.getElementById('sleep-stop-btn'); let originalText = submitBtn.innerText; 
-        submitBtn.innerText = translations[currentLang].saving; submitBtn.disabled = true;
-        let dataToSave = { userId: auth.currentUser.uid, babyId: currentBabyId, babyName: babies[currentBabyId], category: 'sleep', recordTime: new Date(), durationMins: durationMinutes, createdAt: firebase.firestore.FieldValue.serverTimestamp() };
-        try {
-            await db.collection("baby_records").add(dataToSave); 
-            alert(`${translations[currentLang].alertSuccess} 【${babies[currentBabyId]}】!`);
-            document.getElementById('sleep-timer-display').innerText = "00:00:00"; loadDashboardData();
-        } catch (error) { alert(translations[currentLang].alertError + error.message); } 
-        finally { 
-            submitBtn.innerText = originalText; submitBtn.disabled = false;
-            document.getElementById('sleep-stop-btn').classList.add('hidden'); document.getElementById('sleep-start-btn').classList.remove('hidden');
-        }
-    }
 
     function toggleNurseTimer(side) {
         let btn = document.getElementById('nurse-' + side + '-btn');
@@ -1227,10 +1184,9 @@ const firebaseConfig = {
             }
             let rashBtn = document.querySelector('.rash-btn.active');
             dataToSave.rash = rashBtn ? Number(rashBtn.getAttribute('data-value')) : 0;
-        } else if (category === 'sleep') { 
-            dataToSave.durationMins = Number(document.getElementById('manual-sleep-duration').value) || null;
-            if(!dataToSave.durationMins) { submitBtn.innerText = originalText; submitBtn.disabled = false; return alert(currentLang==='zh'?"請輸入睡眠時長！":"Please enter duration!"); }
-        } else if (category === 'temp') { 
+} else if (category === 'sleep') { 
+            dataToSave.sleepStatus = document.querySelector('.sleep-action.active').getAttribute('data-value'); 
+        } else if (category === 'temp') {
             dataToSave.temp = Number(document.getElementById('temp-val').value) || null;
             if(!dataToSave.temp) { submitBtn.innerText = originalText; submitBtn.disabled = false; return alert(currentLang==='zh'?"請輸入體溫！":"Please enter temperature!"); }
         } else if (category === 'bath') { dataToSave.bathStatus = 'start_bath'; 

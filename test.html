@@ -1379,14 +1379,21 @@ function toggleManualMode(cat) {
                         desc = arr.join(', '); h = '--'; m = '--'; 
                     }
 
-                    listHtml = `
-                        <div class="history-item">
-                            <div class="history-info">
-                                <div class="history-time"><span style="font-size:0.8rem; color:#888;">${displayDate}</span> ${h}:${m} ${icon}</div>
-                                <div class="history-detail">${desc}</div>
-                            </div>
-                            <button class="delete-btn" onclick="deleteRecord('${r.id}')">Del</button>
-                        </div>` + listHtml;
+let fullDate = `${r.time.getFullYear()}/${String(r.time.getMonth() + 1).padStart(2, '0')}/${String(r.time.getDate()).padStart(2, '0')}`;
+let fullTime = `${String(r.time.getHours()).padStart(2, '0')}:${String(r.time.getMinutes()).padStart(2, '0')}`;
+
+listHtml = `
+    <div class="history-item">
+        <div class="history-info">
+            <div class="history-time">
+                <span style="font-size:0.9rem; color:var(--theme-color); font-weight:bold; margin-right:8px;">${fullDate} ${fullTime}</span>
+                ${icon}
+            </div>
+            <div class="history-detail">${desc}</div>
+        </div>
+        <button class="delete-btn" onclick="deleteRecord('${r.id}')">Del</button>
+    </div>` + listHtml;
+                    
                 }
             });
 

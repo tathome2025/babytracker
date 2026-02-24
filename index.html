@@ -224,16 +224,7 @@
     </div>
 
     <div id="log-card" class="card active">
-        <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
-        <h2><span data-i18n="timelineTitle">📅 24小時日誌</span>
-            <div class="time-wrapper">
-                    <span class="time-label" data-i18n="currentTime">現在時間：</span>
-                    <span id="time-diary" class="time-display">--/-- --:--</span>
-                </div>
-        </h2>
-            </div>
-        </div>
-
+        <h2><span data-i18n="timelineTitle">📅 24小時日誌</span></h2>
         <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: -10px;" data-i18n="logDesc">顯示從此刻起，往前推算 24 小時內的所有紀錄。</p>
 
         <div class="summary-grid">
@@ -500,39 +491,39 @@
         <button class="submit-btn" id="btn-submit-diaper" onclick="submitData('diaper')" data-i18n="saveDiaper">儲存尿片紀錄</button>
     </div>
 
-<div id="sleep-card" class="card">
+    <div id="sleep-card" class="card">
         <h2>
             <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
                 <span data-i18n="sleepTitle">💤 睡眠紀錄</span>
                 <div class="time-wrapper"><span class="time-label" data-i18n="currentTime">現在時間：</span><span id="time-sleep" class="time-display">--/-- --:--</span></div>
             </div>
-            <div id="sleep-status-banner" style="display: none; background: #ede7f6; color: #5e35b1; padding: 12px; border-radius: 8px; text-align: center; margin-bottom: 15px; font-weight: bold; border: 1px solid #d1c4e9;">
-            😴 寶寶正在睡眠中... 已睡 <span id="sleep-duration-text">0 分鐘</span>
-        </div>
             <button id="mode-btn-sleep" class="btn outline" style="width: auto; padding: 6px 12px; font-size: 0.9rem;" onclick="toggleManualMode('sleep')" data-i18n="btnManualMode">📅 補登過去紀錄</button>
         </h2>
         
-        <div class="row section">
-            <div class="col split-divider">
-                <label class="label" data-i18n="labelEventTime">發生時間</label>
-                <div id="quick-time-sleep">
-                    <input type="range" id="slider-sleep" min="0" max="60" step="5" value="0" oninput="syncSliderTime('sleep', this.value)">
-                    <div id="slider-label-sleep" style="text-align:center; color:var(--theme-color); font-weight:bold; font-size:0.95rem;" data-i18n="labelSliderNow">現在 (0 分鐘前)</div>
-                </div>
-                <div id="manual-time-sleep" class="hidden">
+        <div id="live-sleep-section" class="section">
+            <div class="timer-circle" id="sleep-timer-circle" style="border-color: #673AB7; color: #673AB7;">
+                <span id="sleep-timer-display">00:00:00</span>
+            </div>
+            <div class="btn-group" style="grid-template-columns: 1fr; margin-bottom: 10px;">
+                <button id="sleep-start-btn" onclick="startSleepTimer()" class="btn" style="background-color: #673AB7; color: white; border-color: #673AB7; padding: 15px; font-size: 1.2rem;" data-i18n="sleepStart">開始睡覺</button>
+                <button id="sleep-stop-btn" onclick="stopSleepTimer()" class="btn hidden" style="background-color: #f44336; color: white; border-color: #f44336; padding: 15px; font-size: 1.2rem;" data-i18n="sleepEnd">睡醒並紀錄</button>
+            </div>
+        </div>
+
+        <div id="manual-sleep-section" class="section hidden">
+            <div class="row">
+                <div class="col split-divider">
+                    <label class="label" data-i18n="labelEventTime">發生時間</label>
                     <input type="datetime-local" id="input-manual-sleep" class="input-date" onchange="setManualTime('sleep', this.value)">
                     <p style="font-size: 0.85rem; color: #E91E63; margin-top: 5px;" data-i18n="manualNotice">* 您正在補登過去的紀錄</p>
                 </div>
-            </div>
-            <div class="col">
-                <label class="label" data-i18n="labelSleepStatus">睡眠狀態</label>
-                <div class="btn-group" id="sleep-action-btns" style="grid-template-columns: 1fr;">
-                    <button class="btn sleep-action active" data-value="start_sleep" onclick="singleSelectBtn(this, 'sleep-action-btns')" data-i18n="sleepStart" style="padding: 15px;">開始睡眠 (入睡) 🌙</button>
-                    <button class="btn sleep-action" data-value="end_sleep" onclick="singleSelectBtn(this, 'sleep-action-btns')" data-i18n="sleepEnd" style="padding: 15px;">結束睡眠 (醒來) ☀️</button>
+                <div class="col">
+                    <label class="label" data-i18n="labelSleepDuration">睡眠時長 (分鐘)</label>
+                    <input type="number" id="manual-sleep-duration" class="input-number" placeholder="輸入分鐘數">
                 </div>
             </div>
+            <button class="submit-btn" id="btn-submit-sleep" onclick="submitData('sleep')" data-i18n="saveSleep" style="background:#673AB7; margin-top: 15px;">儲存睡眠紀錄</button>
         </div>
-        <button class="submit-btn" id="btn-submit-sleep" onclick="submitData('sleep')" data-i18n="saveSleep" style="background:#673AB7; margin-top: 15px;">儲存睡眠紀錄</button>
     </div>
 
     <div id="temp-card" class="card">
@@ -902,9 +893,6 @@ const firebaseConfig = {
         document.querySelectorAll('.baby-tab').forEach(t => t.classList.remove('active'));
         document.getElementById(`tab-${babyId}`).classList.add('active'); restoreLastBrand();
         updateProfileUI();
-
-        initSleepStatusListener();
-        
         if(document.getElementById('log-card').classList.contains('active') || document.getElementById('history-card').classList.contains('active')) loadDashboardData();
     }
 
@@ -935,8 +923,6 @@ const firebaseConfig = {
                 if (typeof loadDashboardData === "function") {
                     loadDashboardData(); 
                 }
-
-                initSleepStatusListener();
                 
             } else { 
                 overlay.style.display = 'flex'; document.getElementById('user-info').innerText = ''; 
@@ -996,13 +982,14 @@ const firebaseConfig = {
         if(slider) { slider.value = 0; syncSliderTime(cat, 0); }
     }
 
-function toggleManualMode(cat) {
+    function toggleManualMode(cat) {
         isManualMode[cat] = !isManualMode[cat];
         let quickDiv = document.getElementById(`quick-time-${cat}`); let manualDiv = document.getElementById(`manual-time-${cat}`); let btn = document.getElementById(`mode-btn-${cat}`);
         if (isManualMode[cat]) {
             if(quickDiv) quickDiv.classList.add('hidden'); 
             if(manualDiv) manualDiv.classList.remove('hidden');
             if(cat === 'tummy') { document.getElementById('live-tummy-section').classList.add('hidden'); document.getElementById('manual-tummy-section').classList.remove('hidden'); }
+            if(cat === 'sleep') { document.getElementById('live-sleep-section').classList.add('hidden'); document.getElementById('manual-sleep-section').classList.remove('hidden'); }
             
             btn.innerText = translations[currentLang].btnBackToNow; btn.style.background = "#FF9800"; btn.style.color = "white"; btn.style.border = "none";
             let tzoffset = (new Date()).getTimezoneOffset() * 60000;
@@ -1013,6 +1000,7 @@ function toggleManualMode(cat) {
             if(quickDiv) quickDiv.classList.remove('hidden'); 
             if(manualDiv) manualDiv.classList.add('hidden');
             if(cat === 'tummy') { document.getElementById('live-tummy-section').classList.remove('hidden'); document.getElementById('manual-tummy-section').classList.add('hidden'); }
+            if(cat === 'sleep') { document.getElementById('live-sleep-section').classList.remove('hidden'); document.getElementById('manual-sleep-section').classList.add('hidden'); }
             
             btn.innerText = translations[currentLang].btnManualMode; btn.style.background = "transparent"; btn.style.color = "var(--theme-color)"; btn.style.border = "1px solid var(--theme-color)";
             resetSlider(cat);
@@ -1101,7 +1089,9 @@ function toggleManualMode(cat) {
         document.getElementById('feed-interval-label').innerText = txt;
     }
 
-let tummyStartTime = 0; let tummyInterval = null;
+    // 🔥 計時器邏輯
+    let tummyStartTime = 0; let tummyInterval = null;
+    let sleepStartTime = 0; let sleepInterval = null;
     let nurseStartTime = { left: 0, right: 0 }; let nurseInterval = { left: null, right: null };
 
     function startTummyTimer() {
@@ -1139,6 +1129,42 @@ let tummyStartTime = 0; let tummyInterval = null;
         }
     }
 
+    function startSleepTimer() {
+        if (sleepInterval) return; sleepStartTime = Date.now();
+        document.getElementById('sleep-timer-circle').classList.add('active-purple');
+        document.getElementById('sleep-start-btn').classList.add('hidden');
+        document.getElementById('sleep-stop-btn').classList.remove('hidden');
+        sleepInterval = setInterval(() => {
+            let s = Math.floor((Date.now() - sleepStartTime) / 1000);
+            let hText = Math.floor(s / 3600).toString().padStart(2, '0');
+            let mText = Math.floor((s % 3600) / 60).toString().padStart(2, '0');
+            let sText = (s % 60).toString().padStart(2, '0');
+            document.getElementById('sleep-timer-display').innerText = `${hText}:${mText}:${sText}`;
+        }, 1000);
+    }
+    async function stopSleepTimer() {
+        if (!sleepInterval) return; clearInterval(sleepInterval); sleepInterval = null;
+        document.getElementById('sleep-timer-circle').classList.remove('active-purple');
+        let elapsedSecs = Math.floor((Date.now() - sleepStartTime) / 1000);
+        if (elapsedSecs === 0) {
+            alert(currentLang === 'zh' ? "時間為 0，未儲存紀錄。" : "Time is 0, record not saved.");
+            document.getElementById('sleep-stop-btn').classList.add('hidden'); document.getElementById('sleep-start-btn').classList.remove('hidden'); return;
+        }
+        let durationMinutes = Math.round(elapsedSecs / 60); if (durationMinutes === 0 && elapsedSecs > 0) durationMinutes = 1; 
+        if(!db) return alert("Please set firebaseConfig"); if(!auth.currentUser) return alert("Please Login!");
+        let submitBtn = document.getElementById('sleep-stop-btn'); let originalText = submitBtn.innerText; 
+        submitBtn.innerText = translations[currentLang].saving; submitBtn.disabled = true;
+        let dataToSave = { userId: auth.currentUser.uid, babyId: currentBabyId, babyName: babies[currentBabyId], category: 'sleep', recordTime: new Date(), durationMins: durationMinutes, createdAt: firebase.firestore.FieldValue.serverTimestamp() };
+        try {
+            await db.collection("baby_records").add(dataToSave); 
+            alert(`${translations[currentLang].alertSuccess} 【${babies[currentBabyId]}】!`);
+            document.getElementById('sleep-timer-display').innerText = "00:00:00"; loadDashboardData();
+        } catch (error) { alert(translations[currentLang].alertError + error.message); } 
+        finally { 
+            submitBtn.innerText = originalText; submitBtn.disabled = false;
+            document.getElementById('sleep-stop-btn').classList.add('hidden'); document.getElementById('sleep-start-btn').classList.remove('hidden');
+        }
+    }
 
     function toggleNurseTimer(side) {
         let btn = document.getElementById('nurse-' + side + '-btn');
@@ -1201,9 +1227,10 @@ let tummyStartTime = 0; let tummyInterval = null;
             }
             let rashBtn = document.querySelector('.rash-btn.active');
             dataToSave.rash = rashBtn ? Number(rashBtn.getAttribute('data-value')) : 0;
-} else if (category === 'sleep') { 
-            dataToSave.sleepStatus = document.querySelector('.sleep-action.active').getAttribute('data-value'); 
-        } else if (category === 'temp') {
+        } else if (category === 'sleep') { 
+            dataToSave.durationMins = Number(document.getElementById('manual-sleep-duration').value) || null;
+            if(!dataToSave.durationMins) { submitBtn.innerText = originalText; submitBtn.disabled = false; return alert(currentLang==='zh'?"請輸入睡眠時長！":"Please enter duration!"); }
+        } else if (category === 'temp') { 
             dataToSave.temp = Number(document.getElementById('temp-val').value) || null;
             if(!dataToSave.temp) { submitBtn.innerText = originalText; submitBtn.disabled = false; return alert(currentLang==='zh'?"請輸入體溫！":"Please enter temperature!"); }
         } else if (category === 'bath') { dataToSave.bathStatus = 'start_bath'; 
@@ -1555,75 +1582,6 @@ let tummyStartTime = 0; let tummyInterval = null;
         switchTab('log', document.querySelector('.nav-btn'), '#E91E63');
         
         restoreLastBrand(); if(window.innerWidth <= 850) document.getElementById('desktop-title').style.display = 'none';
-   
-
-let globalSleepTimer = null;
-    let sleepStatusUnsubscribe = null;
-
-    function initSleepStatusListener() {
-        // 如果還沒登入，就不啟動
-        if (!auth.currentUser) return; 
-
-        // 每次切換寶寶時，先停止前一個寶寶的監聽
-        if (sleepStatusUnsubscribe) {
-            sleepStatusUnsubscribe();
-        }
-
-        // 啟動即時監聽 (針對當前用戶與當前選擇的寶寶)
-        sleepStatusUnsubscribe = db.collection("baby_records")
-            .where("userId", "==", auth.currentUser.uid)
-            .where("babyId", "==", currentBabyId)
-            .onSnapshot((snapshot) => {
-                const banner = document.getElementById('sleep-status-banner');
-                const durationText = document.getElementById('sleep-duration-text');
-                if (!banner || !durationText) return;
-
-                // 篩選出睡眠紀錄，並轉換時間格式
-                let sleepRecords = [];
-                snapshot.forEach(doc => {
-                    let data = doc.data();
-                    if(data.category === 'sleep') {
-                        data.timeMs = (data.recordTime && data.recordTime.toDate) ? data.recordTime.toDate().getTime() : new Date(data.recordTime).getTime();
-                        sleepRecords.push(data);
-                    }
-                });
-
-                if (sleepRecords.length === 0) {
-                    banner.style.display = 'none';
-                    if (globalSleepTimer) clearInterval(globalSleepTimer);
-                    return;
-                }
-
-                // 將睡眠紀錄依時間由新到舊排序
-                sleepRecords.sort((a, b) => b.timeMs - a.timeMs);
-                let latestRecord = sleepRecords[0];
-
-                // 如果最新的一筆紀錄是「開始睡眠」，顯示橫幅並開始計時
-                if (latestRecord.sleepStatus === 'start_sleep') {
-                    banner.style.display = 'block';
-                    if (globalSleepTimer) clearInterval(globalSleepTimer);
-
-                    const updateDuration = () => {
-                        const now = new Date().getTime();
-                        const diffMs = now - latestRecord.timeMs;
-                        let diffMins = Math.floor(diffMs / 60000);
-                        if (diffMins < 0) diffMins = 0; // 防呆機制
-                        
-                        const hrs = Math.floor(diffMins / 60);
-                        const mins = diffMins % 60;
-                        durationText.innerText = hrs > 0 ? `${hrs} 小時 ${mins} 分鐘` : `${diffMins} 分鐘`;
-                    };
-
-                    updateDuration(); // 立即更新一次
-                    globalSleepTimer = setInterval(updateDuration, 60000); // 之後每分鐘更新
-                } else {
-                    // 如果最新的一筆是結束睡眠，隱藏橫幅
-                    banner.style.display = 'none';
-                    if (globalSleepTimer) clearInterval(globalSleepTimer);
-                }
-            });
-    }
-    
     };
 
 // ==========================================
@@ -1703,53 +1661,6 @@ function showDemoRegisterPrompt() {
     if(document.getElementById('sum-diaper-val')) document.getElementById('sum-diaper-val').innerText = "0";
     if(document.getElementById('sum-sleep-val')) document.getElementById('sum-sleep-val').innerText = "0";
 }
-
-let globalSleepTimer = null;
-
-    function initSleepStatusListener() {
-        // 即時監聽最近的資料庫變動 (抓取最新 20 筆在前端過濾，以避免 Firebase 索引報錯)
-        db.collection("baby_records")
-          .orderBy("timestamp", "desc")
-          .limit(20)
-          .onSnapshot((snapshot) => {
-              const banner = document.getElementById('sleep-status-banner');
-              const durationText = document.getElementById('sleep-duration-text');
-              if (!banner || !durationText) return;
-              
-              // 找尋最新的一筆睡眠紀錄
-              let lastSleepRecord = null;
-              for (let doc of snapshot.docs) {
-                  let data = doc.data();
-                  if (data.category === 'sleep') {
-                      lastSleepRecord = data;
-                      break;
-                  }
-              }
-              
-              // 如果最後一筆不是「開始睡眠」(例如是結束，或根本沒紀錄)，則隱藏橫幅
-              if (!lastSleepRecord || lastSleepRecord.sleepStatus !== 'start_sleep') {
-                  banner.style.display = 'none';
-                  if (globalSleepTimer) clearInterval(globalSleepTimer);
-                  return;
-              }
-              
-              // 如果是「開始睡眠」，顯示橫幅並開始跨設備計時
-              banner.style.display = 'block';
-              if (globalSleepTimer) clearInterval(globalSleepTimer);
-              
-              const updateDuration = () => {
-                  const now = new Date().getTime();
-                  const diffMs = now - lastSleepRecord.timestamp;
-                  const diffMins = Math.floor(diffMs / 60000);
-                  const hrs = Math.floor(diffMins / 60);
-                  const mins = diffMins % 60;
-                  durationText.innerText = hrs > 0 ? `${hrs} 小時 ${mins} 分鐘` : `${diffMins} 分鐘`;
-              };
-              
-              updateDuration(); // 立即顯示當前已過時間
-              globalSleepTimer = setInterval(updateDuration, 60000); // 每分鐘自動更新畫面
-          });
-    }
     
 </script>
 

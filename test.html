@@ -1382,21 +1382,6 @@ function toggleManualMode(cat) {
                         if (r.weight) arr.push(`${translations[currentLang].lblWeight}: ${r.weight}kg`);
                         desc = arr.join(', '); h = '--'; m = '--'; 
                     }
-
-let fullDate = `${r.time.getFullYear()}/${String(r.time.getMonth() + 1).padStart(2, '0')}/${String(r.time.getDate()).padStart(2, '0')}`;
-let fullTime = `${String(r.time.getHours()).padStart(2, '0')}:${String(r.time.getMinutes()).padStart(2, '0')}`;
-
-listHtml = `
-    <div class="history-item">
-        <div class="history-info">
-            <div class="history-time">
-                <span style="font-size:0.9rem; color:var(--theme-color); font-weight:bold; margin-right:8px;">${fullDate} ${fullTime}</span>
-                ${icon}
-            </div>
-            <div class="history-detail">${desc}</div>
-        </div>
-        <button class="delete-btn" onclick="deleteRecord('${r.id}')">Del</button>
-    </div>` + listHtml;
                     
                 }
             });
@@ -1539,53 +1524,8 @@ listHtml = `
 
     let globalSleepTimer = null;
 
-    function initSleepStatusListener() {
-        // 即時監聽最近的資料庫變動 (抓取最新 20 筆在前端過濾，以避免 Firebase 索引報錯)
-        db.collection("baby_records")
-          .orderBy("timestamp", "desc")
-          .limit(20)
-          .onSnapshot((snapshot) => {
-              const banner = document.getElementById('sleep-status-banner');
-              const durationText = document.getElementById('sleep-duration-text');
-              if (!banner || !durationText) return;
-              
-              // 找尋最新的一筆睡眠紀錄
-              let lastSleepRecord = null;
-              for (let doc of snapshot.docs) {
-                  let data = doc.data();
-                  if (data.category === 'sleep') {
-                      lastSleepRecord = data;
-                      break;
-                  }
-              }
-              
-              // 如果最後一筆不是「開始睡眠」(例如是結束，或根本沒紀錄)，則隱藏橫幅
-              if (!lastSleepRecord || lastSleepRecord.sleepStatus !== 'start_sleep') {
-                  banner.style.display = 'none';
-                  if (globalSleepTimer) clearInterval(globalSleepTimer);
-                  return;
-              }
-              
-              // 如果是「開始睡眠」，顯示橫幅並開始跨設備計時
-              banner.style.display = 'block';
-              if (globalSleepTimer) clearInterval(globalSleepTimer);
-              
-              const updateDuration = () => {
-                  const now = new Date().getTime();
-                  const diffMs = now - lastSleepRecord.timestamp;
-                  const diffMins = Math.floor(diffMs / 60000);
-                  const hrs = Math.floor(diffMins / 60);
-                  const mins = diffMins % 60;
-                  durationText.innerText = hrs > 0 ? `${hrs} 小時 ${mins} 分鐘` : `${diffMins} 分鐘`;
-              };
-              
-              updateDuration(); // 立即顯示當前已過時間
-              globalSleepTimer = setInterval(updateDuration, 60000); // 每分鐘自動更新畫面
-          });
-        }
     
     window.onload = function() {
-        initSleepStatusListener();
         initTheme(); updateLanguage(); 
         setLocalDate('growth-date');        
         resetSlider('feeding'); 
@@ -1661,7 +1601,7 @@ function showDemoRegisterPrompt() {
     if(!isDemoMode) return;
     
     // 彈出提示，並強調完全免費
-    alert("⏳ 體驗時間結束！\n\n本 App 是【完全免費使用】的！\n立即花 1 分鐘登記專屬帳號，即可永久保存寶寶的所有紀錄與成長圖表！");
+    alert("本 App 是【完全免費使用】的！\n立即花 1 分鐘登記專屬帳號，即可永久保存寶寶的所有紀錄與成長圖表！");
     
     // 結束 Demo，清理計時器與監聽器，返回登入頁
     isDemoMode = false;

@@ -234,14 +234,16 @@
             <div class="summary-box top-feed-box" style="border-color: #2196F3; background: #e3f2fd;">
                 <div class="summary-title" style="color: #1565C0; display:flex; flex-direction: column; align-items:center; justify-content:center; gap:5px;">
                     <span data-i18n="nextFeed" style="font-size: 1.1rem; font-weight: bold;">🍼 下次餵奶時間參考</span>
-                    <div style="display: flex; align-items: center; width: 80%; max-width: 300px; gap: 10px; margin-top: 5px;">
-                        <span style="font-size: 0.8rem;">1h</span>
-                        <input type="range" id="feed-interval-input" min="1" max="6" step="1" value="3" oninput="updateFeedIntervalUI()" onchange="updateFeedInterval()" style="flex:1; margin:0;">
-                        <span style="font-size: 0.8rem;">6h</span>
-                    </div>
-                    <span id="feed-interval-label" style="font-weight:bold; font-size: 0.85rem;">(每 3 小時)</span>
                 </div>
                 <div class="summary-value" style="margin-top: 5px; font-size: 1.6rem;"><span id="next-feed-val">--</span></div>
+                <div style="display: flex; align-items: center; width: 80%; max-width: 300px; gap: 10px; margin: 10px auto 0;">
+                    <span style="font-size: 0.8rem;">1h</span>
+                    <input type="range" id="feed-interval-input" min="1" max="6" step="1" value="3" oninput="updateFeedIntervalUI()" onchange="updateFeedInterval()" style="flex:1; margin:0;">
+                    <span style="font-size: 0.8rem;">6h</span>
+                </div>
+                <div style="margin-top: 4px;">
+                    <span id="feed-interval-label" style="font-weight:bold; font-size: 0.85rem; color:#1565C0;">(每 3 小時)</span>
+                </div>
             </div>
             <div class="summary-box top-bath-box" style="border-color: #00ACC1; background: #e0f7fa;">
                 <div class="summary-title" style="color: #00838f; display:flex; flex-direction: column; align-items:center; justify-content:center; gap:5px;">
@@ -1444,16 +1446,16 @@ function toggleManualMode(cat) {
                 document.getElementById('sum-diaper-val').innerText = dayDiaperCount;
                 document.getElementById('sum-sleep-val').innerText = (daySleepMins / 60).toFixed(1);
                 
-                let bathDisplay = "--"; let bathStyle = "color: #00838f;";
+                let bathDisplay = "--"; let bathStyle = "color: #00838f; font-size: 1.6rem; font-variant-numeric: tabular-nums;";
                 if (lastBathTime) {
                     let nextBathTime = new Date(lastBathTime.getTime() + 24 * 60 * 60 * 1000);
                     if (now > nextBathTime) {
                         bathDisplay = translations[currentLang].overdueBath;
-                        bathStyle = "color: #d32f2f; font-weight: 900; font-size: 1.2rem;"; 
+                        bathStyle = "color: #d32f2f; font-weight: 900; font-size: 1.6rem;"; 
                     } else {
                         let mm = String(nextBathTime.getMonth() + 1).padStart(2, '0'); let dd = String(nextBathTime.getDate()).padStart(2, '0');
                         let h = String(nextBathTime.getHours()).padStart(2, '0'); let m = String(nextBathTime.getMinutes()).padStart(2, '0');
-                        bathDisplay = `${mm}/${dd} ${h}:${m}`; bathStyle = "color: #00838f; font-size: 1.05rem;";
+                        bathDisplay = `${mm}/${dd} ${h}:${m}`; bathStyle = "color: #00838f; font-size: 1.6rem; font-variant-numeric: tabular-nums;";
                     }
                 }
                 document.getElementById('sum-bath-val').innerHTML = `<span style="${bathStyle}">${bathDisplay}</span>`;

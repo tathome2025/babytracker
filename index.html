@@ -1174,7 +1174,8 @@ function toggleManualMode(cat) {
             } else if (activeType === 'direct') { 
                 dataToSave.directLeft = Number(document.getElementById('direct-left').value) || 0; dataToSave.directRight = Number(document.getElementById('direct-right').value) || 0;
             } else if (activeType === 'pump') {
-                dataToSave.pumpLeft = Number(document.getElementById('pump-left').value) || 0; dataToSave.pumpRight = Number(document.getElementById('pump-right').value) || 0;
+                let pumpInput = document.getElementById('pump-volume'); let pumpVol = Number(pumpInput ? pumpInput.value : 0) || 0;
+                dataToSave.volumeML = pumpVol; dataToSave.pumpLeft = pumpVol; dataToSave.pumpRight = 0;
             } else { 
                 dataToSave.volumeML = Number(document.getElementById('breastmilk-volume').value) || 0; 
             }

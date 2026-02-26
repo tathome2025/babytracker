@@ -85,6 +85,8 @@
         .summary-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 20px; }
         .full-width-box { grid-column: span 5; }
         .summary-box { background: var(--btn-bg); padding: 10px; border-radius: 10px; text-align: center; border: 1px solid var(--border-color); }
+        .top-feed-box { grid-column: span 3; }
+        .top-bath-box { grid-column: span 2; }
         .summary-title { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px; }
         .summary-value { font-size: 1.3rem; font-weight: bold; color: var(--theme-color); }
         .history-list { display: flex; flex-direction: column; gap: 10px; }
@@ -143,6 +145,7 @@
             .split-divider { border-right: none; padding-right: 0; border-bottom: 2px dashed var(--border-color); padding-bottom: 12px; }
             .summary-grid { grid-template-columns: repeat(3, 1fr); }
             .full-width-box { grid-column: span 3; }
+            .top-feed-box, .top-bath-box { grid-column: span 3; }
             .time-display { font-size: 1rem; padding: 4px 10px; }
             
             /* 🔥 手機版登入頁排版：簡介在上，登入在下 */
@@ -228,22 +231,34 @@
         <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: -10px;" data-i18n="logDesc">顯示從此刻起，往前推算 24 小時內的所有紀錄。</p>
 
         <div class="summary-grid">
-            <div class="summary-box full-width-box" style="border-color: #2196F3; background: #e3f2fd;">
+            <div class="summary-box top-feed-box" style="border-color: #2196F3; background: #e3f2fd;">
                 <div class="summary-title" style="color: #1565C0; display:flex; flex-direction: column; align-items:center; justify-content:center; gap:5px;">
                     <span data-i18n="nextFeed" style="font-size: 1.1rem; font-weight: bold;">🍼 下次餵奶時間參考</span>
-                    <div style="display: flex; align-items: center; width: 80%; max-width: 300px; gap: 10px; margin-top: 5px;">
-                        <span style="font-size: 0.8rem;">1h</span>
-                        <input type="range" id="feed-interval-input" min="1" max="6" step="1" value="3" oninput="updateFeedIntervalUI()" onchange="updateFeedInterval()" style="flex:1; margin:0;">
-                        <span style="font-size: 0.8rem;">6h</span>
-                    </div>
-                    <span id="feed-interval-label" style="font-weight:bold; font-size: 0.85rem;">(每 3 小時)</span>
                 </div>
                 <div class="summary-value" style="margin-top: 5px; font-size: 1.6rem;"><span id="next-feed-val">--</span></div>
+                <div style="display: flex; align-items: center; width: 80%; max-width: 300px; gap: 10px; margin: 10px auto 0;">
+                    <span style="font-size: 0.8rem;">1h</span>
+                    <input type="range" id="feed-interval-input" min="1" max="6" step="1" value="3" oninput="updateFeedIntervalUI()" onchange="updateFeedInterval()" style="flex:1; margin:0;">
+                    <span style="font-size: 0.8rem;">6h</span>
+                </div>
+                <div style="margin-top: 4px;">
+                    <span id="feed-interval-label" style="font-weight:bold; font-size: 0.85rem; color:#1565C0;">(每 3 小時)</span>
+                </div>
+            </div>
+            <div class="summary-box top-bath-box" style="border-color: #00ACC1; background: #e0f7fa;">
+                <div class="summary-title" style="color: #00838f; display:flex; flex-direction: column; align-items:center; justify-content:center; gap:5px;">
+                    <span data-i18n="nextBath" style="font-size: 1.1rem; font-weight: bold;">下次沖涼時間</span>
+                </div>
+                <div class="summary-value" style="margin-top: 5px; font-size: 1.6rem;"><span id="sum-bath-val">--</span></div>
             </div>
 
             <div class="summary-box">
                 <div class="summary-title" data-i18n="sumFed12h">12h內吃奶量</div>
                 <div class="summary-value"><span id="sum-milk-val">0</span> <span style="font-size: 0.8rem">ml</span></div>
+            </div>
+            <div class="summary-box">
+                <div class="summary-title" data-i18n="sumDirect12h">12h內總親餵時間</div>
+                <div class="summary-value"><span id="sum-direct12h-val">0</span> <span style="font-size: 0.8rem" data-i18n="unitMins">分鐘</span></div>
             </div>
             <div class="summary-box">
                 <div class="summary-title" data-i18n="sumPumped">總泵奶量</div>
@@ -256,10 +271,6 @@
             <div class="summary-box">
                 <div class="summary-title" data-i18n="sumSleep">睡眠時數</div>
                 <div class="summary-value"><span id="sum-sleep-val">0.0</span> <span style="font-size: 0.8rem" data-i18n="unitHours">小時</span></div>
-            </div>
-            <div class="summary-box" style="border-color: #00ACC1; background: #e0f7fa;">
-                <div class="summary-title" style="color: #00838f;" data-i18n="nextBath">下次沖涼時間</div>
-                <div class="summary-value"><span id="sum-bath-val">--</span></div>
             </div>
         </div>
         <div id="log-list" class="history-list"></div>
@@ -346,7 +357,7 @@
             </div>
             
             <label class="label" style="margin-top:10px;"><span data-i18n="labelFormulaVol">配方奶量</span>: <span id="formula-val-display" style="color:var(--theme-color); font-size:1.4rem;">150</span> ML</label>
-            <input type="range" id="formula-volume" min="10" max="300" step="10" value="150" oninput="document.getElementById('formula-val-display').innerText=this.value">
+            <input type="range" id="formula-volume" min="10" max="300" step="5" value="150" oninput="document.getElementById('formula-val-display').innerText=this.value">
             
             <label class="label" style="margin-top:15px;" data-i18n="labelQuickMl">快速選擇</label>
             <div class="btn-group" style="grid-template-columns: repeat(4, 1fr);">
@@ -363,7 +374,7 @@
 
 <div id="milk-volume-section" class="section hidden" style="margin-bottom: 20px;">
     <label class="label"><span data-i18n="labelBreastVol">人奶量</span>: <span id="breastmilk-val-display" style="color:var(--theme-color); font-size:1.4rem;">150</span> ML</label>
-    <input type="range" id="breastmilk-volume" min="10" max="300" step="10" value="150" oninput="document.getElementById('breastmilk-val-display').innerText=this.value" style="width: 100%; margin-bottom: 15px;">
+    <input type="range" id="breastmilk-volume" min="10" max="300" step="5" value="150" oninput="document.getElementById('breastmilk-val-display').innerText=this.value" style="width: 100%; margin-bottom: 15px;">
     
     <label class="label" style="margin-bottom: 10px; font-size: 0.9rem; color: var(--text-muted);" data-i18n="labelQuickMl">快速選擇 (ML)</label>
     <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
@@ -402,7 +413,7 @@
 
 <div id="pump-section" class="section hidden" style="margin-bottom: 20px;">
     <label class="label"><span data-i18n="labelPumpVol">泵奶量</span>: <span id="pump-val-display" style="color:var(--theme-color); font-size:1.4rem;">150</span> ML</label>
-    <input type="range" id="pump-volume" min="10" max="300" step="10" value="150" oninput="document.getElementById('pump-val-display').innerText=this.value" style="width: 100%; margin-bottom: 15px;">
+    <input type="range" id="pump-volume" min="10" max="300" step="5" value="150" oninput="document.getElementById('pump-val-display').innerText=this.value" style="width: 100%; margin-bottom: 15px;">
     
     <label class="label" style="margin-bottom: 10px; font-size: 0.9rem; color: var(--text-muted);" data-i18n="labelQuickMl">快速選擇 (ML)</label>
     <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
@@ -741,8 +752,8 @@ const firebaseConfig = {
             settingsTitle: "⚙️ 設定寶寶名稱", firstBaby: "第一位寶寶", secondBaby: "第二位寶寶", thirdBaby: "第三位寶寶",
             settingsPlaceholder1: "例如：大寶", settingsPlaceholder2: "例如：二寶", settingsPlaceholder3: "例如：三寶", saveSettingsBtn: "💾 儲存 (同步雲端)", cancelBtn: "取消",
             alertSettingsSaved: "✅ 設定已同步到雲端！", saving: "儲存中...", alertSuccess: "✅ 成功儲存", alertError: "❌ 錯誤：",
-            historyTitle: "📊 統計趨勢圖表", sumFed12h: "12h內吃奶量", sumPumped: "總泵奶量", sumDiaper: "換尿片", sumSleep: "睡眠時數", nextBath: "下次沖涼時間", overdueBath: "未沖涼 ⚠️", nextFeed: "🍼 下次餵奶時間參考", timelineTitle: "📅 24小時日誌",
-            logDesc: "顯示從此刻起，往前推算 24 小時內的所有紀錄。", unitTimes: "次", unitHours: "小時",
+            historyTitle: "📊 統計趨勢圖表", sumFed12h: "12h內吃奶量", sumDirect12h: "12h內總親餵時間", sumPumped: "總泵奶量", sumDiaper: "換尿片", sumSleep: "睡眠時數", nextBath: "下次沖涼時間", overdueBath: "未沖涼 ⚠️", nextFeed: "🍼 下次餵奶時間參考", timelineTitle: "📅 24小時日誌",
+            logDesc: "顯示從此刻起，往前推算 24 小時內的所有紀錄。", unitTimes: "次", unitHours: "小時", unitMins: "分鐘",
             deleteConfirm: "確定要刪除這筆紀錄嗎？", emptyHistory: "過去 24 小時內沒有任何紀錄喔！",
             range7: "最近 7 天", range14: "最近 14 天", range30: "最近 1 個月", range90: "最近 3 個月", range180: "最近半年", range365: "最近一年",
             chartTitleMilk: "🍼 每日總吃奶量 (配方/人奶樽)", chartTitleDirect: "🤱 每日親餵時長 (分鐘)", chartTitlePump: "🍼 每日泵奶量 (ml)", chartTitleSleep: "💤 每日總睡眠時數 (小時)", chartTitleDiaper: "🧻 每日換尿片次數",
@@ -778,8 +789,8 @@ const firebaseConfig = {
             settingsTitle: "⚙️ Set Baby Name", firstBaby: "First Baby", secondBaby: "Second Baby", thirdBaby: "Third Baby",
             settingsPlaceholder1: "e.g., Baby 1", settingsPlaceholder2: "e.g., Baby 2", settingsPlaceholder3: "e.g., Baby 3", saveSettingsBtn: "💾 Save (Sync)", cancelBtn: "Cancel",
             alertSettingsSaved: "✅ Saved to cloud!", saving: "Saving...", alertSuccess: "✅ Saved", alertError: "❌ Error: ",
-            historyTitle: "📊 History Trend", sumFed12h: "Fed in 12h", sumPumped: "Total Pumped", sumDiaper: "Diapers", sumSleep: "Sleep Duration", nextBath: "Next Bath Time", overdueBath: "Overdue ⚠️", nextFeed: "🍼 Next Feed", timelineTitle: "📅 24-Hour Log",
-            logDesc: "Showing all records within the past 24 hours from now.", unitTimes: "times", unitHours: "hrs",
+            historyTitle: "📊 History Trend", sumFed12h: "Fed in 12h", sumDirect12h: "Nursing in 12h", sumPumped: "Total Pumped", sumDiaper: "Diapers", sumSleep: "Sleep Duration", nextBath: "Next Bath Time", overdueBath: "Overdue ⚠️", nextFeed: "🍼 Next Feed", timelineTitle: "📅 24-Hour Log",
+            logDesc: "Showing all records within the past 24 hours from now.", unitTimes: "times", unitHours: "hrs", unitMins: "mins",
             deleteConfirm: "Delete this record?", emptyHistory: "No records in the last 24 hours!",
             range7: "Last 7 Days", range14: "Last 14 Days", range30: "Last 1 Month", range90: "Last 3 Months", range180: "Last 6 Months", range365: "Last 1 Year",
             chartTitleMilk: "🍼 Daily Total Milk", chartTitleDirect: "🤱 Daily Nursing (mins)", chartTitlePump: "🍼 Daily Pump Vol (ml)", chartTitleSleep: "💤 Daily Sleep (Hours)", chartTitleDiaper: "🧻 Daily Diapers",
@@ -794,6 +805,7 @@ const firebaseConfig = {
     let currentBabyId = "baby1";
     let historyCharts = { milk: null, direct: null, pump: null, diaper: null, sleep: null, temp: null, tummy: null, rash: null, height: null, weight: null }; 
     let isManualMode = { feeding: false, diaper: false, sleep: false, temp: false, bath: false, tummy: false }; 
+    let nextFeedCountdownTarget = null;
 
     function updateLanguage() {
         document.querySelectorAll('[data-i18n]').forEach(el => el.innerText = translations[currentLang][el.getAttribute('data-i18n')]);
@@ -1007,7 +1019,7 @@ function toggleManualMode(cat) {
 
     function setManualTime(cat, val) { if(val) { recordTimes[cat] = new Date(val); renderTimeDisplay(cat); } }
 
-    setInterval(() => { ['feeding', 'diaper', 'sleep', 'temp', 'bath', 'tummy'].forEach(cat => { if (!isTimeFrozen[cat]) { recordTimes[cat] = new Date(); renderTimeDisplay(cat); }}); }, 1000);
+    setInterval(() => { ['feeding', 'diaper', 'sleep', 'temp', 'bath', 'tummy'].forEach(cat => { if (!isTimeFrozen[cat]) { recordTimes[cat] = new Date(); renderTimeDisplay(cat); }}); renderNextFeedCountdown(); }, 1000);
 
     function addVal(id, amt) { let el = document.getElementById(id); let curr = Number(el.value) || 0; el.value = curr + amt; }
     
@@ -1085,6 +1097,37 @@ function toggleManualMode(cat) {
         let val = document.getElementById('feed-interval-input').value;
         let txt = currentLang === 'zh' ? `(每 ${val} 小時)` : `(Every ${val} hrs)`;
         document.getElementById('feed-interval-label').innerText = txt;
+    }
+
+    function formatCountdownHMS(totalSeconds) {
+        let s = Math.max(0, Math.floor(totalSeconds));
+        let h = Math.floor(s / 3600).toString().padStart(2, '0');
+        let m = Math.floor((s % 3600) / 60).toString().padStart(2, '0');
+        let sec = (s % 60).toString().padStart(2, '0');
+        return `${h}:${m}:${sec}`;
+    }
+
+    function renderNextFeedCountdown(now = new Date()) {
+        let el = document.getElementById('next-feed-val');
+        if (!el) return;
+
+        let feedDisplay = "--";
+        let feedStyle = "color: #1565C0;";
+
+        if (nextFeedCountdownTarget instanceof Date && !Number.isNaN(nextFeedCountdownTarget.getTime())) {
+            let diffMs = nextFeedCountdownTarget.getTime() - now.getTime();
+            if (diffMs < 0) {
+                let overdue = formatCountdownHMS(Math.floor(Math.abs(diffMs) / 1000));
+                feedDisplay = currentLang === 'zh' ? `已超時 ${overdue} ⚠️` : `Overdue ${overdue} ⚠️`;
+                feedStyle = "color: #d32f2f; font-weight: 900; font-size: 1.15rem; font-variant-numeric: tabular-nums;";
+            } else {
+                let remaining = formatCountdownHMS(Math.floor(diffMs / 1000));
+                feedDisplay = currentLang === 'zh' ? `剩餘 ${remaining}` : `Remaining ${remaining}`;
+                feedStyle = "color: #1565C0; font-size: 1.6rem; font-variant-numeric: tabular-nums;";
+            }
+        }
+
+        el.innerHTML = `<span style="${feedStyle}">${feedDisplay}</span>`;
     }
     
     let tummyStartTime = 0; let tummyInterval = null;
@@ -1249,7 +1292,7 @@ function toggleManualMode(cat) {
             allRecords.sort((a, b) => a.time - b.time);
             
             let lastSleepStart = null; let lastTummyStart = null;
-            let dayTotalFed12h = 0; let dayTotalPump = 0; let dayDiaperCount = 0; let daySleepMins = 0; 
+            let dayTotalFed12h = 0; let dayTotalDirect12hMins = 0; let dayTotalPump = 0; let dayDiaperCount = 0; let daySleepMins = 0; 
             let lastBathTime = null; 
             let lastFeedTime = null;
             let listHtml = '';
@@ -1335,6 +1378,7 @@ function toggleManualMode(cat) {
                         if(r.feedingType === 'direct') { 
                             let l = r.directLeft||0; let r_v = r.directRight||0; if(!l && !r_v && r.durationMins) l = r.durationMins;
                             desc = `${translations[currentLang].lblDirect} (${lblL}:${l}, ${lblR}:${r_v})`; 
+                            if(r.time >= past12h) { dayTotalDirect12hMins += (l + r_v); }
                         }
                         else if(r.feedingType === 'pump') { 
                             let l = r.pumpLeft||0; let r_v = r.pumpRight||0; if(!l && !r_v && r.volumeML) l = r.volumeML;
@@ -1395,37 +1439,29 @@ function toggleManualMode(cat) {
                 if(listHtml === '') listDiv.innerHTML = `<div style="text-align:center; color: var(--text-muted); padding: 20px;">${translations[currentLang].emptyHistory}</div>`;
                 else listDiv.innerHTML = listHtml; 
                 document.getElementById('sum-milk-val').innerText = dayTotalFed12h;
+                document.getElementById('sum-direct12h-val').innerText = dayTotalDirect12hMins;
                 document.getElementById('sum-pump-val').innerText = dayTotalPump;
                 document.getElementById('sum-diaper-val').innerText = dayDiaperCount;
                 document.getElementById('sum-sleep-val').innerText = (daySleepMins / 60).toFixed(1);
                 
-                let bathDisplay = "--"; let bathStyle = "color: #00838f;";
+                let bathDisplay = "--"; let bathStyle = "color: #00838f; font-size: 1.6rem; font-variant-numeric: tabular-nums;";
                 if (lastBathTime) {
                     let nextBathTime = new Date(lastBathTime.getTime() + 24 * 60 * 60 * 1000);
                     if (now > nextBathTime) {
                         bathDisplay = translations[currentLang].overdueBath;
-                        bathStyle = "color: #d32f2f; font-weight: 900; font-size: 1.2rem;"; 
+                        bathStyle = "color: #d32f2f; font-weight: 900; font-size: 1.6rem;"; 
                     } else {
                         let mm = String(nextBathTime.getMonth() + 1).padStart(2, '0'); let dd = String(nextBathTime.getDate()).padStart(2, '0');
-                        let h = String(nextBathTime.getHours()).padStart(2, '0'); let m = String(nextBathTime.getMinutes()).padStart(2, '0');
-                        bathDisplay = `${mm}/${dd} ${h}:${m}`; bathStyle = "color: #00838f; font-size: 1.05rem;";
+                        let h24 = nextBathTime.getHours(); let ampm = h24 >= 12 ? 'PM' : 'AM';
+                        let h12 = h24 % 12; if (h12 === 0) h12 = 12;
+                        let h = String(h12).padStart(2, '0'); let m = String(nextBathTime.getMinutes()).padStart(2, '0');
+                        bathDisplay = `${h}:${m} ${ampm}`; bathStyle = "color: #00838f; font-size: 1.6rem; font-variant-numeric: tabular-nums;";
                     }
                 }
                 document.getElementById('sum-bath-val').innerHTML = `<span style="${bathStyle}">${bathDisplay}</span>`;
 
-                let feedDisplay = "--"; let feedStyle = "color: #1565C0;";
-                if (lastFeedTime) {
-                    let nextFeedDate = new Date(lastFeedTime.getTime() + feedInterval * 60 * 60 * 1000);
-                    if (now > nextFeedDate) {
-                        feedDisplay = currentLang === 'zh' ? "已超時 ⚠️" : "Overdue ⚠️";
-                        feedStyle = "color: #d32f2f; font-weight: 900; font-size: 1.6rem;"; 
-                    } else {
-                        let mm = String(nextFeedDate.getMonth() + 1).padStart(2, '0'); let dd = String(nextFeedDate.getDate()).padStart(2, '0');
-                        let h = String(nextFeedDate.getHours()).padStart(2, '0'); let m = String(nextFeedDate.getMinutes()).padStart(2, '0');
-                        feedDisplay = `${mm}/${dd} ${h}:${m}`; feedStyle = "color: #1565C0; font-size: 1.6rem;";
-                    }
-                }
-                document.getElementById('next-feed-val').innerHTML = `<span style="${feedStyle}">${feedDisplay}</span>`;
+                nextFeedCountdownTarget = lastFeedTime ? new Date(lastFeedTime.getTime() + feedInterval * 60 * 60 * 1000) : null;
+                renderNextFeedCountdown(now);
             }
 
             if(isHistoryTab) {
@@ -1607,6 +1643,7 @@ function startDemo() {
     
     // 注入 Sample Data 讓用戶預覽介面
     if(document.getElementById('sum-milk-val')) document.getElementById('sum-milk-val').innerText = "380";
+    if(document.getElementById('sum-direct12h-val')) document.getElementById('sum-direct12h-val').innerText = "42";
     if(document.getElementById('sum-pump-val')) document.getElementById('sum-pump-val').innerText = "250";
     if(document.getElementById('sum-diaper-val')) document.getElementById('sum-diaper-val').innerText = "4";
     if(document.getElementById('sum-sleep-val')) document.getElementById('sum-sleep-val').innerText = "6.5";
@@ -1664,6 +1701,7 @@ function showDemoRegisterPrompt() {
     
     // 數據歸零
     if(document.getElementById('sum-milk-val')) document.getElementById('sum-milk-val').innerText = "0";
+    if(document.getElementById('sum-direct12h-val')) document.getElementById('sum-direct12h-val').innerText = "0";
     if(document.getElementById('sum-pump-val')) document.getElementById('sum-pump-val').innerText = "0";
     if(document.getElementById('sum-diaper-val')) document.getElementById('sum-diaper-val').innerText = "0";
     if(document.getElementById('sum-sleep-val')) document.getElementById('sum-sleep-val').innerText = "0";

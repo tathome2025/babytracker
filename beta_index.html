@@ -85,6 +85,8 @@
         .summary-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 20px; }
         .full-width-box { grid-column: span 5; }
         .summary-box { background: var(--btn-bg); padding: 10px; border-radius: 10px; text-align: center; border: 1px solid var(--border-color); }
+        .top-feed-box { grid-column: span 3; }
+        .top-bath-box { grid-column: span 2; }
         .summary-title { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px; }
         .summary-value { font-size: 1.3rem; font-weight: bold; color: var(--theme-color); }
         .history-list { display: flex; flex-direction: column; gap: 10px; }
@@ -143,6 +145,7 @@
             .split-divider { border-right: none; padding-right: 0; border-bottom: 2px dashed var(--border-color); padding-bottom: 12px; }
             .summary-grid { grid-template-columns: repeat(3, 1fr); }
             .full-width-box { grid-column: span 3; }
+            .top-feed-box, .top-bath-box { grid-column: span 3; }
             .time-display { font-size: 1rem; padding: 4px 10px; }
             
             /* 🔥 手機版登入頁排版：簡介在上，登入在下 */
@@ -228,7 +231,7 @@
         <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: -10px;" data-i18n="logDesc">顯示從此刻起，往前推算 24 小時內的所有紀錄。</p>
 
         <div class="summary-grid">
-            <div class="summary-box full-width-box" style="border-color: #2196F3; background: #e3f2fd;">
+            <div class="summary-box top-feed-box" style="border-color: #2196F3; background: #e3f2fd;">
                 <div class="summary-title" style="color: #1565C0; display:flex; flex-direction: column; align-items:center; justify-content:center; gap:5px;">
                     <span data-i18n="nextFeed" style="font-size: 1.1rem; font-weight: bold;">🍼 下次餵奶時間參考</span>
                     <div style="display: flex; align-items: center; width: 80%; max-width: 300px; gap: 10px; margin-top: 5px;">
@@ -239,6 +242,14 @@
                     <span id="feed-interval-label" style="font-weight:bold; font-size: 0.85rem;">(每 3 小時)</span>
                 </div>
                 <div class="summary-value" style="margin-top: 5px; font-size: 1.6rem;"><span id="next-feed-val">--</span></div>
+            </div>
+            <div class="summary-box top-bath-box" style="border-color: #00ACC1; background: #e0f7fa;">
+                <div class="summary-title" style="color: #00838f; display:flex; flex-direction: column; align-items:center; justify-content:center; gap:5px;">
+                    <span data-i18n="nextBath" style="font-size: 1.1rem; font-weight: bold;">下次沖涼時間</span>
+                    <div style="height: 28px;"></div>
+                    <span style="font-weight:bold; font-size: 0.85rem; opacity: 0.9;">&nbsp;</span>
+                </div>
+                <div class="summary-value" style="margin-top: 5px; font-size: 1.6rem;"><span id="sum-bath-val">--</span></div>
             </div>
 
             <div class="summary-box">
@@ -260,10 +271,6 @@
             <div class="summary-box">
                 <div class="summary-title" data-i18n="sumSleep">睡眠時數</div>
                 <div class="summary-value"><span id="sum-sleep-val">0.0</span> <span style="font-size: 0.8rem" data-i18n="unitHours">小時</span></div>
-            </div>
-            <div class="summary-box" style="border-color: #00ACC1; background: #e0f7fa;">
-                <div class="summary-title" style="color: #00838f;" data-i18n="nextBath">下次沖涼時間</div>
-                <div class="summary-value"><span id="sum-bath-val">--</span></div>
             </div>
         </div>
         <div id="log-list" class="history-list"></div>
@@ -1114,7 +1121,8 @@ function toggleManualMode(cat) {
                 feedDisplay = currentLang === 'zh' ? `已超時 ${overdue} ⚠️` : `Overdue ${overdue} ⚠️`;
                 feedStyle = "color: #d32f2f; font-weight: 900; font-size: 1.15rem; font-variant-numeric: tabular-nums;";
             } else {
-                feedDisplay = formatCountdownHMS(Math.floor(diffMs / 1000));
+                let remaining = formatCountdownHMS(Math.floor(diffMs / 1000));
+                feedDisplay = currentLang === 'zh' ? `剩餘 ${remaining}` : `Remaining ${remaining}`;
                 feedStyle = "color: #1565C0; font-size: 1.6rem; font-variant-numeric: tabular-nums;";
             }
         }

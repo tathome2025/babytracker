@@ -514,27 +514,30 @@
             <button id="mode-btn-sleep" class="btn outline" style="width: auto; padding: 6px 12px; font-size: 0.9rem;" onclick="toggleManualMode('sleep')" data-i18n="btnManualMode">📅 補登過去紀錄</button>
         </h2>
         
-        <div class="row section">
-            <div class="col split-divider">
-                <label class="label" data-i18n="labelEventTime">發生時間</label>
-                <div id="quick-time-sleep">
-                    <input type="range" id="slider-sleep" min="0" max="60" step="5" value="0" oninput="syncSliderTime('sleep', this.value)">
-                    <div id="slider-label-sleep" style="text-align:center; color:var(--theme-color); font-weight:bold; font-size:0.95rem;" data-i18n="labelSliderNow">現在 (0 分鐘前)</div>
-                </div>
-                <div id="manual-time-sleep" class="hidden">
+        <div id="live-sleep-section" class="section">
+            <div class="timer-circle" id="sleep-timer-circle" style="border-color: #673AB7; color: #673AB7;">
+                <span id="sleep-timer-display" style="font-size: 1.35rem;">00:00:00</span>
+            </div>
+            <div id="sleep-timer-status-text" style="text-align:center; color:#5e35b1; font-weight:bold; margin-bottom:12px;">尚未開始睡覺</div>
+            <div class="btn-group" style="grid-template-columns: 1fr;">
+                <button id="sleep-toggle-btn" onclick="toggleSleepTimer()" class="btn" style="background-color:#673AB7; color:white; border-color:#673AB7; padding:15px; font-size:1.2rem;">開始睡覺</button>
+            </div>
+        </div>
+
+        <div id="manual-sleep-section" class="section hidden">
+            <div class="row">
+                <div class="col split-divider">
+                    <label class="label" data-i18n="labelEventTime">發生時間</label>
                     <input type="datetime-local" id="input-manual-sleep" class="input-date" onchange="setManualTime('sleep', this.value)">
                     <p style="font-size: 0.85rem; color: #E91E63; margin-top: 5px;" data-i18n="manualNotice">* 您正在補登過去的紀錄</p>
                 </div>
-            </div>
-            <div class="col">
-                <label class="label" data-i18n="labelSleepStatus">睡眠狀態</label>
-                <div class="btn-group" id="sleep-action-btns" style="grid-template-columns: 1fr;">
-                    <button class="btn sleep-action active" data-value="start_sleep" onclick="singleSelectBtn(this, 'sleep-action-btns')" data-i18n="sleepStart" style="padding: 15px;">開始睡眠 (入睡) 🌙</button>
-                    <button class="btn sleep-action" data-value="end_sleep" onclick="singleSelectBtn(this, 'sleep-action-btns')" data-i18n="sleepEnd" style="padding: 15px;">結束睡眠 (醒來) ☀️</button>
+                <div class="col">
+                    <label class="label" data-i18n="labelSleepDuration">睡眠時長 (分鐘)</label>
+                    <input type="number" id="manual-sleep-duration" class="input-number" placeholder="輸入分鐘數">
                 </div>
             </div>
+            <button class="submit-btn" id="btn-submit-sleep" onclick="submitData('sleep')" data-i18n="saveSleep" style="background:#673AB7; margin-top: 15px;">儲存睡眠紀錄</button>
         </div>
-        <button class="submit-btn" id="btn-submit-sleep" onclick="submitData('sleep')" data-i18n="saveSleep" style="background:#673AB7; margin-top: 15px;">儲存睡眠紀錄</button>
     </div>
     
     <div id="temp-card" class="card">
@@ -814,6 +817,7 @@ const firebaseConfig = {
         let isDark = document.documentElement.getAttribute('data-theme') === 'dark';
         document.getElementById('theme-toggle-btn').innerText = isDark ? translations[currentLang].btnThemeLight : translations[currentLang].btnThemeDark;
         updateBabyUI(); updateProfileUI();
+        renderSleepTimerUi();
         if(document.getElementById('log-card').classList.contains('active') || document.getElementById('history-card').classList.contains('active')) loadDashboardData(); 
     }
 
@@ -905,6 +909,7 @@ const firebaseConfig = {
         document.querySelectorAll('.baby-tab').forEach(t => t.classList.remove('active'));
         document.getElementById(`tab-${babyId}`).classList.add('active'); restoreLastBrand();
         updateProfileUI();
+        initSleepStatusListener();
         if(document.getElementById('log-card').classList.contains('active') || document.getElementById('history-card').classList.contains('active')) loadDashboardData();
     }
 
@@ -935,9 +940,11 @@ const firebaseConfig = {
                 if (typeof loadDashboardData === "function") {
                     loadDashboardData(); 
                 }
+                initSleepStatusListener();
                 
             } else { 
                 overlay.style.display = 'flex'; document.getElementById('user-info').innerText = ''; 
+                initSleepStatusListener();
             }
         });
     }
@@ -1001,6 +1008,7 @@ function toggleManualMode(cat) {
             if(quickDiv) quickDiv.classList.add('hidden'); 
             if(manualDiv) manualDiv.classList.remove('hidden');
             if(cat === 'tummy') { document.getElementById('live-tummy-section').classList.add('hidden'); document.getElementById('manual-tummy-section').classList.remove('hidden'); }
+            if(cat === 'sleep') { document.getElementById('live-sleep-section').classList.add('hidden'); document.getElementById('manual-sleep-section').classList.remove('hidden'); }
             
             btn.innerText = translations[currentLang].btnBackToNow; btn.style.background = "#FF9800"; btn.style.color = "white"; btn.style.border = "none";
             let tzoffset = (new Date()).getTimezoneOffset() * 60000;
@@ -1011,9 +1019,16 @@ function toggleManualMode(cat) {
             if(quickDiv) quickDiv.classList.remove('hidden'); 
             if(manualDiv) manualDiv.classList.add('hidden');
             if(cat === 'tummy') { document.getElementById('live-tummy-section').classList.remove('hidden'); document.getElementById('manual-tummy-section').classList.add('hidden'); }
+            if(cat === 'sleep') { document.getElementById('live-sleep-section').classList.remove('hidden'); document.getElementById('manual-sleep-section').classList.add('hidden'); }
             
             btn.innerText = translations[currentLang].btnManualMode; btn.style.background = "transparent"; btn.style.color = "var(--theme-color)"; btn.style.border = "1px solid var(--theme-color)";
-            resetSlider(cat);
+            if (cat === 'sleep' && !document.getElementById('slider-sleep')) {
+                isTimeFrozen[cat] = false;
+                recordTimes[cat] = new Date();
+                renderTimeDisplay(cat);
+            } else {
+                resetSlider(cat);
+            }
         }
     }
 
@@ -1132,6 +1147,255 @@ function toggleManualMode(cat) {
     
     let tummyStartTime = 0; let tummyInterval = null;
     let nurseStartTime = { left: 0, right: 0 }; let nurseInterval = { left: null, right: null };
+    let sleepTimerUiInterval = null;
+    let sleepSyncUnsubscribe = null;
+    let isSleepActionBusy = false;
+    let sleepTimerState = { running: false, startMs: null };
+
+    function getSleepLiveDocRef() {
+        if (!db || !auth || !auth.currentUser || !currentBabyId) return null;
+        return db.collection("baby_live_state").doc(`${auth.currentUser.uid}_${currentBabyId}`);
+    }
+
+    function toMillisMaybe(v) {
+        if (v == null) return null;
+        if (typeof v === 'number' && Number.isFinite(v)) return v;
+        if (typeof v.toMillis === 'function') return v.toMillis();
+        if (typeof v.toDate === 'function') return v.toDate().getTime();
+        let d = new Date(v);
+        return Number.isNaN(d.getTime()) ? null : d.getTime();
+    }
+
+    function formatSleepElapsedText(diffMs) {
+        let totalSecs = Math.max(0, Math.floor(diffMs / 1000));
+        let hrs = Math.floor(totalSecs / 3600);
+        let mins = Math.floor((totalSecs % 3600) / 60);
+        let secs = totalSecs % 60;
+        if (currentLang === 'zh') {
+            if (hrs > 0) return `${hrs} 小時 ${mins} 分鐘 ${secs} 秒`;
+            if (mins > 0) return `${mins} 分鐘 ${secs} 秒`;
+            return `${secs} 秒`;
+        }
+        if (hrs > 0) return `${hrs}h ${mins}m ${secs}s`;
+        if (mins > 0) return `${mins}m ${secs}s`;
+        return `${secs}s`;
+    }
+
+    function stopSleepTimerUiTick() {
+        if (sleepTimerUiInterval) {
+            clearInterval(sleepTimerUiInterval);
+            sleepTimerUiInterval = null;
+        }
+    }
+
+    function updateSleepTimerUiTick() {
+        let displayEl = document.getElementById('sleep-timer-display');
+        let banner = document.getElementById('sleep-status-banner');
+        let durationTextEl = document.getElementById('sleep-duration-text');
+        if (!displayEl) return;
+
+        if (!sleepTimerState.running || !sleepTimerState.startMs) {
+            displayEl.innerText = "00:00:00";
+            if (banner) banner.style.display = 'none';
+            return;
+        }
+
+        let diffMs = Math.max(0, Date.now() - sleepTimerState.startMs);
+        displayEl.innerText = formatCountdownHMS(Math.floor(diffMs / 1000));
+
+        if (banner && durationTextEl) {
+            banner.style.display = 'block';
+            durationTextEl.innerText = formatSleepElapsedText(diffMs);
+        }
+    }
+
+    function renderSleepTimerUi() {
+        let circle = document.getElementById('sleep-timer-circle');
+        let btn = document.getElementById('sleep-toggle-btn');
+        let statusText = document.getElementById('sleep-timer-status-text');
+        if (!circle || !btn || !statusText) return;
+
+        btn.disabled = isSleepActionBusy;
+
+        if (sleepTimerState.running) {
+            circle.classList.add('active-purple');
+            btn.innerText = isSleepActionBusy ? (translations[currentLang].saving || 'Saving...') : (translations[currentLang].sleepEnd || 'Wake & Save');
+            btn.style.backgroundColor = '#f44336';
+            btn.style.borderColor = '#f44336';
+            statusText.innerText = currentLang === 'zh' ? '睡眠計時中（跨裝置同步）' : 'Sleep timer running (synced across devices)';
+            updateSleepTimerUiTick();
+            if (!sleepTimerUiInterval) sleepTimerUiInterval = setInterval(updateSleepTimerUiTick, 1000);
+        } else {
+            circle.classList.remove('active-purple');
+            btn.innerText = isSleepActionBusy ? (translations[currentLang].saving || 'Saving...') : (translations[currentLang].sleepStart || 'Start Sleep');
+            btn.style.backgroundColor = '#673AB7';
+            btn.style.borderColor = '#673AB7';
+            statusText.innerText = currentLang === 'zh' ? '尚未開始睡覺' : 'Sleep timer is idle';
+            stopSleepTimerUiTick();
+            updateSleepTimerUiTick();
+        }
+    }
+
+    function applySleepTimerState(nextState) {
+        sleepTimerState = { running: !!nextState.running, startMs: nextState.startMs || null };
+        renderSleepTimerUi();
+    }
+
+    function initSleepStatusListener() {
+        if (sleepSyncUnsubscribe) {
+            sleepSyncUnsubscribe();
+            sleepSyncUnsubscribe = null;
+        }
+
+        if (!db || !auth || !auth.currentUser) {
+            applySleepTimerState({ running: false, startMs: null });
+            return;
+        }
+
+        let ref = getSleepLiveDocRef();
+        if (!ref) {
+            applySleepTimerState({ running: false, startMs: null });
+            return;
+        }
+
+        sleepSyncUnsubscribe = ref.onSnapshot((doc) => {
+            if (!doc.exists) {
+                applySleepTimerState({ running: false, startMs: null });
+                return;
+            }
+
+            let data = doc.data() || {};
+            let running = !!data.sleepRunning;
+            let startMs = toMillisMaybe(data.sleepStartAt) || toMillisMaybe(data.sleepStartAtClientMs);
+            if (!running || !startMs) {
+                applySleepTimerState({ running: false, startMs: null });
+                return;
+            }
+            applySleepTimerState({ running: true, startMs: startMs });
+        }, (err) => {
+            console.error("Sleep sync listener error:", err);
+            applySleepTimerState({ running: false, startMs: null });
+        });
+    }
+
+    async function toggleSleepTimer() {
+        if (sleepTimerState.running) return stopSleepTimerAndSave();
+        return startSleepTimerSync();
+    }
+
+    async function startSleepTimerSync() {
+        if (isSleepActionBusy) return;
+        if(!db) return alert("Please set firebaseConfig");
+        if(!auth.currentUser) return alert("Please Login!");
+
+        let startedAtMs = Date.now();
+        isSleepActionBusy = true;
+        renderSleepTimerUi();
+
+        try {
+            let ref = getSleepLiveDocRef();
+            await db.runTransaction(async (tx) => {
+                let snap = await tx.get(ref);
+                let data = snap.exists ? (snap.data() || {}) : {};
+                if (data.sleepRunning) {
+                    throw new Error("SLEEP_ALREADY_RUNNING");
+                }
+                tx.set(ref, {
+                    userId: auth.currentUser.uid,
+                    babyId: currentBabyId,
+                    babyName: babies[currentBabyId],
+                    sleepRunning: true,
+                    sleepStartAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    sleepStartAtClientMs: startedAtMs,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+            });
+
+            // Optimistic UI while waiting for snapshot callback
+            applySleepTimerState({ running: true, startMs: startedAtMs });
+        } catch (error) {
+            if (error && error.message === "SLEEP_ALREADY_RUNNING") {
+                alert(currentLang === 'zh' ? "睡眠計時已在其他裝置開始。" : "Sleep timer is already running on another device.");
+            } else {
+                alert((translations[currentLang].alertError || 'Error: ') + (error.message || error));
+            }
+        } finally {
+            isSleepActionBusy = false;
+            renderSleepTimerUi();
+        }
+    }
+
+    async function stopSleepTimerAndSave() {
+        if (isSleepActionBusy) return;
+        if(!db) return alert("Please set firebaseConfig");
+        if(!auth.currentUser) return alert("Please Login!");
+
+        isSleepActionBusy = true;
+        renderSleepTimerUi();
+
+        try {
+            let liveRef = getSleepLiveDocRef();
+            let newRecordRef = db.collection("baby_records").doc();
+
+            await db.runTransaction(async (tx) => {
+                let snap = await tx.get(liveRef);
+                let liveData = snap.exists ? (snap.data() || {}) : {};
+                if (!liveData.sleepRunning) throw new Error("SLEEP_NOT_RUNNING");
+
+                let startMs = toMillisMaybe(liveData.sleepStartAt) || toMillisMaybe(liveData.sleepStartAtClientMs);
+                if (!startMs) throw new Error("SLEEP_START_MISSING");
+
+                let endTime = new Date();
+                let elapsedSecs = Math.floor((endTime.getTime() - startMs) / 1000);
+                if (elapsedSecs <= 0) throw new Error("SLEEP_ZERO");
+
+                let durationMinutes = Math.round(elapsedSecs / 60);
+                if (durationMinutes === 0 && elapsedSecs > 0) durationMinutes = 1;
+                let startTime = new Date(startMs);
+
+                tx.set(newRecordRef, {
+                    userId: auth.currentUser.uid,
+                    babyId: currentBabyId,
+                    babyName: babies[currentBabyId],
+                    category: 'sleep',
+                    sleepStatus: 'end_sleep',
+                    durationMins: durationMinutes,
+                    sleepStartTime: startTime,
+                    sleepEndTime: endTime,
+                    recordTime: endTime,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                tx.set(liveRef, {
+                    userId: auth.currentUser.uid,
+                    babyId: currentBabyId,
+                    babyName: babies[currentBabyId],
+                    sleepRunning: false,
+                    sleepStartAt: null,
+                    sleepStartAtClientMs: null,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+
+            });
+
+            applySleepTimerState({ running: false, startMs: null });
+            alert(`${translations[currentLang].alertSuccess} 【${babies[currentBabyId]}】!`);
+            loadDashboardData();
+        } catch (error) {
+            if (error && error.message === "SLEEP_NOT_RUNNING") {
+                alert(currentLang === 'zh' ? "目前沒有進行中的睡眠計時。" : "No active sleep timer.");
+            } else if (error && error.message === "SLEEP_ZERO") {
+                alert(currentLang === 'zh' ? "時間為 0，未儲存紀錄。" : "Time is 0, record not saved.");
+            } else if (error && error.message === "SLEEP_START_MISSING") {
+                alert(currentLang === 'zh' ? "找不到睡眠開始時間，請重新開始計時。" : "Missing sleep start time. Please start again.");
+            } else {
+                alert((translations[currentLang].alertError || 'Error: ') + (error.message || error));
+            }
+        } finally {
+            isSleepActionBusy = false;
+            renderSleepTimerUi();
+        }
+    }
 
     function startTummyTimer() {
         if (tummyInterval) return; tummyStartTime = Date.now();
@@ -1232,7 +1496,11 @@ function toggleManualMode(cat) {
             let rashBtn = document.querySelector('.rash-btn.active');
             dataToSave.rash = rashBtn ? Number(rashBtn.getAttribute('data-value')) : 0;
         } else if (category === 'sleep') { 
-            dataToSave.sleepStatus = document.querySelector('.sleep-action.active').getAttribute('data-value'); 
+            dataToSave.sleepStatus = 'end_sleep';
+            dataToSave.durationMins = Number(document.getElementById('manual-sleep-duration').value) || null;
+            if(!dataToSave.durationMins) { submitBtn.innerText = originalText; submitBtn.disabled = false; return alert(currentLang==='zh'?"請輸入睡眠時長！":"Please enter sleep duration!"); }
+            dataToSave.sleepEndTime = recordTime;
+            dataToSave.sleepStartTime = new Date(recordTime.getTime() - dataToSave.durationMins * 60000);
         } else if (category === 'temp') {
             dataToSave.temp = Number(document.getElementById('temp-val').value) || null;
             if(!dataToSave.temp) { submitBtn.innerText = originalText; submitBtn.disabled = false; return alert(currentLang==='zh'?"請輸入體溫！":"Please enter temperature!"); }
@@ -1455,7 +1723,7 @@ function toggleManualMode(cat) {
                         let h24 = nextBathTime.getHours(); let ampm = h24 >= 12 ? 'PM' : 'AM';
                         let h12 = h24 % 12; if (h12 === 0) h12 = 12;
                         let h = String(h12).padStart(2, '0'); let m = String(nextBathTime.getMinutes()).padStart(2, '0');
-                        bathDisplay = `${h}:${m} ${ampm}`; bathStyle = "color: #00838f; font-size: 1.6rem; font-variant-numeric: tabular-nums;";
+                        bathDisplay = `${mm}/${dd} ${ampm} ${h}:${m}`; bathStyle = "color: #00838f; font-size: 1.6rem; font-variant-numeric: tabular-nums;";
                     }
                 }
                 document.getElementById('sum-bath-val').innerHTML = `<span style="${bathStyle}">${bathDisplay}</span>`;
@@ -1563,53 +1831,6 @@ function toggleManualMode(cat) {
 
     async function deleteRecord(docId) { if(confirm(translations[currentLang].deleteConfirm)) { try { await db.collection("baby_records").doc(docId).delete(); loadDashboardData(); } catch(e) { alert("Error: " + e.message); } } }
 
-    let globalSleepTimer = null;
-
-    function initSleepStatusListener() {
-        // 即時監聽最近的資料庫變動 (抓取最新 20 筆在前端過濾，以避免 Firebase 索引報錯)
-        db.collection("baby_records")
-          .orderBy("timestamp", "desc")
-          .limit(20)
-          .onSnapshot((snapshot) => {
-              const banner = document.getElementById('sleep-status-banner');
-              const durationText = document.getElementById('sleep-duration-text');
-              if (!banner || !durationText) return;
-              
-              // 找尋最新的一筆睡眠紀錄
-              let lastSleepRecord = null;
-              for (let doc of snapshot.docs) {
-                  let data = doc.data();
-                  if (data.category === 'sleep') {
-                      lastSleepRecord = data;
-                      break;
-                  }
-              }
-              
-              // 如果最後一筆不是「開始睡眠」(例如是結束，或根本沒紀錄)，則隱藏橫幅
-              if (!lastSleepRecord || lastSleepRecord.sleepStatus !== 'start_sleep') {
-                  banner.style.display = 'none';
-                  if (globalSleepTimer) clearInterval(globalSleepTimer);
-                  return;
-              }
-              
-              // 如果是「開始睡眠」，顯示橫幅並開始跨設備計時
-              banner.style.display = 'block';
-              if (globalSleepTimer) clearInterval(globalSleepTimer);
-              
-              const updateDuration = () => {
-                  const now = new Date().getTime();
-                  const diffMs = now - lastSleepRecord.timestamp;
-                  const diffMins = Math.floor(diffMs / 60000);
-                  const hrs = Math.floor(diffMins / 60);
-                  const mins = diffMins % 60;
-                  durationText.innerText = hrs > 0 ? `${hrs} 小時 ${mins} 分鐘` : `${diffMins} 分鐘`;
-              };
-              
-              updateDuration(); // 立即顯示當前已過時間
-              globalSleepTimer = setInterval(updateDuration, 60000); // 每分鐘自動更新畫面
-          });
-        }
-    
     window.onload = function() {
         initSleepStatusListener();
         initTheme(); updateLanguage(); 

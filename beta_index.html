@@ -346,7 +346,7 @@
             </div>
             
             <label class="label" style="margin-top:10px;"><span data-i18n="labelFormulaVol">配方奶量</span>: <span id="formula-val-display" style="color:var(--theme-color); font-size:1.4rem;">150</span> ML</label>
-            <input type="range" id="formula-volume" min="10" max="300" step="10" value="150" oninput="document.getElementById('formula-val-display').innerText=this.value">
+            <input type="range" id="formula-volume" min="10" max="300" step="5" value="150" oninput="document.getElementById('formula-val-display').innerText=this.value">
             
             <label class="label" style="margin-top:15px;" data-i18n="labelQuickMl">快速選擇</label>
             <div class="btn-group" style="grid-template-columns: repeat(4, 1fr);">
@@ -363,7 +363,7 @@
 
 <div id="milk-volume-section" class="section hidden" style="margin-bottom: 20px;">
     <label class="label"><span data-i18n="labelBreastVol">人奶量</span>: <span id="breastmilk-val-display" style="color:var(--theme-color); font-size:1.4rem;">150</span> ML</label>
-    <input type="range" id="breastmilk-volume" min="10" max="300" step="10" value="150" oninput="document.getElementById('breastmilk-val-display').innerText=this.value" style="width: 100%; margin-bottom: 15px;">
+    <input type="range" id="breastmilk-volume" min="10" max="300" step="5" value="150" oninput="document.getElementById('breastmilk-val-display').innerText=this.value" style="width: 100%; margin-bottom: 15px;">
     
     <label class="label" style="margin-bottom: 10px; font-size: 0.9rem; color: var(--text-muted);" data-i18n="labelQuickMl">快速選擇 (ML)</label>
     <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
@@ -402,7 +402,7 @@
 
 <div id="pump-section" class="section hidden" style="margin-bottom: 20px;">
     <label class="label"><span data-i18n="labelPumpVol">泵奶量</span>: <span id="pump-val-display" style="color:var(--theme-color); font-size:1.4rem;">150</span> ML</label>
-    <input type="range" id="pump-volume" min="10" max="300" step="10" value="150" oninput="document.getElementById('pump-val-display').innerText=this.value" style="width: 100%; margin-bottom: 15px;">
+    <input type="range" id="pump-volume" min="10" max="300" step="5" value="150" oninput="document.getElementById('pump-val-display').innerText=this.value" style="width: 100%; margin-bottom: 15px;">
     
     <label class="label" style="margin-bottom: 10px; font-size: 0.9rem; color: var(--text-muted);" data-i18n="labelQuickMl">快速選擇 (ML)</label>
     <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
@@ -794,6 +794,7 @@ const firebaseConfig = {
     let currentBabyId = "baby1";
     let historyCharts = { milk: null, direct: null, pump: null, diaper: null, sleep: null, temp: null, tummy: null, rash: null, height: null, weight: null }; 
     let isManualMode = { feeding: false, diaper: false, sleep: false, temp: false, bath: false, tummy: false }; 
+    let nextFeedCountdownTarget = null;
 
     function updateLanguage() {
         document.querySelectorAll('[data-i18n]').forEach(el => el.innerText = translations[currentLang][el.getAttribute('data-i18n')]);
@@ -1007,7 +1008,7 @@ function toggleManualMode(cat) {
 
     function setManualTime(cat, val) { if(val) { recordTimes[cat] = new Date(val); renderTimeDisplay(cat); } }
 
-    setInterval(() => { ['feeding', 'diaper', 'sleep', 'temp', 'bath', 'tummy'].forEach(cat => { if (!isTimeFrozen[cat]) { recordTimes[cat] = new Date(); renderTimeDisplay(cat); }}); }, 1000);
+    setInterval(() => { ['feeding', 'diaper', 'sleep', 'temp', 'bath', 'tummy'].forEach(cat => { if (!isTimeFrozen[cat]) { recordTimes[cat] = new Date(); renderTimeDisplay(cat); }}); renderNextFeedCountdown(); }, 1000);
 
     function addVal(id, amt) { let el = document.getElementById(id); let curr = Number(el.value) || 0; el.value = curr + amt; }
     
@@ -1085,6 +1086,36 @@ function toggleManualMode(cat) {
         let val = document.getElementById('feed-interval-input').value;
         let txt = currentLang === 'zh' ? `(每 ${val} 小時)` : `(Every ${val} hrs)`;
         document.getElementById('feed-interval-label').innerText = txt;
+    }
+
+    function formatCountdownHMS(totalSeconds) {
+        let s = Math.max(0, Math.floor(totalSeconds));
+        let h = Math.floor(s / 3600).toString().padStart(2, '0');
+        let m = Math.floor((s % 3600) / 60).toString().padStart(2, '0');
+        let sec = (s % 60).toString().padStart(2, '0');
+        return `${h}:${m}:${sec}`;
+    }
+
+    function renderNextFeedCountdown(now = new Date()) {
+        let el = document.getElementById('next-feed-val');
+        if (!el) return;
+
+        let feedDisplay = "--";
+        let feedStyle = "color: #1565C0;";
+
+        if (nextFeedCountdownTarget instanceof Date && !Number.isNaN(nextFeedCountdownTarget.getTime())) {
+            let diffMs = nextFeedCountdownTarget.getTime() - now.getTime();
+            if (diffMs < 0) {
+                let overdue = formatCountdownHMS(Math.floor(Math.abs(diffMs) / 1000));
+                feedDisplay = currentLang === 'zh' ? `已超時 ${overdue} ⚠️` : `Overdue ${overdue} ⚠️`;
+                feedStyle = "color: #d32f2f; font-weight: 900; font-size: 1.15rem; font-variant-numeric: tabular-nums;";
+            } else {
+                feedDisplay = formatCountdownHMS(Math.floor(diffMs / 1000));
+                feedStyle = "color: #1565C0; font-size: 1.6rem; font-variant-numeric: tabular-nums;";
+            }
+        }
+
+        el.innerHTML = `<span style="${feedStyle}">${feedDisplay}</span>`;
     }
     
     let tummyStartTime = 0; let tummyInterval = null;
@@ -1413,19 +1444,8 @@ function toggleManualMode(cat) {
                 }
                 document.getElementById('sum-bath-val').innerHTML = `<span style="${bathStyle}">${bathDisplay}</span>`;
 
-                let feedDisplay = "--"; let feedStyle = "color: #1565C0;";
-                if (lastFeedTime) {
-                    let nextFeedDate = new Date(lastFeedTime.getTime() + feedInterval * 60 * 60 * 1000);
-                    if (now > nextFeedDate) {
-                        feedDisplay = currentLang === 'zh' ? "已超時 ⚠️" : "Overdue ⚠️";
-                        feedStyle = "color: #d32f2f; font-weight: 900; font-size: 1.6rem;"; 
-                    } else {
-                        let mm = String(nextFeedDate.getMonth() + 1).padStart(2, '0'); let dd = String(nextFeedDate.getDate()).padStart(2, '0');
-                        let h = String(nextFeedDate.getHours()).padStart(2, '0'); let m = String(nextFeedDate.getMinutes()).padStart(2, '0');
-                        feedDisplay = `${mm}/${dd} ${h}:${m}`; feedStyle = "color: #1565C0; font-size: 1.6rem;";
-                    }
-                }
-                document.getElementById('next-feed-val').innerHTML = `<span style="${feedStyle}">${feedDisplay}</span>`;
+                nextFeedCountdownTarget = lastFeedTime ? new Date(lastFeedTime.getTime() + feedInterval * 60 * 60 * 1000) : null;
+                renderNextFeedCountdown(now);
             }
 
             if(isHistoryTab) {

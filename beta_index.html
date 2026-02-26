@@ -99,6 +99,19 @@
         .profile-text-row { font-size: 1.1rem; margin-bottom: 8px; color: var(--text-color); }
         .edit-icon-btn { position: absolute; right: 15px; top: 15px; background: white; border: 1px solid var(--border-color); padding: 5px 10px; border-radius: 5px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .chart-container { position: relative; width: 100%; margin-bottom: 20px; }
+        .global-sleep-banner {
+            display: none;
+            position: fixed;
+            left: 272px;
+            right: 16px;
+            bottom: 16px;
+            z-index: 950;
+            background: linear-gradient(135deg, #f3e5f5, #ede7f6);
+            border: 1px solid #d1c4e9;
+            border-radius: 14px;
+            box-shadow: 0 10px 24px rgba(0,0,0,0.14);
+            padding: 12px 14px;
+        }
 
         /* 計時器 UI */
         .timer-circle {
@@ -141,6 +154,7 @@
             .sidebar { position: fixed; top: 0; left: 0; bottom: 0; transform: translateX(-100%); box-shadow: 4px 0 15px rgba(0,0,0,0.3); }
             .sidebar.open { transform: translateX(0); }
             .main-content { overflow: visible; padding: 15px 15px 60px; }
+            .global-sleep-banner { left: 12px; right: 12px; bottom: 12px; }
             .row { flex-direction: column; gap: 12px; }
             .split-divider { border-right: none; padding-right: 0; border-bottom: 2px dashed var(--border-color); padding-bottom: 12px; }
             .summary-grid { grid-template-columns: repeat(3, 1fr); }
@@ -224,6 +238,18 @@
         <button class="baby-tab active" id="tab-baby1" onclick="switchBaby('baby1')">👶 大寶</button>
         <button class="baby-tab" id="tab-baby2" onclick="switchBaby('baby2')">👶 二寶</button>
         <button class="baby-tab hidden" id="tab-baby3" onclick="switchBaby('baby3')">👶 三寶</button>
+    </div>
+
+    <div id="global-sleep-banner" class="global-sleep-banner">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+            <div style="min-width:0;">
+                <div id="global-sleep-banner-title" style="font-weight:900; color:#5e35b1; font-size:0.95rem;">😴 寶寶睡眠中（所有頁面可停止）</div>
+                <div style="color:#6a1b9a; margin-top:4px; font-weight:700;">
+                    <span id="global-sleep-prefix-text">已睡 </span><span id="global-sleep-duration-text">0 分鐘</span>
+                </div>
+            </div>
+            <button id="global-sleep-stop-btn" class="btn" onclick="stopSleepTimerAndSave()" style="width:auto; min-width:160px; padding:10px 14px; background:#f44336; color:white; border-color:#f44336; font-weight:900;">睡眠終止並紀錄</button>
+        </div>
     </div>
 
     <div id="log-card" class="card active">
@@ -1188,15 +1214,46 @@ function toggleManualMode(cat) {
         }
     }
 
+    function renderGlobalSleepBannerUi() {
+        let globalBanner = document.getElementById('global-sleep-banner');
+        let globalTitle = document.getElementById('global-sleep-banner-title');
+        let globalPrefix = document.getElementById('global-sleep-prefix-text');
+        let globalDuration = document.getElementById('global-sleep-duration-text');
+        let globalStopBtn = document.getElementById('global-sleep-stop-btn');
+        if (!globalBanner || !globalTitle || !globalPrefix || !globalDuration || !globalStopBtn) return;
+
+        globalStopBtn.disabled = isSleepActionBusy;
+        globalStopBtn.innerText = isSleepActionBusy
+            ? (translations[currentLang].saving || 'Saving...')
+            : (currentLang === 'zh' ? '睡眠終止並紀錄' : 'Wake & Save');
+
+        if (!sleepTimerState.running || !sleepTimerState.startMs) {
+            globalBanner.style.display = 'none';
+            return;
+        }
+
+        let diffMs = Math.max(0, Date.now() - sleepTimerState.startMs);
+        globalBanner.style.display = 'block';
+        globalTitle.innerText = currentLang === 'zh'
+            ? '😴 寶寶睡眠中（所有頁面可停止）'
+            : '😴 Baby is sleeping (stop from any page)';
+        globalPrefix.innerText = currentLang === 'zh' ? '已睡 ' : 'Slept ';
+        globalDuration.innerText = formatSleepElapsedText(diffMs);
+    }
+
     function updateSleepTimerUiTick() {
         let displayEl = document.getElementById('sleep-timer-display');
         let banner = document.getElementById('sleep-status-banner');
         let durationTextEl = document.getElementById('sleep-duration-text');
-        if (!displayEl) return;
+        if (!displayEl) {
+            renderGlobalSleepBannerUi();
+            return;
+        }
 
         if (!sleepTimerState.running || !sleepTimerState.startMs) {
             displayEl.innerText = "00:00:00";
             if (banner) banner.style.display = 'none';
+            renderGlobalSleepBannerUi();
             return;
         }
 
@@ -1207,13 +1264,17 @@ function toggleManualMode(cat) {
             banner.style.display = 'block';
             durationTextEl.innerText = formatSleepElapsedText(diffMs);
         }
+        renderGlobalSleepBannerUi();
     }
 
     function renderSleepTimerUi() {
         let circle = document.getElementById('sleep-timer-circle');
         let btn = document.getElementById('sleep-toggle-btn');
         let statusText = document.getElementById('sleep-timer-status-text');
-        if (!circle || !btn || !statusText) return;
+        if (!circle || !btn || !statusText) {
+            renderGlobalSleepBannerUi();
+            return;
+        }
 
         btn.disabled = isSleepActionBusy;
 
@@ -1234,6 +1295,7 @@ function toggleManualMode(cat) {
             stopSleepTimerUiTick();
             updateSleepTimerUiTick();
         }
+        renderGlobalSleepBannerUi();
     }
 
     function applySleepTimerState(nextState) {
@@ -1329,6 +1391,10 @@ function toggleManualMode(cat) {
         if (isSleepActionBusy) return;
         if(!db) return alert("Please set firebaseConfig");
         if(!auth.currentUser) return alert("Please Login!");
+        const confirmMsg = currentLang === 'zh'
+            ? "確定要停止睡眠並紀錄嗎？"
+            : "Are you sure you want to stop sleep and save the record?";
+        if (!confirm(confirmMsg)) return;
 
         isSleepActionBusy = true;
         renderSleepTimerUi();

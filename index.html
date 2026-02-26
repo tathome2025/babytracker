@@ -1789,7 +1789,7 @@ function toggleManualMode(cat) {
                         let h24 = nextBathTime.getHours(); let ampm = h24 >= 12 ? 'PM' : 'AM';
                         let h12 = h24 % 12; if (h12 === 0) h12 = 12;
                         let h = String(h12).padStart(2, '0'); let m = String(nextBathTime.getMinutes()).padStart(2, '0');
-                        bathDisplay = `${mm}/${dd} ${ampm} ${h}:${m}`; bathStyle = "color: #00838f; font-size: 1.6rem; font-variant-numeric: tabular-nums;";
+                        bathDisplay = `${h}:${m} ${ampm}`; bathStyle = "color: #00838f; font-size: 1.6rem; font-variant-numeric: tabular-nums;";
                     }
                 }
                 document.getElementById('sum-bath-val').innerHTML = `<span style="${bathStyle}">${bathDisplay}</span>`;

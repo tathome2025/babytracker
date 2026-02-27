@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-HK">
 <head>
@@ -6,13 +7,13 @@
     <title>Baby Tracker 嬰幼兒生活紀錄</title>
     <style>
         :root {
-            --bg-color: #f4f7f6; --sidebar-bg: #ffffff; --card-bg: #ffffff; --text-color: #333333;
-            --text-muted: #666666; --border-color: #e0e0e0; --btn-bg: #f9f9f9; --theme-color: #E91E63; 
-            --theme-light: rgba(233, 30, 99, 0.1);
+            --bg-color: #f4efe6; --sidebar-bg: #fbf7f1; --card-bg: #fffdf9; --text-color: #3f372d;
+            --text-muted: #6f665a; --border-color: #d8cfbf; --btn-bg: #f2ecdf; --theme-color: #A45A3F; 
+            --theme-light: rgba(164, 90, 63, 0.12);
         }
         [data-theme="dark"] {
-            --bg-color: #121212; --sidebar-bg: #1e1e1e; --card-bg: #242424; --text-color: #e0e0e0;
-            --text-muted: #aaaaaa; --border-color: #444444; --btn-bg: #2c2c2c;
+            --bg-color: #1f1b17; --sidebar-bg: #2a241e; --card-bg: #312922; --text-color: #e8dfd2;
+            --text-muted: #b6ab9a; --border-color: #5a5045; --btn-bg: #3a3129;
         }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; display: flex; height: 100dvh; overflow: hidden; transition: 0.3s; }
         
@@ -32,7 +33,7 @@
         .auth-btn.google { background: #ffffff; color: #444; border: 1px solid #ccc; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 0; }
         .auth-divider { margin: 15px 0; color: var(--text-muted); font-size: 0.9rem; display: flex; align-items: center; }
         .auth-divider::before, .auth-divider::after { content: ""; flex: 1; height: 1px; background: var(--border-color); margin: 0 10px; }
-        .auth-error { color: #d32f2f; font-size: 0.9rem; margin-bottom: 10px; min-height: 20px; }
+        .auth-error { color: #8B3A2E; font-size: 0.9rem; margin-bottom: 10px; min-height: 20px; }
 
         .mobile-header { display: none; background-color: var(--sidebar-bg); padding: 10px 15px; border-bottom: 1px solid var(--border-color); align-items: center; justify-content: space-between; z-index: 100; position: sticky; top: 0; }
         .hamburger-btn { background: none; border: none; font-size: 1.6rem; color: var(--text-color); cursor: pointer; padding: 0; }
@@ -44,7 +45,7 @@
         .nav-btn.active { background: var(--theme-light); color: var(--theme-color); border-color: var(--theme-color); }
         .sidebar-bottom { margin-top: auto; display: flex; flex-direction: column; gap: 8px; padding-top: 20px; }
         .action-btn { padding: 12px; border: 1px solid var(--border-color); border-radius: 10px; background: var(--btn-bg); color: var(--text-color); font-size: 1rem; cursor: pointer; font-weight: bold; text-align: center; }
-        .logout-btn { color: #d32f2f; border-color: #ffcccc; background: #fff5f5; }
+        .logout-btn { color: #8B3A2E; border-color: #e5c4ba; background: #f7ebe7; }
 
         .main-content { flex: 1; padding: 15px 20px 40px; box-sizing: border-box; display: flex; flex-direction: column; overflow-y: auto; -webkit-overflow-scrolling: touch; }
         .baby-selector { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; flex-shrink: 0; }
@@ -94,7 +95,7 @@
         .history-info { display: flex; flex-direction: column; gap: 4px; }
         .history-time { font-weight: bold; color: var(--text-color); font-size: 1.1rem; }
         .history-detail { color: var(--text-muted); font-size: 0.9rem; }
-        .delete-btn { background: #fff5f5; color: #d32f2f; border: 1px solid #ffcccc; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; }
+        .delete-btn { background: #f7ebe7; color: #8B3A2E; border: 1px solid #e5c4ba; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; }
         .profile-box { background: var(--theme-light); padding: 20px; border-radius: 10px; border: 1px solid var(--border-color); margin-bottom: 20px; position: relative; }
         .profile-text-row { font-size: 1.1rem; margin-bottom: 8px; color: var(--text-color); }
         .edit-icon-btn { position: absolute; right: 15px; top: 15px; background: white; border: 1px solid var(--border-color); padding: 5px 10px; border-radius: 5px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
@@ -106,8 +107,8 @@
             right: 16px;
             bottom: 16px;
             z-index: 950;
-            background: linear-gradient(135deg, #f3e5f5, #ede7f6);
-            border: 1px solid #d1c4e9;
+            background: linear-gradient(135deg, #efe8de, #e8ddd0);
+            border: 1px solid #cbbca9;
             border-radius: 14px;
             box-shadow: 0 10px 24px rgba(0,0,0,0.14);
             padding: 12px 14px;
@@ -123,15 +124,15 @@
         }
         .timer-circle.active { animation: timerPulse 2s infinite; }
         @keyframes timerPulse {
-            0% { box-shadow: 0 0 0 0 rgba(139, 195, 74, 0.6); }
-            70% { box-shadow: 0 0 0 20px rgba(139, 195, 74, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(139, 195, 74, 0); }
+            0% { box-shadow: 0 0 0 0 rgba(122, 139, 79, 0.6); }
+            70% { box-shadow: 0 0 0 20px rgba(122, 139, 79, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(122, 139, 79, 0); }
         }
         .timer-circle.active-purple { animation: timerPulsePurple 2s infinite; }
         @keyframes timerPulsePurple {
-            0% { box-shadow: 0 0 0 0 rgba(103, 58, 183, 0.6); }
-            70% { box-shadow: 0 0 0 20px rgba(103, 58, 183, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(103, 58, 183, 0); }
+            0% { box-shadow: 0 0 0 0 rgba(109, 90, 123, 0.6); }
+            70% { box-shadow: 0 0 0 20px rgba(109, 90, 123, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(109, 90, 123, 0); }
         }
 
         /* Slider UI */
@@ -189,7 +190,7 @@
                 <span data-i18n="btnGoogleLogin">使用 Google 登入</span>
             </button>
                         <div class="auth-divider" data-i18n="orText">或</div>
-            <button onclick="startDemo()" style="width: 100%; padding: 12px; background: #e8f5e9; color: #4CAF50; border: 1px solid #4CAF50; border-radius: 8px; font-size: 1.1rem; cursor: pointer; font-weight: bold;">
+            <button onclick="startDemo()" style="width: 100%; padding: 12px; background: #ece6d9; color: #5F6F52; border: 1px solid #5F6F52; border-radius: 8px; font-size: 1.1rem; cursor: pointer; font-weight: bold;">
             👀 免登記體驗 (Demo Mode)
         </button>
         </div>
@@ -213,15 +214,15 @@
     <img src="https://raw.githubusercontent.com/tathome2025/babytracker/refs/heads/main/square.jpg" alt="Logo" style="width: 100%; border-radius: 15px; margin-bottom: 15px; object-fit: cover; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
     <div class="user-info" id="user-info"></div> 
     
-    <button class="nav-btn active" onclick="switchTab('log', this, '#E91E63')" data-i18n="navLog">📅 24h 日誌</button>
-    <button class="nav-btn" onclick="switchTab('growth', this, '#00BCD4')" data-i18n="navGrowth">📏 成長紀錄</button>
-    <button class="nav-btn" onclick="switchTab('feeding', this, '#2196F3')" data-i18n="navFeeding">🍼 吃奶</button>
-    <button class="nav-btn" onclick="switchTab('diaper', this, '#FF9800')" data-i18n="navDiaper">🧻 尿片</button>
-    <button class="nav-btn" onclick="switchTab('sleep', this, '#673AB7')" data-i18n="navSleep">💤 睡眠</button>
-    <button class="nav-btn" onclick="switchTab('temp', this, '#F44336')" data-i18n="navTemp">🌡️ 體溫紀錄</button>
-    <button class="nav-btn" onclick="switchTab('bath', this, '#00ACC1')" data-i18n="navBath">🛀 沖涼</button>
-    <button class="nav-btn" onclick="switchTab('tummy', this, '#8BC34A')" data-i18n="navTummy">🐢 趴撐練習</button>
-    <button class="nav-btn" onclick="switchTab('history', this, '#4CAF50')" data-i18n="navHistory">📊 趨勢圖表</button>
+    <button class="nav-btn active" onclick="switchTab('log', this, '#A45A3F')" data-i18n="navLog">📅 24h 日誌</button>
+    <button class="nav-btn" onclick="switchTab('growth', this, '#5F7F73')" data-i18n="navGrowth">📏 成長紀錄</button>
+    <button class="nav-btn" onclick="switchTab('feeding', this, '#5C7890')" data-i18n="navFeeding">🍼 吃奶</button>
+    <button class="nav-btn" onclick="switchTab('diaper', this, '#B8833A')" data-i18n="navDiaper">🧻 尿片</button>
+    <button class="nav-btn" onclick="switchTab('sleep', this, '#6D5A7B')" data-i18n="navSleep">💤 睡眠</button>
+    <button class="nav-btn" onclick="switchTab('temp', this, '#A14A3E')" data-i18n="navTemp">🌡️ 體溫紀錄</button>
+    <button class="nav-btn" onclick="switchTab('bath', this, '#4F7C78')" data-i18n="navBath">🛀 沖涼</button>
+    <button class="nav-btn" onclick="switchTab('tummy', this, '#7A8B4F')" data-i18n="navTummy">🐢 趴撐練習</button>
+    <button class="nav-btn" onclick="switchTab('history', this, '#5F6F52')" data-i18n="navHistory">📊 趨勢圖表</button>
     
     <div class="sidebar-bottom">
         <button class="action-btn" onclick="exportCSV()" data-i18n="btnExportCSV">📥 匯出完整紀錄</button>
@@ -243,12 +244,12 @@
     <div id="global-sleep-banner" class="global-sleep-banner">
         <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
             <div style="min-width:0;">
-                <div id="global-sleep-banner-title" style="font-weight:900; color:#5e35b1; font-size:0.95rem;">😴 寶寶睡眠中（所有頁面可停止）</div>
-                <div style="color:#6a1b9a; margin-top:4px; font-weight:700;">
+                <div id="global-sleep-banner-title" style="font-weight:900; color:#6D5A7B; font-size:0.95rem;">😴 寶寶睡眠中（所有頁面可停止）</div>
+                <div style="color:#5f4e6b; margin-top:4px; font-weight:700;">
                     <span id="global-sleep-prefix-text">已睡 </span><span id="global-sleep-duration-text">0 分鐘</span>
                 </div>
             </div>
-            <button id="global-sleep-stop-btn" class="btn" onclick="stopSleepTimerAndSave()" style="width:auto; min-width:160px; padding:10px 14px; background:#f44336; color:white; border-color:#f44336; font-weight:900;">睡眠終止並紀錄</button>
+            <button id="global-sleep-stop-btn" class="btn" onclick="stopSleepTimerAndSave()" style="width:auto; min-width:160px; padding:10px 14px; background:#A14A3E; color:white; border-color:#A14A3E; font-weight:900;">睡眠終止並紀錄</button>
         </div>
     </div>
 
@@ -257,8 +258,8 @@
         <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: -10px;" data-i18n="logDesc">顯示從此刻起，往前推算 24 小時內的所有紀錄。</p>
 
         <div class="summary-grid">
-            <div class="summary-box top-feed-box" style="border-color: #2196F3; background: #e3f2fd;">
-                <div class="summary-title" style="color: #1565C0; display:flex; flex-direction: column; align-items:center; justify-content:center; gap:5px;">
+            <div class="summary-box top-feed-box" style="border-color: #5C7890; background: #e7ecef;">
+                <div class="summary-title" style="color: #4F6B82; display:flex; flex-direction: column; align-items:center; justify-content:center; gap:5px;">
                     <span data-i18n="nextFeed" style="font-size: 1.1rem; font-weight: bold;">🍼 下次餵奶時間參考</span>
                 </div>
                 <div class="summary-value" style="margin-top: 5px; font-size: 1.6rem;"><span id="next-feed-val">--</span></div>
@@ -268,11 +269,11 @@
                     <span style="font-size: 0.8rem;">6h</span>
                 </div>
                 <div style="margin-top: 4px;">
-                    <span id="feed-interval-label" style="font-weight:bold; font-size: 0.85rem; color:#1565C0;">(每 3 小時)</span>
+                    <span id="feed-interval-label" style="font-weight:bold; font-size: 0.85rem; color:#4F6B82;">(每 3 小時)</span>
                 </div>
             </div>
-            <div class="summary-box top-bath-box" style="border-color: #00ACC1; background: #e0f7fa;">
-                <div class="summary-title" style="color: #00838f; display:flex; flex-direction: column; align-items:center; justify-content:center; gap:5px;">
+            <div class="summary-box top-bath-box" style="border-color: #4F7C78; background: #e6efec;">
+                <div class="summary-title" style="color: #4F7C78; display:flex; flex-direction: column; align-items:center; justify-content:center; gap:5px;">
                     <span data-i18n="nextBath" style="font-size: 1.1rem; font-weight: bold;">下次沖涼時間</span>
                 </div>
                 <div class="summary-value" style="margin-top: 5px; font-size: 1.6rem;"><span id="sum-bath-val">--</span></div>
@@ -325,7 +326,7 @@
                 <div class="col"><label class="label" data-i18n="labelBirthWeight">出生體重 (kg)</label><input type="number" id="profile-bweight" class="input-number" step="0.01"></div>
                 <div class="col"><label class="label" data-i18n="labelBirthHeight">出生身高 (cm)</label><input type="number" id="profile-bheight" class="input-number" step="0.1"></div>
             </div>
-            <button class="submit-btn" onclick="saveBabyProfile()" data-i18n="saveProfile" style="background:#00BCD4; padding: 10px; font-size: 1rem; margin-top:5px;">💾 儲存出生資料</button>
+            <button class="submit-btn" onclick="saveBabyProfile()" data-i18n="saveProfile" style="background:#5F7F73; padding: 10px; font-size: 1rem; margin-top:5px;">💾 儲存出生資料</button>
         </div>
         <hr style="border: 0; border-top: 2px dashed var(--border-color); margin: 20px 0;">
         <h2><span data-i18n="growthTitle">📏 成長紀錄新增</span></h2>
@@ -336,7 +337,7 @@
                 <div class="col"><label class="label" data-i18n="labelWeight">體重 (kg)</label><input type="number" step="0.01" class="input-number" id="growth-weight" placeholder="例如：6.2"></div>
             </div>
         </div>
-        <button class="submit-btn" id="btn-submit-growth" onclick="submitData('growth')" data-i18n="saveGrowth" style="background:#00BCD4">新增成長紀錄</button>
+        <button class="submit-btn" id="btn-submit-growth" onclick="submitData('growth')" data-i18n="saveGrowth" style="background:#5F7F73">新增成長紀錄</button>
     </div>
 
     <div id="feeding-card" class="card">
@@ -360,7 +361,7 @@
                 </div>
                 <div id="manual-time-feeding" class="hidden">
                     <input type="datetime-local" id="input-manual-feeding" class="input-date" onchange="setManualTime('feeding', this.value)">
-                    <p style="font-size: 0.85rem; color: #E91E63; margin-top: 5px;" data-i18n="manualNotice">* 您正在補登過去的紀錄</p>
+                    <p style="font-size: 0.85rem; color: #A45A3F; margin-top: 5px;" data-i18n="manualNotice">* 您正在補登過去的紀錄</p>
                 </div>
             </div>
             <div class="col" style="flex: 0.8;">
@@ -421,7 +422,7 @@
                 <div class="col split-divider">
                     <div style="font-weight:bold; color:var(--theme-color);" data-i18n="lblLeft">左胸 (L)</div>
                     <div style="display:flex; align-items:center; gap:10px; margin: 10px 0;">
-                        <button id="nurse-left-btn" class="btn btn-small" onclick="toggleNurseTimer('left')" style="background:#2196F3; color:white; border:none; padding:8px;" data-i18n="btnStartTimer">▶ 開始計時</button>
+                        <button id="nurse-left-btn" class="btn btn-small" onclick="toggleNurseTimer('left')" style="background:#5C7890; color:white; border:none; padding:8px;" data-i18n="btnStartTimer">▶ 開始計時</button>
                         <span id="nurse-left-time" style="font-size:1.2rem; font-weight:bold; font-variant-numeric:tabular-nums;">00:00</span>
                     </div>
                     <input type="number" class="input-number" id="direct-left" placeholder="手動輸入分鐘">
@@ -429,7 +430,7 @@
                 <div class="col">
                     <div style="font-weight:bold; color:var(--theme-color);" data-i18n="lblRight">右胸 (R)</div>
                     <div style="display:flex; align-items:center; gap:10px; margin: 10px 0;">
-                        <button id="nurse-right-btn" class="btn btn-small" onclick="toggleNurseTimer('right')" style="background:#2196F3; color:white; border:none; padding:8px;" data-i18n="btnStartTimer">▶ 開始計時</button>
+                        <button id="nurse-right-btn" class="btn btn-small" onclick="toggleNurseTimer('right')" style="background:#5C7890; color:white; border:none; padding:8px;" data-i18n="btnStartTimer">▶ 開始計時</button>
                         <span id="nurse-right-time" style="font-size:1.2rem; font-weight:bold; font-variant-numeric:tabular-nums;">00:00</span>
                     </div>
                     <input type="number" class="input-number" id="direct-right" placeholder="手動輸入分鐘">
@@ -475,7 +476,7 @@
                 </div>
                 <div id="manual-time-diaper" class="hidden">
                     <input type="datetime-local" id="input-manual-diaper" class="input-date" onchange="setManualTime('diaper', this.value)">
-                    <p style="font-size: 0.85rem; color: #E91E63; margin-top: 5px;" data-i18n="manualNotice">* 您正在補登過去的紀錄</p>
+                    <p style="font-size: 0.85rem; color: #A45A3F; margin-top: 5px;" data-i18n="manualNotice">* 您正在補登過去的紀錄</p>
                 </div>
             </div>
             <div class="col" style="flex: 0.8;">
@@ -533,7 +534,7 @@
             <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
                 <span data-i18n="sleepTitle">💤 睡眠紀錄</span>
                 <div class="time-wrapper"><span class="time-label" data-i18n="currentTime">現在時間：</span><span id="time-sleep" class="time-display">--/-- --:--</span></div>
-        <div id="sleep-status-banner" style="display: none; background: #ede7f6; color: #5e35b1; padding: 12px; border-radius: 8px; text-align: center; margin-bottom: 15px; font-weight: bold; border: 1px solid #d1c4e9;">
+        <div id="sleep-status-banner" style="display: none; background: #e8ddd0; color: #6D5A7B; padding: 12px; border-radius: 8px; text-align: center; margin-bottom: 15px; font-weight: bold; border: 1px solid #cbbca9;">
             😴 寶寶正在睡眠中... 已睡 <span id="sleep-duration-text">0 分鐘</span>
         </div>
             </div>
@@ -541,12 +542,12 @@
         </h2>
         
         <div id="live-sleep-section" class="section">
-            <div class="timer-circle" id="sleep-timer-circle" style="border-color: #673AB7; color: #673AB7;">
+            <div class="timer-circle" id="sleep-timer-circle" style="border-color: #6D5A7B; color: #6D5A7B;">
                 <span id="sleep-timer-display" style="font-size: 1.35rem;">00:00:00</span>
             </div>
-            <div id="sleep-timer-status-text" style="text-align:center; color:#5e35b1; font-weight:bold; margin-bottom:12px;">尚未開始睡覺</div>
+            <div id="sleep-timer-status-text" style="text-align:center; color:#6D5A7B; font-weight:bold; margin-bottom:12px;">尚未開始睡覺</div>
             <div class="btn-group" style="grid-template-columns: 1fr;">
-                <button id="sleep-toggle-btn" onclick="toggleSleepTimer()" class="btn" style="background-color:#673AB7; color:white; border-color:#673AB7; padding:15px; font-size:1.2rem;">開始睡覺</button>
+                <button id="sleep-toggle-btn" onclick="toggleSleepTimer()" class="btn" style="background-color:#6D5A7B; color:white; border-color:#6D5A7B; padding:15px; font-size:1.2rem;">開始睡覺</button>
             </div>
         </div>
 
@@ -555,14 +556,14 @@
                 <div class="col split-divider">
                     <label class="label" data-i18n="labelEventTime">發生時間</label>
                     <input type="datetime-local" id="input-manual-sleep" class="input-date" onchange="setManualTime('sleep', this.value)">
-                    <p style="font-size: 0.85rem; color: #E91E63; margin-top: 5px;" data-i18n="manualNotice">* 您正在補登過去的紀錄</p>
+                    <p style="font-size: 0.85rem; color: #A45A3F; margin-top: 5px;" data-i18n="manualNotice">* 您正在補登過去的紀錄</p>
                 </div>
                 <div class="col">
                     <label class="label" data-i18n="labelSleepDuration">睡眠時長 (分鐘)</label>
                     <input type="number" id="manual-sleep-duration" class="input-number" placeholder="輸入分鐘數">
                 </div>
             </div>
-            <button class="submit-btn" id="btn-submit-sleep" onclick="submitData('sleep')" data-i18n="saveSleep" style="background:#673AB7; margin-top: 15px;">儲存睡眠紀錄</button>
+            <button class="submit-btn" id="btn-submit-sleep" onclick="submitData('sleep')" data-i18n="saveSleep" style="background:#6D5A7B; margin-top: 15px;">儲存睡眠紀錄</button>
         </div>
     </div>
     
@@ -584,23 +585,23 @@
                 </div>
                 <div id="manual-time-temp" class="hidden">
                     <input type="datetime-local" id="input-manual-temp" class="input-date" onchange="setManualTime('temp', this.value)">
-                    <p style="font-size: 0.85rem; color: #E91E63; margin-top: 5px;" data-i18n="manualNotice">* 您正在補登過去的紀錄</p>
+                    <p style="font-size: 0.85rem; color: #A45A3F; margin-top: 5px;" data-i18n="manualNotice">* 您正在補登過去的紀錄</p>
                 </div>
             </div>
             <div class="col">
                 <label class="label" data-i18n="labelTemp">滑動輸入體溫 (°C)</label>
-                <div style="text-align: center; font-size: 2.5rem; font-weight: 900; color: #4CAF50; margin: 10px 0;" id="temp-display">36.5 <span style="font-size:1.2rem;">°C</span></div>
+                <div style="text-align: center; font-size: 2.5rem; font-weight: 900; color: #5F6F52; margin: 10px 0;" id="temp-display">36.5 <span style="font-size:1.2rem;">°C</span></div>
                 
                 <input type="range" id="temp-val" min="34.0" max="42.0" step="0.1" value="36.5" class="temp-slider-track" oninput="updateTempColor(this.value)">
                 
                 <div style="display:flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-muted); font-weight:bold;">
-                    <span style="color:#2196F3;">34.0</span>
-                    <span style="color:#4CAF50;">35.8~38.0 (正常)</span>
-                    <span style="color:#F44336;">42.0</span>
+                    <span style="color:#5C7890;">34.0</span>
+                    <span style="color:#5F6F52;">35.8~38.0 (正常)</span>
+                    <span style="color:#A14A3E;">42.0</span>
                 </div>
             </div>
         </div>
-        <button class="submit-btn" id="btn-submit-temp" onclick="submitData('temp')" data-i18n="saveTemp" style="background:#F44336; margin-top:20px;">儲存體溫紀錄</button>
+        <button class="submit-btn" id="btn-submit-temp" onclick="submitData('temp')" data-i18n="saveTemp" style="background:#A14A3E; margin-top:20px;">儲存體溫紀錄</button>
     </div>
 
     <div id="bath-card" class="card">
@@ -620,11 +621,11 @@
             </div>
             <div id="manual-time-bath" class="hidden">
                 <input type="datetime-local" id="input-manual-bath" class="input-date" onchange="setManualTime('bath', this.value)">
-                <p style="font-size: 0.85rem; color: #E91E63; margin-top: 5px;" data-i18n="manualNotice">* 您正在補登過去的紀錄</p>
+                <p style="font-size: 0.85rem; color: #A45A3F; margin-top: 5px;" data-i18n="manualNotice">* 您正在補登過去的紀錄</p>
             </div>
         </div>
         
-        <button class="submit-btn" id="btn-submit-bath" onclick="submitData('bath')" data-i18n="saveBath" style="background:#00ACC1; font-size: 1.4rem; padding: 20px;">🛀 一鍵儲存沖涼紀錄</button>
+        <button class="submit-btn" id="btn-submit-bath" onclick="submitData('bath')" data-i18n="saveBath" style="background:#4F7C78; font-size: 1.4rem; padding: 20px;">🛀 一鍵儲存沖涼紀錄</button>
     </div>
 
     <div id="tummy-card" class="card">
@@ -637,12 +638,12 @@
         </h2>
         
         <div id="live-tummy-section" class="section">
-            <div class="timer-circle" id="tummy-timer-circle" style="border-color: #8BC34A; color: #8BC34A;">
+            <div class="timer-circle" id="tummy-timer-circle" style="border-color: #7A8B4F; color: #7A8B4F;">
                 <span id="tummy-timer-display">00:00</span>
             </div>
             <div class="btn-group" style="grid-template-columns: 1fr; margin-bottom: 10px;">
-                <button id="tummy-start-btn" onclick="startTummyTimer()" class="btn" style="background-color: #8BC34A; color: white; border-color: #8BC34A; padding: 15px; font-size: 1.2rem;" data-i18n="btnStartTimer">▶ 開始計時</button>
-                <button id="tummy-stop-btn" onclick="stopTummyTimer()" class="btn hidden" style="background-color: #f44336; color: white; border-color: #f44336; padding: 15px; font-size: 1.2rem;" data-i18n="btnStopTimer">⏹ 完成並紀錄</button>
+                <button id="tummy-start-btn" onclick="startTummyTimer()" class="btn" style="background-color: #7A8B4F; color: white; border-color: #7A8B4F; padding: 15px; font-size: 1.2rem;" data-i18n="btnStartTimer">▶ 開始計時</button>
+                <button id="tummy-stop-btn" onclick="stopTummyTimer()" class="btn hidden" style="background-color: #A14A3E; color: white; border-color: #A14A3E; padding: 15px; font-size: 1.2rem;" data-i18n="btnStopTimer">⏹ 完成並紀錄</button>
             </div>
         </div>
 
@@ -651,14 +652,14 @@
                 <div class="col split-divider">
                     <label class="label" data-i18n="labelEventTime">發生時間</label>
                     <input type="datetime-local" id="input-manual-tummy" class="input-date" onchange="setManualTime('tummy', this.value)">
-                    <p style="font-size: 0.85rem; color: #E91E63; margin-top: 5px;" data-i18n="manualNotice">* 您正在補登過去的紀錄</p>
+                    <p style="font-size: 0.85rem; color: #A45A3F; margin-top: 5px;" data-i18n="manualNotice">* 您正在補登過去的紀錄</p>
                 </div>
                 <div class="col">
                     <label class="label" data-i18n="labelTummyDuration">趴撐時長 (分鐘)</label>
                     <input type="number" id="manual-tummy-duration" class="input-number" placeholder="輸入分鐘數">
                 </div>
             </div>
-            <button class="submit-btn" id="btn-submit-tummy" onclick="submitData('tummy')" data-i18n="saveTummy" style="background:#8BC34A; margin-top: 15px;">儲存趴撐紀錄</button>
+            <button class="submit-btn" id="btn-submit-tummy" onclick="submitData('tummy')" data-i18n="saveTummy" style="background:#7A8B4F; margin-top: 15px;">儲存趴撐紀錄</button>
         </div>
     </div>
 
@@ -734,13 +735,13 @@
     // 🚨 記得把你的 Firebase 金鑰貼回來！ 🚨
     // ==========================================
 const firebaseConfig = {
-  apiKey: "AIzaSyBAExf2aDgBP8UrCMKlpB4C8US-fCuf4Xg",
-  authDomain: "babytrackerweb-c6a26.firebaseapp.com",
-  projectId: "babytrackerweb-c6a26",
-  storageBucket: "babytrackerweb-c6a26.firebasestorage.app",
-  messagingSenderId: "297032381661",
-  appId: "1:297032381661:web:a583efe8c9abb1f68dd734",
-  measurementId: "G-YRLJW2P55F"
+  apiKey: "AIzaSyBAExf2aDgBP8UrCMKlpB4C8US-fCuf4Xg",
+  authDomain: "babytrackerweb-c6a26.firebaseapp.com",
+  projectId: "babytrackerweb-c6a26",
+  storageBucket: "babytrackerweb-c6a26.firebasestorage.app",
+  messagingSenderId: "297032381661",
+  appId: "1:297032381661:web:a583efe8c9abb1f68dd734",
+  measurementId: "G-YRLJW2P55F"
 };
     
     let db, auth, googleProvider;
@@ -1036,7 +1037,7 @@ function toggleManualMode(cat) {
             if(cat === 'tummy') { document.getElementById('live-tummy-section').classList.add('hidden'); document.getElementById('manual-tummy-section').classList.remove('hidden'); }
             if(cat === 'sleep') { document.getElementById('live-sleep-section').classList.add('hidden'); document.getElementById('manual-sleep-section').classList.remove('hidden'); }
             
-            btn.innerText = translations[currentLang].btnBackToNow; btn.style.background = "#FF9800"; btn.style.color = "white"; btn.style.border = "none";
+            btn.innerText = translations[currentLang].btnBackToNow; btn.style.background = "#B8833A"; btn.style.color = "white"; btn.style.border = "none";
             let tzoffset = (new Date()).getTimezoneOffset() * 60000;
             let manualInput = document.getElementById(`input-manual-${cat}`);
             if(manualInput) manualInput.value = (new Date(recordTimes[cat] - tzoffset)).toISOString().slice(0, 16);
@@ -1122,9 +1123,9 @@ function toggleManualMode(cat) {
     function updateTempColor(val) {
         let tempDisplay = document.getElementById('temp-display');
         tempDisplay.innerHTML = parseFloat(val).toFixed(1) + ' <span style="font-size:1.2rem;">°C</span>';
-        if (val < 35.8) tempDisplay.style.color = '#2196F3';
-        else if (val <= 38.0) tempDisplay.style.color = '#4CAF50';
-        else tempDisplay.style.color = '#F44336';
+        if (val < 35.8) tempDisplay.style.color = '#5C7890';
+        else if (val <= 38.0) tempDisplay.style.color = '#5F6F52';
+        else tempDisplay.style.color = '#A14A3E';
     }
 
     function updateFeedInterval() {
@@ -1153,18 +1154,18 @@ function toggleManualMode(cat) {
         if (!el) return;
 
         let feedDisplay = "--";
-        let feedStyle = "color: #1565C0;";
+        let feedStyle = "color: #4F6B82;";
 
         if (nextFeedCountdownTarget instanceof Date && !Number.isNaN(nextFeedCountdownTarget.getTime())) {
             let diffMs = nextFeedCountdownTarget.getTime() - now.getTime();
             if (diffMs < 0) {
                 let overdue = formatCountdownHMS(Math.floor(Math.abs(diffMs) / 1000));
                 feedDisplay = currentLang === 'zh' ? `已超時 ${overdue} ⚠️` : `Overdue ${overdue} ⚠️`;
-                feedStyle = "color: #d32f2f; font-weight: 900; font-size: 1.15rem; font-variant-numeric: tabular-nums;";
+                feedStyle = "color: #8B3A2E; font-weight: 900; font-size: 1.15rem; font-variant-numeric: tabular-nums;";
             } else {
                 let remaining = formatCountdownHMS(Math.floor(diffMs / 1000));
                 feedDisplay = currentLang === 'zh' ? `剩餘 ${remaining}` : `Remaining ${remaining}`;
-                feedStyle = "color: #1565C0; font-size: 1.6rem; font-variant-numeric: tabular-nums;";
+                feedStyle = "color: #4F6B82; font-size: 1.6rem; font-variant-numeric: tabular-nums;";
             }
         }
 
@@ -1281,16 +1282,16 @@ function toggleManualMode(cat) {
         if (sleepTimerState.running) {
             circle.classList.add('active-purple');
             btn.innerText = isSleepActionBusy ? (translations[currentLang].saving || 'Saving...') : (translations[currentLang].sleepEnd || 'Wake & Save');
-            btn.style.backgroundColor = '#f44336';
-            btn.style.borderColor = '#f44336';
+            btn.style.backgroundColor = '#A14A3E';
+            btn.style.borderColor = '#A14A3E';
             statusText.innerText = currentLang === 'zh' ? '睡眠計時中（跨裝置同步）' : 'Sleep timer running (synced across devices)';
             updateSleepTimerUiTick();
             if (!sleepTimerUiInterval) sleepTimerUiInterval = setInterval(updateSleepTimerUiTick, 1000);
         } else {
             circle.classList.remove('active-purple');
             btn.innerText = isSleepActionBusy ? (translations[currentLang].saving || 'Saving...') : (translations[currentLang].sleepStart || 'Start Sleep');
-            btn.style.backgroundColor = '#673AB7';
-            btn.style.borderColor = '#673AB7';
+            btn.style.backgroundColor = '#6D5A7B';
+            btn.style.borderColor = '#6D5A7B';
             statusText.innerText = currentLang === 'zh' ? '尚未開始睡覺' : 'Sleep timer is idle';
             stopSleepTimerUiTick();
             updateSleepTimerUiTick();
@@ -1511,11 +1512,11 @@ function toggleManualMode(cat) {
             let currentVal = Number(inputField.value) || 0;
             inputField.value = currentVal + elapsedMins;
             btn.innerText = translations[currentLang].btnStartTimer || '▶ 開始計時';
-            btn.style.background = '#2196F3'; timeDisplay.innerText = '00:00';
+            btn.style.background = '#5C7890'; timeDisplay.innerText = '00:00';
         } else {
             nurseStartTime[side] = Date.now();
             btn.innerText = translations[currentLang].btnStopTimer || '⏹ 停止';
-            btn.style.background = '#f44336';
+            btn.style.background = '#A14A3E';
             nurseInterval[side] = setInterval(() => {
                 let s = Math.floor((Date.now() - nurseStartTime[side]) / 1000);
                 let mText = Math.floor(s / 60).toString().padStart(2, '0');
@@ -1761,7 +1762,7 @@ function toggleManualMode(cat) {
                     listHtml = `
                         <div class="history-item">
                             <div class="history-info">
-                                <div class="history-time"><span style="font-size:0.8rem; color:#888;">${displayDate}</span> ${h}:${m} ${icon}</div>
+                                <div class="history-time"><span style="font-size:0.8rem; color:#7d7265;">${displayDate}</span> ${h}:${m} ${icon}</div>
                                 <div class="history-detail">${desc}</div>
                             </div>
                             <button class="delete-btn" onclick="deleteRecord('${r.id}')">Del</button>
@@ -1778,18 +1779,18 @@ function toggleManualMode(cat) {
                 document.getElementById('sum-diaper-val').innerText = dayDiaperCount;
                 document.getElementById('sum-sleep-val').innerText = (daySleepMins / 60).toFixed(1);
                 
-                let bathDisplay = "--"; let bathStyle = "color: #00838f; font-size: 1.6rem; font-variant-numeric: tabular-nums;";
+                let bathDisplay = "--"; let bathStyle = "color: #4F7C78; font-size: 1.6rem; font-variant-numeric: tabular-nums;";
                 if (lastBathTime) {
                     let nextBathTime = new Date(lastBathTime.getTime() + 24 * 60 * 60 * 1000);
                     if (now > nextBathTime) {
                         bathDisplay = translations[currentLang].overdueBath;
-                        bathStyle = "color: #d32f2f; font-weight: 900; font-size: 1.6rem;"; 
+                        bathStyle = "color: #8B3A2E; font-weight: 900; font-size: 1.6rem;"; 
                     } else {
                         let mm = String(nextBathTime.getMonth() + 1).padStart(2, '0'); let dd = String(nextBathTime.getDate()).padStart(2, '0');
                         let h24 = nextBathTime.getHours(); let ampm = h24 >= 12 ? 'PM' : 'AM';
                         let h12 = h24 % 12; if (h12 === 0) h12 = 12;
                         let h = String(h12).padStart(2, '0'); let m = String(nextBathTime.getMinutes()).padStart(2, '0');
-                        bathDisplay = `${h}:${m} ${ampm}`; bathStyle = "color: #00838f; font-size: 1.6rem; font-variant-numeric: tabular-nums;";
+                        bathDisplay = `${h}:${m} ${ampm}`; bathStyle = "color: #4F7C78; font-size: 1.6rem; font-variant-numeric: tabular-nums;";
                     }
                 }
                 document.getElementById('sum-bath-val').innerHTML = `<span style="${bathStyle}">${bathDisplay}</span>`;
@@ -1801,18 +1802,18 @@ function toggleManualMode(cat) {
             if(isHistoryTab) {
                 let lblL = translations[currentLang].lblLeft; let lblR = translations[currentLang].lblRight;
                 
-                renderLineChart('tempChart', 'temp', labels, Object.values(dailyStats).map(d => d.temp), '#F44336', '°C');
+                renderLineChart('tempChart', 'temp', labels, Object.values(dailyStats).map(d => d.temp), '#A14A3E', '°C');
 
-                renderStackedBarChart('milkChart', labels, Object.values(dailyStats).map(d => d.formula), Object.values(dailyStats).map(d => d.breastmilk), translations[currentLang].lblFormula, translations[currentLang].lblBreast, '#2196F3', '#4CAF50', translations[currentLang].lblMilkMl);
-                renderStackedBarChart('directChart', labels, Object.values(dailyStats).map(d => d.directLeft), Object.values(dailyStats).map(d => d.directRight), lblL, lblR, '#FF6D00', '#00ACC1', translations[currentLang].lblTimeMin);
-                renderStackedBarChart('pumpChart', labels, Object.values(dailyStats).map(d => d.pumpLeft), Object.values(dailyStats).map(d => d.pumpRight), lblL, lblR, '#E91E63', '#1A237E', translations[currentLang].lblMilkMl);
-                renderSingleBarChart('sleepChart', 'sleep', labels, Object.values(dailyStats).map(d => (d.sleepMins/60).toFixed(1)), '#673AB7', translations[currentLang].lblHours);
-                renderSingleBarChart('tummyChart', 'tummy', labels, Object.values(dailyStats).map(d => d.tummyMins), '#8BC34A', translations[currentLang].lblTimeMin);
-                renderSingleBarChart('diaperChart', 'diaper', labels, Object.values(dailyStats).map(d => d.diaper), '#FF9800', translations[currentLang].unitTimes);
+                renderStackedBarChart('milkChart', labels, Object.values(dailyStats).map(d => d.formula), Object.values(dailyStats).map(d => d.breastmilk), translations[currentLang].lblFormula, translations[currentLang].lblBreast, '#5C7890', '#5F6F52', translations[currentLang].lblMilkMl);
+                renderStackedBarChart('directChart', labels, Object.values(dailyStats).map(d => d.directLeft), Object.values(dailyStats).map(d => d.directRight), lblL, lblR, '#A8683A', '#4F7C78', translations[currentLang].lblTimeMin);
+                renderStackedBarChart('pumpChart', labels, Object.values(dailyStats).map(d => d.pumpLeft), Object.values(dailyStats).map(d => d.pumpRight), lblL, lblR, '#A45A3F', '#4B4F64', translations[currentLang].lblMilkMl);
+                renderSingleBarChart('sleepChart', 'sleep', labels, Object.values(dailyStats).map(d => (d.sleepMins/60).toFixed(1)), '#6D5A7B', translations[currentLang].lblHours);
+                renderSingleBarChart('tummyChart', 'tummy', labels, Object.values(dailyStats).map(d => d.tummyMins), '#7A8B4F', translations[currentLang].lblTimeMin);
+                renderSingleBarChart('diaperChart', 'diaper', labels, Object.values(dailyStats).map(d => d.diaper), '#B8833A', translations[currentLang].unitTimes);
                 
-                renderLineChart('rashChart', 'rash', labels, Object.values(dailyStats).map(d => d.rash), '#F44336', 'Severity (0-3)');
-                renderLineChart('weightChart', 'weight', labels, Object.values(dailyStats).map(d => d.weight), '#9C27B0', 'kg');
-                renderLineChart('heightChart', 'height', labels, Object.values(dailyStats).map(d => d.height), '#00BCD4', 'cm');
+                renderLineChart('rashChart', 'rash', labels, Object.values(dailyStats).map(d => d.rash), '#A14A3E', 'Severity (0-3)');
+                renderLineChart('weightChart', 'weight', labels, Object.values(dailyStats).map(d => d.weight), '#7C5D6C', 'kg');
+                renderLineChart('heightChart', 'height', labels, Object.values(dailyStats).map(d => d.height), '#5F7F73', 'cm');
             }
 
         } catch(e) { console.error(e); if(isLogTab) listDiv.innerHTML = "Error loading"; }
@@ -1909,7 +1910,7 @@ function toggleManualMode(cat) {
         resetSlider('tummy');
         
         // 🔥 一打開網頁預設顯示 24h日誌
-        switchTab('log', document.querySelector('.nav-btn'), '#E91E63');
+        switchTab('log', document.querySelector('.nav-btn'), '#A45A3F');
         
         restoreLastBrand(); if(window.innerWidth <= 850) document.getElementById('desktop-title').style.display = 'none';
     };
@@ -1943,10 +1944,10 @@ function startDemo() {
                 <span>🍼 剛剛</span><span style="font-weight:bold; color:var(--theme-color);">配方奶 120ml</span>
             </div>
             <div style="padding: 15px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between;">
-                <span>🧻 2小時前</span><span style="font-weight:bold; color:#FF9800;">換尿片 (濕+便便)</span>
+                <span>🧻 2小時前</span><span style="font-weight:bold; color:#B8833A;">換尿片 (濕+便便)</span>
             </div>
             <div style="padding: 15px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between;">
-                <span>💤 4小時前</span><span style="font-weight:bold; color:#3F51B5;">睡眠 2.5小時</span>
+                <span>💤 4小時前</span><span style="font-weight:bold; color:#6D5A7B;">睡眠 2.5小時</span>
             </div>
         `;
     }

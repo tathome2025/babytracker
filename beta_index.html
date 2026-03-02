@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-HK">
 <head>
@@ -734,13 +735,13 @@
     // 🚨 記得把你的 Firebase 金鑰貼回來！ 🚨
     // ==========================================
 const firebaseConfig = {
-  apiKey: "AIzaSyBAExf2aDgBP8UrCMKlpB4C8US-fCuf4Xg",
-  authDomain: "babytrackerweb-c6a26.firebaseapp.com",
-  projectId: "babytrackerweb-c6a26",
-  storageBucket: "babytrackerweb-c6a26.firebasestorage.app",
-  messagingSenderId: "297032381661",
-  appId: "1:297032381661:web:a583efe8c9abb1f68dd734",
-  measurementId: "G-YRLJW2P55F"
+  apiKey: "AIzaSyBAExf2aDgBP8UrCMKlpB4C8US-fCuf4Xg",
+  authDomain: "babytrackerweb-c6a26.firebaseapp.com",
+  projectId: "babytrackerweb-c6a26",
+  storageBucket: "babytrackerweb-c6a26.firebasestorage.app",
+  messagingSenderId: "297032381661",
+  appId: "1:297032381661:web:a583efe8c9abb1f68dd734",
+  measurementId: "G-YRLJW2P55F"
 };
     
     let db, auth, googleProvider;
@@ -1169,6 +1170,27 @@ function toggleManualMode(cat) {
         }
 
         el.innerHTML = `<span style="${feedStyle}">${feedDisplay}</span>`;
+    }
+
+    function isEligibleFeedForNextTimer(record, now = new Date()) {
+        if (!record || record.category !== 'feeding' || !(record.time instanceof Date) || Number.isNaN(record.time.getTime())) return false;
+        if (record.time > now) return false; // ignore future-dated records
+
+        const feedType = String(record.feedingType || '').toLowerCase();
+        if (feedType === 'formula' || feedType === 'breastmilk' || feedType === 'direct') return true;
+        if (feedType === 'pump') return false;
+
+        // Legacy fallback: records without feedingType
+        const pumpLeft = Number(record.pumpLeft) || 0;
+        const pumpRight = Number(record.pumpRight) || 0;
+        if (pumpLeft > 0 || pumpRight > 0) return false;
+
+        const directLeft = Number(record.directLeft) || 0;
+        const directRight = Number(record.directRight) || 0;
+        if (directLeft > 0 || directRight > 0) return true;
+
+        const volumeML = Number(record.volumeML) || 0;
+        return volumeML > 0;
     }
     
     let tummyStartTime = 0; let tummyInterval = null;
@@ -1668,10 +1690,8 @@ function toggleManualMode(cat) {
 
                 if (r.category === 'bath') { lastBathTime = r.time; }
 
-                if (r.category === 'feeding') {
-                    if (r.feedingType !== 'pump') {
-                        lastFeedTime = r.time;
-                    }
+                if (isEligibleFeedForNextTimer(r, now)) {
+                    lastFeedTime = r.time;
                 }
 
                 if (dailyStats[rDate]) {

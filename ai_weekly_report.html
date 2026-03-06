@@ -202,7 +202,7 @@ function goBack() {
         window.history.back();
         return;
     }
-    window.location.href = './index.html';
+    window.location.href = './beta_index.html';
 }
 
 function setStatus(text) {
@@ -285,13 +285,15 @@ async function requestAiReport(prompt) {
 
             throw new Error(`伺服器 API 錯誤 (${resp.status}): ${errMsg}`);
         } catch (error) {
-            lastError = error;
+            const baseMsg = error && error.message ? error.message : String(error);
+            lastError = new Error(`連線失敗（${url}）：${baseMsg}`);
             if (!isLast) continue;
             throw lastError;
         }
     }
 
-    throw lastError || new Error('無法連線 AI 服務。');
+    const tried = urls.join(', ');
+    throw lastError || new Error(`無法連線 AI 服務。已嘗試：${tried}`);
 }
 
 function toDateInputValue(date) {
@@ -363,10 +365,11 @@ function summarizeRecords(records) {
         temp: { max: null, min: null, feverCount: 0 },
         bath: { count: 0 },
         tummy: { totalMins: 0, sessions: 0 },
-        growth: { latestHeight: null, latestWeight: null, firstWeight: null, lastWeight: null }
+        growth: { latestHeight: null, latestWeight: null, latestHeadCircumference: null, firstWeight: null, lastWeight: null, firstHeadCircumference: null, lastHeadCircumference: null }
     };
 
     const growthWeights = [];
+    const growthHeads = [];
 
     for (const r of records) {
         if (r.category === 'feeding') {
@@ -424,6 +427,13 @@ function summarizeRecords(records) {
                     growthWeights.push({ time: r.time, weight: w });
                 }
             }
+            if (r.headCircumference != null) {
+                const h = Number(r.headCircumference);
+                if (!Number.isNaN(h)) {
+                    summary.growth.latestHeadCircumference = h;
+                    growthHeads.push({ time: r.time, headCircumference: h });
+                }
+            }
         }
     }
 
@@ -431,6 +441,12 @@ function summarizeRecords(records) {
     if (growthWeights.length > 0) {
         summary.growth.firstWeight = growthWeights[0].weight;
         summary.growth.lastWeight = growthWeights[growthWeights.length - 1].weight;
+    }
+
+    growthHeads.sort((a, b) => a.time - b.time);
+    if (growthHeads.length > 0) {
+        summary.growth.firstHeadCircumference = growthHeads[0].headCircumference;
+        summary.growth.lastHeadCircumference = growthHeads[growthHeads.length - 1].headCircumference;
     }
 
     return summary;
@@ -463,7 +479,9 @@ ${JSON.stringify(summary, null, 2)}
 要求：
 - 不要作出確診。
 - 若資料不足，請明確列出欠缺資料和建議補充紀錄項目。
-- 用家長容易理解的語言。`;
+- 用家長容易理解的語言。
+- 整體語氣必須溫柔、支持、安撫，先肯定父母已做的努力，再給建議。
+- 提到風險或未做好的部分時，請用「溫柔提醒」語氣，避免責備或製造焦慮。`;
 }
 
 async function generateReport() {
@@ -494,6 +512,11 @@ async function generateReport() {
 
         setStatus('正在生成分析報告...');
         const prompt = buildPrompt(latestSummary, from, to, records.length);
+        const isGitHubPages = window.location.hostname.includes('github.io');
+        const hasConfiguredBase = Boolean((window.BABY_AI_API_BASE || '').trim() || (new URLSearchParams(window.location.search).get('apiBase') || '').trim());
+        if (isGitHubPages && !hasConfiguredBase) {
+            throw new Error('偵測到 GitHub Pages。請先在 app_config.js 設定 window.BABY_AI_API_BASE 為你的 Vercel 網址。');
+        }
 
         const data = await requestAiReport(prompt);
         const reportText = (data.report || '').trim();

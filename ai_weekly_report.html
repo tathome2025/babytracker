@@ -639,7 +639,8 @@ async function sendReportEmail() {
             babyName,
             lang: currentLang,
             reportText: latestGeneratedReport,
-            reportPdfDataUrl: pdfDataUrl
+            reportPdfDataUrl: pdfDataUrl,
+            reportPdfBase64: (pdfDataUrl.split(',')[1] || '').trim()
         };
 
         await requestSendReportEmail(payload);

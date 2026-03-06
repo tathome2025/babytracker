@@ -45,9 +45,42 @@ function extractResponseText(payload) {
 }
 
 function parsePdfDataUrl(dataUrl) {
-  const match = /^data:application\/pdf(?:;[^,]*)?,([a-zA-Z0-9+/=]+)$/.exec(dataUrl || '');
-  if (!match) return null;
-  return { base64: match[1] };
+  if (typeof dataUrl !== 'string') return null;
+  const raw = dataUrl.trim();
+  if (!raw) return null;
+
+  const commaIndex = raw.indexOf(',');
+  if (commaIndex < 0) return null;
+
+  const header = raw.slice(0, commaIndex).toLowerCase();
+  if (!header.startsWith('data:application/pdf')) return null;
+
+  let base64 = raw.slice(commaIndex + 1).trim();
+  if (!base64) return null;
+
+  try {
+    if (/%[0-9a-f]{2}/i.test(base64)) {
+      base64 = decodeURIComponent(base64);
+    }
+  } catch (_) {}
+
+  base64 = base64.replace(/\s+/g, '');
+  if (!/^[A-Za-z0-9+/=]+$/.test(base64)) return null;
+  return { base64 };
+}
+
+function normalizeBase64(value) {
+  if (typeof value !== 'string') return null;
+  let base64 = value.trim();
+  if (!base64) return null;
+  try {
+    if (/%[0-9a-f]{2}/i.test(base64)) {
+      base64 = decodeURIComponent(base64);
+    }
+  } catch (_) {}
+  base64 = base64.replace(/\s+/g, '');
+  if (!/^[A-Za-z0-9+/=]+$/.test(base64)) return null;
+  return base64;
 }
 
 function isValidEmail(email) {
@@ -63,7 +96,7 @@ function escapeHtml(value) {
     .replace(/'/g, '&#39;');
 }
 
-async function sendReportEmailViaResend({ toEmail, subject, periodText, babyName, lang, reportText, reportPdfDataUrl }) {
+async function sendReportEmailViaResend({ toEmail, subject, periodText, babyName, lang, reportText, reportPdfDataUrl, reportPdfBase64 }) {
   if (!RESEND_API_KEY) {
     throw new Error('Missing RESEND_API_KEY in server environment variables');
   }
@@ -71,7 +104,8 @@ async function sendReportEmailViaResend({ toEmail, subject, periodText, babyName
     throw new Error('Missing REPORT_MAIL_FROM (or MAIL_FROM) in server environment variables');
   }
 
-  const parsedPdf = parsePdfDataUrl(reportPdfDataUrl);
+  const normalized = normalizeBase64(reportPdfBase64);
+  const parsedPdf = normalized ? { base64: normalized } : parsePdfDataUrl(reportPdfDataUrl);
   if (!parsedPdf) {
     throw new Error('Invalid report PDF data');
   }
@@ -213,6 +247,7 @@ app.post('/api/send-report-email', async (req, res) => {
     const lang = typeof req.body?.lang === 'string' ? req.body.lang.trim() : 'zh';
     const reportText = typeof req.body?.reportText === 'string' ? req.body.reportText : '';
     const reportPdfDataUrl = typeof req.body?.reportPdfDataUrl === 'string' ? req.body.reportPdfDataUrl : '';
+    const reportPdfBase64 = typeof req.body?.reportPdfBase64 === 'string' ? req.body.reportPdfBase64 : '';
 
     if (!isValidEmail(toEmail)) {
       return res.status(400).json({ error: 'Invalid recipient email' });
@@ -223,7 +258,7 @@ app.post('/api/send-report-email', async (req, res) => {
     if (!reportText.trim()) {
       return res.status(400).json({ error: 'Missing report text' });
     }
-    if (!reportPdfDataUrl) {
+    if (!reportPdfDataUrl && !reportPdfBase64) {
       return res.status(400).json({ error: 'Missing report PDF' });
     }
 
@@ -234,7 +269,8 @@ app.post('/api/send-report-email', async (req, res) => {
       babyName,
       lang,
       reportText,
-      reportPdfDataUrl
+      reportPdfDataUrl,
+      reportPdfBase64
     });
 
     return res.json({ ok: true, id: result.id || null });

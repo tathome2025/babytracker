@@ -240,9 +240,11 @@ app.post('/api/send-report-email', async (req, res) => {
 app.get('/api/eslite-bestsellers', async (req, res) => {
   try {
     const forceRefresh = String(req.query?.refresh || '') === '1';
+    const seed = req.query?.seed;
     const viewerCountry = getViewerCountryFromHeaders(req.headers || {});
     const payload = await getEsliteBestsellers({
       forceRefresh,
+      seed,
       viewerCountry
     });
     return res.json(payload);

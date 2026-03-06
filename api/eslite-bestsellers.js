@@ -24,9 +24,11 @@ module.exports = async (req, res) => {
 
   try {
     const forceRefresh = String(req.query?.refresh || '') === '1';
+    const seed = req.query?.seed;
     const viewerCountry = getViewerCountryFromHeaders(req.headers || {});
     const payload = await getEsliteBestsellers({
       forceRefresh,
+      seed,
       viewerCountry
     });
 

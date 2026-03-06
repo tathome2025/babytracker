@@ -254,6 +254,15 @@
 
     <div class="card" id="books-card">
         <h2 id="books-title">誠品熱賣書推薦</h2>
+        <div class="row" style="margin-bottom: 8px;">
+            <span id="books-region-label" style="color: var(--text-muted); font-weight: 700;">顯示地區：</span>
+            <select id="books-region-select" class="input date-input" onchange="onBooksRegionChange()">
+                <option value="auto">自動</option>
+                <option value="hk">香港</option>
+                <option value="tw">台灣</option>
+            </select>
+            <button id="books-refresh-btn" class="btn" onclick="refreshBestsellers()">更新書單</button>
+        </div>
         <div id="books-subtitle" class="book-subtitle">正在載入地區資料...</div>
         <div id="books-status" class="status">載入中...</div>
 
@@ -323,7 +332,11 @@ const uiText = {
         generateBtnLoading: '生成中...',
         disclaimer: '⚠️ 本AI報告只作參考，不是專業醫學報告，如果疑問，請向家庭醫生查詢。',
         booksTitle: '誠品熱賣書推薦',
+        booksRegionLabel: '顯示地區：',
+        booksRegionAuto: '自動',
         booksSubtitle: (region) => `以下為${region}誠品熱賣書（每日更新）`,
+        booksRefreshBtn: '更新書單',
+        booksRefreshBtnLoading: '更新中...',
         booksStatusLoading: '載入中...',
         booksStatusLoaded: (time) => `最近更新：${time}`,
         booksStatusError: (msg) => `熱賣書載入失敗：${msg}`,
@@ -380,7 +393,11 @@ const uiText = {
         generateBtnLoading: 'Generating...',
         disclaimer: '⚠️ This AI report is for reference only and is not a professional medical report. If you have questions, please consult your family doctor.',
         booksTitle: 'Eslite Bestseller Picks',
+        booksRegionLabel: 'Region:',
+        booksRegionAuto: 'Auto',
         booksSubtitle: (region) => `Showing daily picks from Eslite ${region}`,
+        booksRefreshBtn: 'Refresh List',
+        booksRefreshBtnLoading: 'Refreshing...',
         booksStatusLoading: 'Loading...',
         booksStatusLoaded: (time) => `Last updated: ${time}`,
         booksStatusError: (msg) => `Failed to load bestseller books: ${msg}`,
@@ -439,6 +456,12 @@ let latestGeneratedReport = '';
 let bestsellerPayload = null;
 let bestsellerRegion = 'tw';
 let bestsellerError = '';
+let booksLoading = false;
+let manualBookRegion = (() => {
+    const saved = (localStorage.getItem('booksRegion') || 'auto').toLowerCase();
+    if (saved === 'hk' || saved === 'tw') return saved;
+    return 'auto';
+})();
 
 function toggleLanguage() {
     currentLang = currentLang === 'zh' ? 'en' : 'zh';
@@ -455,6 +478,7 @@ function applyLanguage() {
     document.getElementById('generate-title').innerText = t('generateTitle');
     document.getElementById('to-label').innerText = t('toLabel');
     document.getElementById('books-title').innerText = t('booksTitle');
+    document.getElementById('books-region-label').innerText = t('booksRegionLabel');
     document.getElementById('books-toddler-title').innerText = t('booksToddlerTitle');
     document.getElementById('books-parent-title').innerText = t('booksParentTitle');
     document.getElementById('result-title').innerText = t('resultTitle');
@@ -469,11 +493,26 @@ function applyLanguage() {
     const emailStatusEl = document.getElementById('email-status');
     const generateBtn = document.getElementById('generate-btn');
     const sendEmailBtn = document.getElementById('send-email-btn');
+    const booksRegionSelect = document.getElementById('books-region-select');
+    const booksRefreshBtn = document.getElementById('books-refresh-btn');
     if (generateBtn && !generateBtn.disabled) {
         generateBtn.innerText = t('generateBtn');
     }
     if (sendEmailBtn && !sendEmailBtn.disabled) {
         sendEmailBtn.innerText = t('emailBtn');
+    }
+    if (booksRefreshBtn) {
+        booksRefreshBtn.innerText = booksLoading ? t('booksRefreshBtnLoading') : t('booksRefreshBtn');
+        booksRefreshBtn.disabled = booksLoading;
+    }
+    if (booksRegionSelect) {
+        const optionAuto = booksRegionSelect.querySelector('option[value="auto"]');
+        const optionHk = booksRegionSelect.querySelector('option[value="hk"]');
+        const optionTw = booksRegionSelect.querySelector('option[value="tw"]');
+        if (optionAuto) optionAuto.innerText = t('booksRegionAuto');
+        if (optionHk) optionHk.innerText = t('booksRegionHK');
+        if (optionTw) optionTw.innerText = t('booksRegionTW');
+        booksRegionSelect.value = manualBookRegion;
     }
 
     if (!periodEl.innerText.trim()) {
@@ -617,6 +656,16 @@ function resolveRegionFromPayload(payload) {
     return regionFromTimezone();
 }
 
+function getActiveBooksRegion(payload) {
+    if (manualBookRegion === 'hk' || manualBookRegion === 'tw') {
+        return manualBookRegion;
+    }
+    if (payload) {
+        return resolveRegionFromPayload(payload);
+    }
+    return regionFromTimezone();
+}
+
 function renderBookList(containerEl, books) {
     clearChildren(containerEl);
     const fallbackCover = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"64\" height=\"88\"><rect width=\"64\" height=\"88\" fill=\"#f4efe6\"/></svg>');
@@ -666,7 +715,18 @@ function renderBestsellerCard() {
     const statusEl = document.getElementById('books-status');
     const toddlerListEl = document.getElementById('books-toddler-list');
     const parentListEl = document.getElementById('books-parent-list');
+    const regionSelect = document.getElementById('books-region-select');
+    const refreshBtn = document.getElementById('books-refresh-btn');
+    bestsellerRegion = getActiveBooksRegion(bestsellerPayload);
     const regionLabel = bestsellerRegion === 'hk' ? t('booksRegionHK') : t('booksRegionTW');
+
+    if (regionSelect) {
+        regionSelect.value = manualBookRegion;
+    }
+    if (refreshBtn) {
+        refreshBtn.innerText = booksLoading ? t('booksRefreshBtnLoading') : t('booksRefreshBtn');
+        refreshBtn.disabled = booksLoading;
+    }
 
     if (bestsellerError) {
         clearChildren(toddlerListEl);
@@ -693,8 +753,9 @@ function renderBestsellerCard() {
     renderBookList(parentListEl, regionData.parent || []);
 }
 
-async function requestBestsellers() {
-    const urls = getApiCandidates('/api/eslite-bestsellers');
+async function requestBestsellers(forceRefresh = false) {
+    const path = forceRefresh ? '/api/eslite-bestsellers?refresh=1' : '/api/eslite-bestsellers';
+    const urls = getApiCandidates(path);
     let lastError = null;
 
     for (let i = 0; i < urls.length; i++) {
@@ -732,19 +793,33 @@ async function requestBestsellers() {
     throw lastError || new Error(t('booksStatusLoading'));
 }
 
-async function loadBestsellers() {
+function onBooksRegionChange() {
+    const value = String(document.getElementById('books-region-select').value || 'auto').toLowerCase();
+    manualBookRegion = (value === 'hk' || value === 'tw') ? value : 'auto';
+    localStorage.setItem('booksRegion', manualBookRegion);
+    renderBestsellerCard();
+}
+
+async function refreshBestsellers() {
+    await loadBestsellers(true);
+}
+
+async function loadBestsellers(forceRefresh = false) {
+    booksLoading = true;
     bestsellerError = '';
-    bestsellerPayload = null;
-    bestsellerRegion = regionFromTimezone();
+    bestsellerRegion = getActiveBooksRegion(bestsellerPayload);
     renderBestsellerCard();
 
     try {
-        const data = await requestBestsellers();
+        const data = await requestBestsellers(forceRefresh);
         bestsellerPayload = data;
-        bestsellerRegion = resolveRegionFromPayload(data);
+        bestsellerRegion = getActiveBooksRegion(data);
         renderBestsellerCard();
     } catch (error) {
         bestsellerError = error && error.message ? error.message : String(error);
+        renderBestsellerCard();
+    } finally {
+        booksLoading = false;
         renderBestsellerCard();
     }
 }

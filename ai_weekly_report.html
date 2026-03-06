@@ -161,8 +161,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
     <script src="./app_config.js"></script>
 </head>
 <body>
@@ -254,8 +252,8 @@ const uiText = {
         emailBtn: '發送報告',
         emailBtnSending: '發送中...',
         emailHint: '先生成 AI 報告，再發送電郵。',
-        emailSending: '正在把報告轉成 PDF 並發送...',
-        emailSuccess: '已成功發送到電郵，可直接列印 PDF 附件。',
+        emailSending: '正在發送文字版報告...',
+        emailSuccess: '已成功發送文字版報告到電郵。',
         statusWaiting: '等待資料中...',
         reportPlaceholder: '尚未生成報告。',
         statusNeedLogin: '未登入。請先返回主系統登入，再使用本頁。',
@@ -281,8 +279,6 @@ const uiText = {
         errorEmailService: (code, msg) => `電郵服務錯誤 (${code}): ${msg}`,
         errorEmailConnect: (url, msg) => `連線電郵服務失敗（${url}）：${msg}`,
         errorEmailNoService: (tried) => `無法連線電郵服務。已嘗試：${tried}`,
-        errorHtml2canvasMissing: '無法載入列印轉換工具，請重新整理頁面再試。',
-        errorPdfToolMissing: '無法載入 PDF 工具，請重新整理頁面再試。',
         emailSubject: (name, period) => `${name} 健康報告（${period}）`,
         langToggle: '🌐 EN'
     },
@@ -303,8 +299,8 @@ const uiText = {
         emailBtn: 'Send Report',
         emailBtnSending: 'Sending...',
         emailHint: 'Generate the AI report first, then send by email.',
-        emailSending: 'Converting report to PDF and sending email...',
-        emailSuccess: 'Email sent successfully. You can print the attached PDF.',
+        emailSending: 'Sending text report by email...',
+        emailSuccess: 'Text report email sent successfully.',
         statusWaiting: 'Waiting for data...',
         reportPlaceholder: 'No report generated yet.',
         statusNeedLogin: 'Not logged in. Please return to the main system and log in first.',
@@ -330,8 +326,6 @@ const uiText = {
         errorEmailService: (code, msg) => `Email service error (${code}): ${msg}`,
         errorEmailConnect: (url, msg) => `Email service connection failed (${url}): ${msg}`,
         errorEmailNoService: (tried) => `Unable to reach email service. Tried: ${tried}`,
-        errorHtml2canvasMissing: 'Unable to load print renderer. Please refresh and try again.',
-        errorPdfToolMissing: 'Unable to load PDF tool. Please refresh and try again.',
         emailSubject: (name, period) => `${name} Health Report (${period})`,
         langToggle: '🌐 中文'
     }
@@ -580,33 +574,6 @@ async function requestSendReportEmail(payload) {
     throw lastError || new Error(t('errorEmailNoService', tried));
 }
 
-async function createReportPdfDataUrl() {
-    if (typeof window.html2canvas !== 'function') {
-        throw new Error(t('errorHtml2canvasMissing'));
-    }
-    if (!window.jspdf || typeof window.jspdf.jsPDF !== 'function') {
-        throw new Error(t('errorPdfToolMissing'));
-    }
-
-    const captureArea = document.getElementById('report-capture-area');
-    const canvas = await window.html2canvas(captureArea, {
-        backgroundColor: '#f4efe6',
-        useCORS: true,
-        scale: 1,
-        logging: false
-    });
-    const imageDataUrl = canvas.toDataURL('image/jpeg', 0.82);
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF({
-        orientation: canvas.width >= canvas.height ? 'l' : 'p',
-        unit: 'px',
-        format: [canvas.width, canvas.height],
-        compress: true
-    });
-    pdf.addImage(imageDataUrl, 'JPEG', 0, 0, canvas.width, canvas.height, undefined, 'FAST');
-    return pdf.output('datauristring');
-}
-
 async function sendReportEmail() {
     if (!latestGeneratedReport.trim()) {
         setEmailStatus(t('errorNeedGeneratedReport'), 'error');
@@ -630,7 +597,6 @@ async function sendReportEmail() {
     setEmailStatus(t('emailSending'));
 
     try {
-        const pdfDataUrl = await createReportPdfDataUrl();
         const periodText = (document.getElementById('period-text').innerText || '').trim();
         const payload = {
             toEmail: email,
@@ -638,9 +604,7 @@ async function sendReportEmail() {
             periodText,
             babyName,
             lang: currentLang,
-            reportText: latestGeneratedReport,
-            reportPdfDataUrl: pdfDataUrl,
-            reportPdfBase64: (pdfDataUrl.split(',')[1] || '').trim()
+            reportText: latestGeneratedReport
         };
 
         await requestSendReportEmail(payload);

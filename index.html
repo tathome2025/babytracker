@@ -65,7 +65,100 @@
             font-weight: 900;
             cursor: pointer;
         }
-        
+
+        .bestseller-widget {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 10px 12px;
+            margin-bottom: 12px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.04);
+        }
+        .bestseller-headline {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 6px;
+        }
+        .bestseller-title {
+            margin: 0;
+            color: var(--theme-color);
+            font-size: 1rem;
+            font-weight: 800;
+        }
+        .bestseller-hint {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 0.82rem;
+        }
+        .bestseller-refresh-btn {
+            border: 0;
+            background: transparent;
+            color: var(--theme-color);
+            font-size: 0.85rem;
+            font-weight: 800;
+            cursor: pointer;
+            text-decoration: underline;
+            padding: 0;
+        }
+        .bestseller-refresh-btn[disabled] {
+            opacity: 0.5;
+            cursor: default;
+        }
+        .bestseller-status {
+            margin: 0 0 6px;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+        .bestseller-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 6px;
+        }
+        .bestseller-item {
+            display: flex;
+            gap: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            background: var(--btn-bg);
+            padding: 6px;
+            min-height: 72px;
+        }
+        .bestseller-cover {
+            width: 42px;
+            height: 58px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            flex-shrink: 0;
+        }
+        .bestseller-meta {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .bestseller-category {
+            color: var(--theme-color);
+            font-size: 0.72rem;
+            font-weight: 800;
+        }
+        .bestseller-link {
+            color: #8B3A2E;
+            text-decoration: none;
+            font-size: 0.78rem;
+            line-height: 1.25;
+            font-weight: 700;
+            word-break: break-word;
+        }
+        .bestseller-link:hover {
+            text-decoration: underline;
+        }
+
         .card { background: var(--card-bg); padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-top: 5px solid var(--theme-color); transition: 0.3s; flex: 1; flex-direction: column; display: none; margin-bottom: 20px; }
         .card.active { display: flex; }
         
@@ -170,6 +263,7 @@
             .main-content { overflow: visible; padding: 15px 15px 60px; }
             .baby-header-row { flex-direction: column; align-items: stretch; gap: 8px; }
             .ai-report-btn { width: 100%; margin-left: 0; }
+            .bestseller-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             .global-sleep-banner { left: 12px; right: 12px; bottom: 12px; }
             .row { flex-direction: column; gap: 12px; }
             .split-divider { border-right: none; padding-right: 0; border-bottom: 2px dashed var(--border-color); padding-bottom: 12px; }
@@ -181,6 +275,9 @@
             /* 🔥 手機版登入頁排版：簡介在上，登入在下 */
             .auth-container { flex-direction: column; gap: 30px; }
             .auth-intro h1 { font-size: 1.8rem; }
+        }
+        @media (max-width: 560px) {
+            .bestseller-grid { grid-template-columns: 1fr; }
         }
     </style>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
@@ -251,6 +348,16 @@
 </div>
 
 <div class="main-content">
+    <div id="bestseller-widget" class="bestseller-widget">
+        <div class="bestseller-headline">
+            <h3 class="bestseller-title" data-i18n="booksWidgetTitle">誠品熱賣書推薦</h3>
+            <button id="bestseller-refresh-btn" class="bestseller-refresh-btn" onclick="refreshBestsellerWidget()" data-i18n="booksWidgetRefresh">更新書單</button>
+        </div>
+        <p id="bestseller-hint" class="bestseller-hint" data-i18n="booksWidgetHint">每次更新會顯示週榜上的其他書籍</p>
+        <p id="bestseller-status" class="bestseller-status" data-i18n="booksWidgetLoading">載入中...</p>
+        <div id="bestseller-grid" class="bestseller-grid"></div>
+    </div>
+
     <div class="baby-header-row">
         <div class="baby-selector" id="baby-selector">
             <button class="baby-tab active" id="tab-baby1" onclick="switchBaby('baby1')">👶 大寶</button>
@@ -776,6 +883,7 @@ const firebaseConfig = {
             btnLogin: "Email 登入", btnRegister: "註冊新帳號", orText: "或", btnGoogleLogin: "使用 Google 登入",
             navLog: "📅 24h 日誌", navGrowth: "📏 成長紀錄", navFeeding: "🍼 吃奶", navDiaper: "🧻 尿片", navSleep: "💤 睡眠", navTemp: "🌡️ 體溫紀錄", navBath: "🛀 沖涼", navTummy: "🐢 趴撐練習", navHistory: "📊 趨勢圖表", navRedPacket: "🧧 利是紀錄",
             btnExportCSV: "📥 匯出完整紀錄", btnSettings: "⚙️ 設定寶寶名稱", btnLogout: "🚪 登出帳號", btnThemeDark: "🌙 切換夜間", btnThemeLight: "☀️ 切換日間", btnAIWeeklyReport: "🤖 AI 分析本週健康報告",
+            booksWidgetTitle: "誠品熱賣書推薦", booksWidgetHint: "每次更新會顯示週榜上的其他書籍", booksWidgetRefresh: "更新書單", booksWidgetRefreshing: "更新中...", booksWidgetLoading: "載入中...", booksWidgetEmpty: "暫時沒有可顯示資料。", booksWidgetErrorPrefix: "熱賣書載入失敗：", booksWidgetCategoryToddler: "幼兒類", booksWidgetCategoryParent: "家長類",
             tabBaby1: "大寶", tabBaby2: "二寶", tabBaby3: "三寶",
             currentTime: "現在時間：", lblLeft: "左胸 (L)", lblRight: "右胸 (R)", yes: "有 ✅", no: "無 ❌",
             feedingTitle: "🍼 吃奶紀錄", labelTimeAdjust: "記錄時間微調", now: "現在",
@@ -813,6 +921,7 @@ const firebaseConfig = {
             btnLogin: "Login", btnRegister: "Register", orText: "OR", btnGoogleLogin: "Google Login",
             navLog: "📅 24h Log", navGrowth: "📏 Growth", navFeeding: "🍼 Feeding", navDiaper: "🧻 Diaper", navSleep: "💤 Sleep", navTemp: "🌡️ Temp", navBath: "🛀 Bath", navTummy: "🐢 Tummy Time", navHistory: "📊 Charts", navRedPacket: "🧧 Red Packet",
             btnExportCSV: "📥 Export Full Records", btnSettings: "⚙️ Set Baby Name", btnLogout: "🚪 Logout", btnThemeDark: "🌙 Dark", btnThemeLight: "☀️ Light", btnAIWeeklyReport: "🤖 AI Weekly Health Report",
+            booksWidgetTitle: "Eslite Bestseller Picks", booksWidgetHint: "Each refresh shows another set from the weekly chart.", booksWidgetRefresh: "Refresh List", booksWidgetRefreshing: "Refreshing...", booksWidgetLoading: "Loading...", booksWidgetEmpty: "No data available right now.", booksWidgetErrorPrefix: "Failed to load bestseller books: ", booksWidgetCategoryToddler: "Toddler", booksWidgetCategoryParent: "Parenting",
             tabBaby1: "Baby 1", tabBaby2: "Baby 2", tabBaby3: "Baby 3",
             currentTime: "Time: ", lblLeft: "Left (L)", lblRight: "Right (R)", yes: "Yes ✅", no: "No ❌",
             feedingTitle: "🍼 Feeding", labelTimeAdjust: "Time", now: "Now",
@@ -854,6 +963,145 @@ const firebaseConfig = {
     let historyCharts = { milk: null, direct: null, pump: null, diaper: null, sleep: null, temp: null, tummy: null, rash: null, growth: null }; 
     let isManualMode = { feeding: false, diaper: false, sleep: false, temp: false, bath: false, tummy: false }; 
     let nextFeedCountdownTarget = null;
+    let bestsellerBooks = [];
+    let bestsellerLoading = false;
+    let bestsellerError = '';
+
+    function getBestsellerApiCandidates(path) {
+        const configuredBase = (window.BABY_AI_API_BASE || '').trim();
+        const normalize = (base, p) => `${base.replace(/\/+$/, '')}${p}`;
+        const localUrl = `http://localhost:8787${path}`;
+
+        if (configuredBase) {
+            return [normalize(configuredBase, path)];
+        }
+        if (window.location.protocol === 'file:') {
+            return [localUrl];
+        }
+
+        const candidates = [path];
+        if (window.location.protocol === 'http:' && window.location.origin !== 'http://localhost:8787') {
+            candidates.push(localUrl);
+        }
+        return Array.from(new Set(candidates));
+    }
+
+    function renderBestsellerWidget() {
+        const gridEl = document.getElementById('bestseller-grid');
+        const statusEl = document.getElementById('bestseller-status');
+        const refreshBtn = document.getElementById('bestseller-refresh-btn');
+        if (!gridEl || !statusEl || !refreshBtn) return;
+
+        refreshBtn.innerText = bestsellerLoading
+            ? translations[currentLang].booksWidgetRefreshing
+            : translations[currentLang].booksWidgetRefresh;
+        refreshBtn.disabled = bestsellerLoading;
+
+        gridEl.innerHTML = '';
+
+        if (bestsellerError) {
+            statusEl.innerText = `${translations[currentLang].booksWidgetErrorPrefix}${bestsellerError}`;
+            return;
+        }
+
+        if (bestsellerLoading && bestsellerBooks.length === 0) {
+            statusEl.innerText = translations[currentLang].booksWidgetLoading;
+            return;
+        }
+
+        if (!Array.isArray(bestsellerBooks) || bestsellerBooks.length === 0) {
+            statusEl.innerText = translations[currentLang].booksWidgetEmpty;
+            return;
+        }
+
+        statusEl.innerText = '';
+        const fallbackCover = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="42" height="58"><rect width="42" height="58" fill="#f4efe6"/></svg>');
+        bestsellerBooks.slice(0, 4).forEach((book) => {
+            const item = document.createElement('div');
+            item.className = 'bestseller-item';
+
+            const img = document.createElement('img');
+            img.className = 'bestseller-cover';
+            img.loading = 'lazy';
+            img.src = book.imageUrl || fallbackCover;
+            img.alt = book.title || 'book';
+            item.appendChild(img);
+
+            const meta = document.createElement('div');
+            meta.className = 'bestseller-meta';
+
+            const category = document.createElement('div');
+            category.className = 'bestseller-category';
+            category.innerText = book.category === 'parent'
+                ? translations[currentLang].booksWidgetCategoryParent
+                : translations[currentLang].booksWidgetCategoryToddler;
+            meta.appendChild(category);
+
+            const link = document.createElement('a');
+            link.className = 'bestseller-link';
+            link.href = book.productUrl || '#';
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            link.innerText = book.title || '';
+            meta.appendChild(link);
+
+            item.appendChild(meta);
+            gridEl.appendChild(item);
+        });
+    }
+
+    async function requestBestsellerWidgetData(forceRefresh = false) {
+        const seed = Date.now() + Math.floor(Math.random() * 100000);
+        const path = `/api/eslite-bestsellers?seed=${seed}${forceRefresh ? '&refresh=1' : ''}`;
+        const urls = getBestsellerApiCandidates(path);
+        let lastError = null;
+
+        for (let i = 0; i < urls.length; i++) {
+            const url = urls[i];
+            const isLast = i === urls.length - 1;
+            try {
+                const resp = await fetch(url, { method: 'GET' });
+                if (resp.ok) return await resp.json();
+
+                const rawBody = await resp.text();
+                let errMsg = rawBody;
+                try {
+                    const errJson = JSON.parse(rawBody);
+                    errMsg = errJson.error || rawBody;
+                } catch (_) {}
+
+                lastError = new Error(errMsg || `HTTP ${resp.status}`);
+                if (!isLast) continue;
+                throw lastError;
+            } catch (error) {
+                lastError = error instanceof Error ? error : new Error(String(error));
+                if (!isLast) continue;
+                throw lastError;
+            }
+        }
+        throw lastError || new Error('No service available');
+    }
+
+    async function loadBestsellerWidget(forceRefresh = false) {
+        bestsellerLoading = true;
+        if (!forceRefresh) bestsellerError = '';
+        renderBestsellerWidget();
+
+        try {
+            const payload = await requestBestsellerWidgetData(forceRefresh);
+            bestsellerBooks = Array.isArray(payload?.books) ? payload.books : [];
+            bestsellerError = '';
+        } catch (error) {
+            bestsellerError = error && error.message ? error.message : String(error);
+        } finally {
+            bestsellerLoading = false;
+            renderBestsellerWidget();
+        }
+    }
+
+    async function refreshBestsellerWidget() {
+        await loadBestsellerWidget(true);
+    }
 
     function updateLanguage() {
         document.querySelectorAll('[data-i18n]').forEach(el => el.innerText = translations[currentLang][el.getAttribute('data-i18n')]);
@@ -863,6 +1111,7 @@ const firebaseConfig = {
         document.getElementById('theme-toggle-btn').innerText = isDark ? translations[currentLang].btnThemeLight : translations[currentLang].btnThemeDark;
         updateBabyUI(); updateProfileUI();
         renderSleepTimerUi();
+        renderBestsellerWidget();
         if(document.getElementById('log-card').classList.contains('active') || document.getElementById('history-card').classList.contains('active')) loadDashboardData(); 
     }
 
@@ -2042,6 +2291,7 @@ function toggleManualMode(cat) {
     window.onload = function() {
         initSleepStatusListener();
         initTheme(); updateLanguage(); 
+        loadBestsellerWidget();
         setLocalDate('growth-date');        
         resetSlider('feeding'); 
         resetSlider('diaper'); 

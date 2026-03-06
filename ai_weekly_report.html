@@ -161,6 +161,26 @@
             color: var(--text-muted);
             font-size: 0.85rem;
         }
+        .books-reveal {
+            opacity: 0;
+            transform: translateY(10px);
+            max-height: 0;
+            overflow: hidden;
+            pointer-events: none;
+            transition: opacity 0.45s ease, transform 0.45s ease, max-height 0.45s ease;
+        }
+        .books-reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+            max-height: 1200px;
+            pointer-events: auto;
+        }
+        .books-prep {
+            margin-top: 12px;
+            color: var(--theme-color);
+            font-size: 0.92rem;
+            font-weight: 700;
+        }
         .book-headline {
             display: flex;
             align-items: center;
@@ -312,14 +332,17 @@
         <div id="disclaimer-text" class="disclaimer">⚠️ 本AI報告只作參考，不是專業醫學報告，如果疑問，請向家庭醫生查詢。</div>
     </div>
 
-    <div class="card" id="books-card">
-        <h2 id="books-title">誠品親子熱賣書推薦</h2>
-        <div class="book-headline">
-            <div id="books-subtitle" class="book-subtitle">每次更新會顯示週榜上的其他書籍</div>
-            <button id="books-refresh-btn" class="book-refresh-link" onclick="refreshBestsellers()">更新書單</button>
+    <div id="books-reveal" class="books-reveal" aria-hidden="true">
+        <div id="books-prep-text" class="books-prep">AI報告準備中，等待期間為你推介...</div>
+        <div class="card" id="books-card">
+            <h2 id="books-title">誠品親子熱賣書推薦</h2>
+            <div class="book-headline">
+                <div id="books-subtitle" class="book-subtitle">每次更新會顯示週榜上的其他書籍</div>
+                <button id="books-refresh-btn" class="book-refresh-link" onclick="refreshBestsellers()">更新書單</button>
+            </div>
+            <div id="books-status" class="status">載入中...</div>
+            <div id="books-list" class="book-grid"></div>
         </div>
-        <div id="books-status" class="status">載入中...</div>
-        <div id="books-list" class="book-grid"></div>
     </div>
 
     <div class="card">
@@ -390,6 +413,7 @@ const uiText = {
         generateBtnAgain: '重新生成報告',
         generateBtnLoading: '生成中...',
         disclaimer: '⚠️ 本AI報告只作參考，不是專業醫學報告，如果疑問，請向家庭醫生查詢。',
+        booksPrep: 'AI報告準備中，等待期間為你推介...',
         booksTitle: '誠品親子熱賣書推薦',
         booksSubtitle: '每次更新會顯示週榜上的其他書籍',
         booksRefreshBtn: '更新書單',
@@ -445,6 +469,7 @@ const uiText = {
         generateBtnAgain: 'Regenerate Report',
         generateBtnLoading: 'Generating...',
         disclaimer: '⚠️ This AI report is for reference only and is not a professional medical report. If you have questions, please consult your family doctor.',
+        booksPrep: 'AI report is being prepared. Recommendations for you while waiting...',
         booksTitle: 'Eslite Parenting Bestsellers',
         booksSubtitle: 'Each refresh shows a different set from the weekly chart.',
         booksRefreshBtn: 'Refresh List',
@@ -511,6 +536,7 @@ let latestGeneratedReport = '';
 let bestsellerPayload = null;
 let bestsellerError = '';
 let booksLoading = false;
+let booksRevealed = false;
 
 function toggleLanguage() {
     currentLang = currentLang === 'zh' ? 'en' : 'zh';
@@ -527,6 +553,7 @@ function applyLanguage() {
     document.getElementById('generate-title').innerText = t('generateTitle');
     document.getElementById('to-label').innerText = t('toLabel');
     document.getElementById('books-title').innerText = t('booksTitle');
+    document.getElementById('books-prep-text').innerText = t('booksPrep');
     document.getElementById('books-subtitle').innerText = t('booksSubtitle');
     document.getElementById('result-title').innerText = t('resultTitle');
     document.getElementById('disclaimer-text').innerText = t('disclaimer');
@@ -780,6 +807,19 @@ async function requestBestsellers(forceRefresh = false) {
 
 async function refreshBestsellers() {
     await loadBestsellers(true);
+}
+
+function revealBooksSection() {
+    const booksRevealEl = document.getElementById('books-reveal');
+    if (!booksRevealEl) return;
+
+    booksRevealEl.classList.add('visible');
+    booksRevealEl.setAttribute('aria-hidden', 'false');
+    booksRevealed = true;
+
+    if (!bestsellerPayload && !booksLoading) {
+        loadBestsellers();
+    }
 }
 
 async function loadBestsellers(forceRefresh = false) {
@@ -1166,6 +1206,7 @@ async function generateReport() {
     const generateBtn = document.getElementById('generate-btn');
     generateBtn.disabled = true;
     generateBtn.innerText = t('generateBtnLoading');
+    revealBooksSection();
 
     try {
         const { startDate, endDate } = getSelectedRange();
@@ -1220,7 +1261,6 @@ async function initPage(user) {
     initDefaultDateRange();
     applyLanguage();
     onDateRangeChange();
-    loadBestsellers();
     if (!document.getElementById('status').innerText.trim()) {
         setStatus(t('statusWaiting'));
     }

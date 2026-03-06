@@ -48,10 +48,23 @@
         .logout-btn { color: #8B3A2E; border-color: #e5c4ba; background: #f7ebe7; }
 
         .main-content { flex: 1; padding: 15px 20px 40px; box-sizing: border-box; display: flex; flex-direction: column; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-        .baby-selector { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; flex-shrink: 0; }
+        .baby-header-row { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-shrink: 0; }
+        .baby-selector { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; flex: 1; min-width: 0; }
         .baby-selector::-webkit-scrollbar { display: none; }
         .baby-tab { padding: 8px 18px; border-radius: 15px; background: var(--btn-bg); color: var(--text-muted); font-size: 1.1rem; font-weight: bold; cursor: pointer; border: 2px solid var(--border-color); white-space: nowrap; transition: 0.2s; }
         .baby-tab.active { background: var(--theme-color); color: white; border-color: var(--theme-color); box-shadow: 0 4px 10px var(--theme-light); }
+        .ai-report-btn {
+            margin-left: auto;
+            white-space: nowrap;
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 2px solid var(--theme-color);
+            background: var(--theme-light);
+            color: var(--theme-color);
+            font-size: 0.95rem;
+            font-weight: 900;
+            cursor: pointer;
+        }
         
         .card { background: var(--card-bg); padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-top: 5px solid var(--theme-color); transition: 0.3s; flex: 1; flex-direction: column; display: none; margin-bottom: 20px; }
         .card.active { display: flex; }
@@ -155,6 +168,8 @@
             .sidebar { position: fixed; top: 0; left: 0; bottom: 0; transform: translateX(-100%); box-shadow: 4px 0 15px rgba(0,0,0,0.3); }
             .sidebar.open { transform: translateX(0); }
             .main-content { overflow: visible; padding: 15px 15px 60px; }
+            .baby-header-row { flex-direction: column; align-items: stretch; gap: 8px; }
+            .ai-report-btn { width: 100%; margin-left: 0; }
             .global-sleep-banner { left: 12px; right: 12px; bottom: 12px; }
             .row { flex-direction: column; gap: 12px; }
             .split-divider { border-right: none; padding-right: 0; border-bottom: 2px dashed var(--border-color); padding-bottom: 12px; }
@@ -235,10 +250,13 @@
 </div>
 
 <div class="main-content">
-    <div class="baby-selector" id="baby-selector">
-        <button class="baby-tab active" id="tab-baby1" onclick="switchBaby('baby1')">👶 大寶</button>
-        <button class="baby-tab" id="tab-baby2" onclick="switchBaby('baby2')">👶 二寶</button>
-        <button class="baby-tab hidden" id="tab-baby3" onclick="switchBaby('baby3')">👶 三寶</button>
+    <div class="baby-header-row">
+        <div class="baby-selector" id="baby-selector">
+            <button class="baby-tab active" id="tab-baby1" onclick="switchBaby('baby1')">👶 大寶</button>
+            <button class="baby-tab" id="tab-baby2" onclick="switchBaby('baby2')">👶 二寶</button>
+            <button class="baby-tab hidden" id="tab-baby3" onclick="switchBaby('baby3')">👶 三寶</button>
+        </div>
+        <button class="ai-report-btn" onclick="openAIWeeklyReport()" data-i18n="btnAIWeeklyReport">🤖 AI 分析本週健康報告</button>
     </div>
 
     <div id="global-sleep-banner" class="global-sleep-banner">
@@ -757,7 +775,7 @@ const firebaseConfig = {
             appTitle: "寶寶成長紀錄", appDesc: "輕鬆紀錄寶寶吃奶、睡眠、換尿片等日常，一目了然的統計圖表，伴隨寶寶健康成長。", loginTitle: "登入寶寶成長紀錄", emailPlaceholder: "電子郵件 Email", pwPlaceholder: "密碼 Password",
             btnLogin: "Email 登入", btnRegister: "註冊新帳號", orText: "或", btnGoogleLogin: "使用 Google 登入",
             navLog: "📅 24h 日誌", navGrowth: "📏 成長紀錄", navFeeding: "🍼 吃奶", navDiaper: "🧻 尿片", navSleep: "💤 睡眠", navTemp: "🌡️ 體溫紀錄", navBath: "🛀 沖涼", navTummy: "🐢 趴撐練習", navHistory: "📊 趨勢圖表", navRedPacket: "🧧 利是紀錄",
-            btnExportCSV: "📥 匯出完整紀錄", btnSettings: "⚙️ 設定寶寶名稱", btnLogout: "🚪 登出帳號", btnThemeDark: "🌙 切換夜間", btnThemeLight: "☀️ 切換日間",
+            btnExportCSV: "📥 匯出完整紀錄", btnSettings: "⚙️ 設定寶寶名稱", btnLogout: "🚪 登出帳號", btnThemeDark: "🌙 切換夜間", btnThemeLight: "☀️ 切換日間", btnAIWeeklyReport: "🤖 AI 分析本週健康報告",
             tabBaby1: "大寶", tabBaby2: "二寶", tabBaby3: "三寶",
             currentTime: "現在時間：", lblLeft: "左胸 (L)", lblRight: "右胸 (R)", yes: "有 ✅", no: "無 ❌",
             feedingTitle: "🍼 吃奶紀錄", labelTimeAdjust: "記錄時間微調", now: "現在",
@@ -794,7 +812,7 @@ const firebaseConfig = {
             appTitle: "Baby Tracker", appDesc: "Easily track feeding, sleep, diapers, and growth. View intuitive charts for your baby's daily routine.", loginTitle: "Login to Baby Tracker", emailPlaceholder: "Email", pwPlaceholder: "Password",
             btnLogin: "Login", btnRegister: "Register", orText: "OR", btnGoogleLogin: "Google Login",
             navLog: "📅 24h Log", navGrowth: "📏 Growth", navFeeding: "🍼 Feeding", navDiaper: "🧻 Diaper", navSleep: "💤 Sleep", navTemp: "🌡️ Temp", navBath: "🛀 Bath", navTummy: "🐢 Tummy Time", navHistory: "📊 Charts", navRedPacket: "🧧 Red Packet",
-            btnExportCSV: "📥 Export Full Records", btnSettings: "⚙️ Set Baby Name", btnLogout: "🚪 Logout", btnThemeDark: "🌙 Dark", btnThemeLight: "☀️ Light",
+            btnExportCSV: "📥 Export Full Records", btnSettings: "⚙️ Set Baby Name", btnLogout: "🚪 Logout", btnThemeDark: "🌙 Dark", btnThemeLight: "☀️ Light", btnAIWeeklyReport: "🤖 AI Weekly Health Report",
             tabBaby1: "Baby 1", tabBaby2: "Baby 2", tabBaby3: "Baby 3",
             currentTime: "Time: ", lblLeft: "Left (L)", lblRight: "Right (R)", yes: "Yes ✅", no: "No ❌",
             feedingTitle: "🍼 Feeding", labelTimeAdjust: "Time", now: "Now",
@@ -938,6 +956,15 @@ const firebaseConfig = {
         updateProfileUI();
         initSleepStatusListener();
         if(document.getElementById('log-card').classList.contains('active') || document.getElementById('history-card').classList.contains('active')) loadDashboardData();
+    }
+
+    function openAIWeeklyReport() {
+        let params = new URLSearchParams({
+            babyId: currentBabyId,
+            babyName: babies[currentBabyId] || '',
+            lang: currentLang
+        });
+        window.location.href = `./ai_weekly_report.html?${params.toString()}`;
     }
 
     function openSettingsModal() {

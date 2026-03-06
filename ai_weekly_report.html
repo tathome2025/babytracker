@@ -153,13 +153,13 @@
             color: var(--text-muted);
             font-size: 0.85rem;
         }
-        .book-controls {
+        .book-headline {
             display: flex;
             align-items: center;
-            justify-content: flex-end;
+            justify-content: space-between;
             gap: 8px 12px;
             flex-wrap: wrap;
-            margin-bottom: 4px;
+            margin: 4px 0 6px;
         }
         .book-refresh-link {
             border: 0;
@@ -237,7 +237,7 @@
                 margin-left: 0;
                 text-align: right;
             }
-            .book-controls {
+            .book-headline {
                 align-items: flex-start;
             }
             .book-grid {
@@ -282,10 +282,10 @@
 
     <div class="card" id="books-card">
         <h2 id="books-title">誠品熱賣書推薦</h2>
-        <div class="book-controls">
+        <div class="book-headline">
+            <div id="books-subtitle" class="book-subtitle">每次更新會顯示週榜上的其他書籍</div>
             <button id="books-refresh-btn" class="book-refresh-link" onclick="refreshBestsellers()">更新書單</button>
         </div>
-        <div id="books-subtitle" class="book-subtitle">每次更新會顯示週榜上的其他書籍</div>
         <div id="books-status" class="status">載入中...</div>
         <div id="books-list" class="book-grid"></div>
     </div>

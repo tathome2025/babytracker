@@ -48,10 +48,23 @@
         .logout-btn { color: #8B3A2E; border-color: #e5c4ba; background: #f7ebe7; }
 
         .main-content { flex: 1; padding: 15px 20px 40px; box-sizing: border-box; display: flex; flex-direction: column; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-        .baby-selector { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; flex-shrink: 0; }
+        .baby-header-row { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-shrink: 0; }
+        .baby-selector { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; flex: 1; min-width: 0; }
         .baby-selector::-webkit-scrollbar { display: none; }
         .baby-tab { padding: 8px 18px; border-radius: 15px; background: var(--btn-bg); color: var(--text-muted); font-size: 1.1rem; font-weight: bold; cursor: pointer; border: 2px solid var(--border-color); white-space: nowrap; transition: 0.2s; }
         .baby-tab.active { background: var(--theme-color); color: white; border-color: var(--theme-color); box-shadow: 0 4px 10px var(--theme-light); }
+        .ai-report-btn {
+            margin-left: auto;
+            white-space: nowrap;
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 2px solid var(--theme-color);
+            background: var(--theme-light);
+            color: var(--theme-color);
+            font-size: 0.95rem;
+            font-weight: 900;
+            cursor: pointer;
+        }
         
         .card { background: var(--card-bg); padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-top: 5px solid var(--theme-color); transition: 0.3s; flex: 1; flex-direction: column; display: none; margin-bottom: 20px; }
         .card.active { display: flex; }
@@ -155,6 +168,8 @@
             .sidebar { position: fixed; top: 0; left: 0; bottom: 0; transform: translateX(-100%); box-shadow: 4px 0 15px rgba(0,0,0,0.3); }
             .sidebar.open { transform: translateX(0); }
             .main-content { overflow: visible; padding: 15px 15px 60px; }
+            .baby-header-row { flex-direction: column; align-items: stretch; gap: 8px; }
+            .ai-report-btn { width: 100%; margin-left: 0; }
             .global-sleep-banner { left: 12px; right: 12px; bottom: 12px; }
             .row { flex-direction: column; gap: 12px; }
             .split-divider { border-right: none; padding-right: 0; border-bottom: 2px dashed var(--border-color); padding-bottom: 12px; }
@@ -172,6 +187,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="./app_config.js"></script>
 </head>
 <body>
 
@@ -235,10 +251,13 @@
 </div>
 
 <div class="main-content">
-    <div class="baby-selector" id="baby-selector">
-        <button class="baby-tab active" id="tab-baby1" onclick="switchBaby('baby1')">👶 大寶</button>
-        <button class="baby-tab" id="tab-baby2" onclick="switchBaby('baby2')">👶 二寶</button>
-        <button class="baby-tab hidden" id="tab-baby3" onclick="switchBaby('baby3')">👶 三寶</button>
+    <div class="baby-header-row">
+        <div class="baby-selector" id="baby-selector">
+            <button class="baby-tab active" id="tab-baby1" onclick="switchBaby('baby1')">👶 大寶</button>
+            <button class="baby-tab" id="tab-baby2" onclick="switchBaby('baby2')">👶 二寶</button>
+            <button class="baby-tab hidden" id="tab-baby3" onclick="switchBaby('baby3')">👶 三寶</button>
+        </div>
+        <button class="ai-report-btn" onclick="openAIWeeklyReport()" data-i18n="btnAIWeeklyReport">🤖 AI 分析本週健康報告</button>
     </div>
 
     <div id="global-sleep-banner" class="global-sleep-banner">
@@ -334,7 +353,8 @@
         <div class="section">
             <div class="row">
                 <div class="col split-divider"><label class="label" data-i18n="labelHeight">身高 (cm)</label><input type="number" step="0.1" class="input-number" id="growth-height" placeholder="例如：60.5"></div>
-                <div class="col"><label class="label" data-i18n="labelWeight">體重 (kg)</label><input type="number" step="0.01" class="input-number" id="growth-weight" placeholder="例如：6.2"></div>
+                <div class="col split-divider"><label class="label" data-i18n="labelWeight">體重 (kg)</label><input type="number" step="0.01" class="input-number" id="growth-weight" placeholder="例如：6.2"></div>
+                <div class="col"><label class="label" data-i18n="labelHead">頭圍 (cm)</label><input type="number" step="0.1" class="input-number" id="growth-head" placeholder="例如：40.2"></div>
             </div>
         </div>
         <button class="submit-btn" id="btn-submit-growth" onclick="submitData('growth')" data-i18n="saveGrowth" style="background:#5F7F73">新增成長紀錄</button>
@@ -701,11 +721,9 @@
             <label class="label" style="font-size:0.95rem;" data-i18n="chartTitleRash">🔴 尿布疹嚴重程度 (0=無, 3=嚴重)</label>
             <div class="chart-container" style="height: 150px; margin-bottom: 25px;"><canvas id="rashChart"></canvas></div>
 
-            <label class="label" style="font-size:0.95rem;" data-i18n="chartTitleWeight">⚖️ 體重趨勢 (kg)</label>
-            <div class="chart-container" style="height: 180px; margin-bottom: 25px;"><canvas id="weightChart"></canvas></div>
-
-            <label class="label" style="font-size:0.95rem;" data-i18n="chartTitleHeight">📏 身高趨勢 (cm)</label>
-            <div class="chart-container" style="height: 180px;"><canvas id="heightChart"></canvas></div>
+            <label class="label" style="font-size:0.95rem;" data-i18n="chartTitleGrowth">📈 成長趨勢（身高/體重/頭圍）</label>
+            <div class="chart-container" style="height: 220px;"><canvas id="growthChart"></canvas></div>
+            <p style="margin-top: 6px; color: var(--text-muted); font-size: 0.85rem;" data-i18n="growthChartHint">可點擊圖例顯示/隱藏身高、體重、頭圍數據。</p>
         </div>
     </div>
 </div>
@@ -757,7 +775,7 @@ const firebaseConfig = {
             appTitle: "寶寶成長紀錄", appDesc: "輕鬆紀錄寶寶吃奶、睡眠、換尿片等日常，一目了然的統計圖表，伴隨寶寶健康成長。", loginTitle: "登入寶寶成長紀錄", emailPlaceholder: "電子郵件 Email", pwPlaceholder: "密碼 Password",
             btnLogin: "Email 登入", btnRegister: "註冊新帳號", orText: "或", btnGoogleLogin: "使用 Google 登入",
             navLog: "📅 24h 日誌", navGrowth: "📏 成長紀錄", navFeeding: "🍼 吃奶", navDiaper: "🧻 尿片", navSleep: "💤 睡眠", navTemp: "🌡️ 體溫紀錄", navBath: "🛀 沖涼", navTummy: "🐢 趴撐練習", navHistory: "📊 趨勢圖表", navRedPacket: "🧧 利是紀錄",
-            btnExportCSV: "📥 匯出完整紀錄", btnSettings: "⚙️ 設定寶寶名稱", btnLogout: "🚪 登出帳號", btnThemeDark: "🌙 切換夜間", btnThemeLight: "☀️ 切換日間",
+            btnExportCSV: "📥 匯出完整紀錄", btnSettings: "⚙️ 設定寶寶名稱", btnLogout: "🚪 登出帳號", btnThemeDark: "🌙 切換夜間", btnThemeLight: "☀️ 切換日間", btnAIWeeklyReport: "🤖 AI 分析本週健康報告",
             tabBaby1: "大寶", tabBaby2: "二寶", tabBaby3: "三寶",
             currentTime: "現在時間：", lblLeft: "左胸 (L)", lblRight: "右胸 (R)", yes: "有 ✅", no: "無 ❌",
             feedingTitle: "🍼 吃奶紀錄", labelTimeAdjust: "記錄時間微調", now: "現在",
@@ -778,7 +796,7 @@ const firebaseConfig = {
             tummyTitle: "🐢 趴撐練習紀錄", labelTummyStatus: "趴撐狀態", labelTummyDuration: "趴撐時長 (分鐘)", tummyStart: "開始趴撐", tummyEnd: "結束趴撐", saveTummy: "儲存趴撐紀錄",
             birthProfile: "👶 出生資料", labelBirthDate: "出生日期", labelBirthTime: "出生時間", labelBirthLoc: "出生地點", placeholderLoc: "醫院或診所名稱",
             labelBirthWeight: "出生體重", labelBirthHeight: "出生身高", saveProfile: "💾 儲存出生資料", profileSaved: "✅ 出生資料已更新！",
-            growthTitle: "📏 成長紀錄新增", labelGrowthDate: "記錄日期", labelHeight: "身高 (cm)", labelWeight: "體重 (kg)", saveGrowth: "新增成長紀錄",
+            growthTitle: "📏 成長紀錄新增", labelGrowthDate: "記錄日期", labelHeight: "身高 (cm)", labelWeight: "體重 (kg)", labelHead: "頭圍 (cm)", saveGrowth: "新增成長紀錄",
             settingsTitle: "⚙️ 設定寶寶名稱", firstBaby: "第一位寶寶", secondBaby: "第二位寶寶", thirdBaby: "第三位寶寶",
             settingsPlaceholder1: "例如：大寶", settingsPlaceholder2: "例如：二寶", settingsPlaceholder3: "例如：三寶", saveSettingsBtn: "💾 儲存 (同步雲端)", cancelBtn: "取消",
             alertSettingsSaved: "✅ 設定已同步到雲端！", saving: "儲存中...", alertSuccess: "✅ 成功儲存", alertError: "❌ 錯誤：",
@@ -787,14 +805,14 @@ const firebaseConfig = {
             deleteConfirm: "確定要刪除這筆紀錄嗎？", emptyHistory: "過去 24 小時內沒有任何紀錄喔！",
             range7: "最近 7 天", range14: "最近 14 天", range30: "最近 1 個月", range90: "最近 3 個月", range180: "最近半年", range365: "最近一年",
             chartTitleMilk: "🍼 每日總吃奶量 (配方/人奶樽)", chartTitleDirect: "🤱 每日親餵時長 (分鐘)", chartTitlePump: "🍼 每日泵奶量 (ml)", chartTitleSleep: "💤 每日總睡眠時數 (小時)", chartTitleDiaper: "🧻 每日換尿片次數",
-            chartTitleRash: "🔴 尿布疹嚴重程度 (0=無, 3=嚴重)", chartTitleHeight: "📏 身高趨勢 (cm)", chartTitleWeight: "⚖️ 體重趨勢 (kg)", chartTitleTummy: "🐢 每日趴撐總時間 (分鐘)",
-            lblFormula: "配方奶", lblBreast: "人奶樽", lblDirect: "親餵", lblPump: "泵奶", lblTimeMin: "時間(分)", lblMilkMl: "奶量(ml)", lblHours: "小時", lblHeight: "身高(cm)", lblWeight: "體重(kg)", lblL: "左", lblR: "右"
+            chartTitleRash: "🔴 尿布疹嚴重程度 (0=無, 3=嚴重)", chartTitleHeight: "📏 身高趨勢 (cm)", chartTitleWeight: "⚖️ 體重趨勢 (kg)", chartTitleGrowth: "📈 成長趨勢（身高/體重/頭圍）", growthChartHint: "可點擊圖例顯示/隱藏身高、體重、頭圍數據。", chartTitleTummy: "🐢 每日趴撐總時間 (分鐘)",
+            lblFormula: "配方奶", lblBreast: "人奶樽", lblDirect: "親餵", lblPump: "泵奶", lblTimeMin: "時間(分)", lblMilkMl: "奶量(ml)", lblHours: "小時", lblHeight: "身高(cm)", lblWeight: "體重(kg)", lblHead: "頭圍(cm)", lblL: "左", lblR: "右"
         },
         en: {
             appTitle: "Baby Tracker", appDesc: "Easily track feeding, sleep, diapers, and growth. View intuitive charts for your baby's daily routine.", loginTitle: "Login to Baby Tracker", emailPlaceholder: "Email", pwPlaceholder: "Password",
             btnLogin: "Login", btnRegister: "Register", orText: "OR", btnGoogleLogin: "Google Login",
             navLog: "📅 24h Log", navGrowth: "📏 Growth", navFeeding: "🍼 Feeding", navDiaper: "🧻 Diaper", navSleep: "💤 Sleep", navTemp: "🌡️ Temp", navBath: "🛀 Bath", navTummy: "🐢 Tummy Time", navHistory: "📊 Charts", navRedPacket: "🧧 Red Packet",
-            btnExportCSV: "📥 Export Full Records", btnSettings: "⚙️ Set Baby Name", btnLogout: "🚪 Logout", btnThemeDark: "🌙 Dark", btnThemeLight: "☀️ Light",
+            btnExportCSV: "📥 Export Full Records", btnSettings: "⚙️ Set Baby Name", btnLogout: "🚪 Logout", btnThemeDark: "🌙 Dark", btnThemeLight: "☀️ Light", btnAIWeeklyReport: "🤖 AI Weekly Health Report",
             tabBaby1: "Baby 1", tabBaby2: "Baby 2", tabBaby3: "Baby 3",
             currentTime: "Time: ", lblLeft: "Left (L)", lblRight: "Right (R)", yes: "Yes ✅", no: "No ❌",
             feedingTitle: "🍼 Feeding", labelTimeAdjust: "Time", now: "Now",
@@ -815,7 +833,7 @@ const firebaseConfig = {
             tummyTitle: "🐢 Tummy Time", labelTummyStatus: "Status", labelTummyDuration: "Duration (mins)", tummyStart: "Start Tummy", tummyEnd: "End Tummy", saveTummy: "Save Tummy",
             birthProfile: "👶 Birth Profile", labelBirthDate: "Birth Date", labelBirthTime: "Birth Time", labelBirthLoc: "Location", placeholderLoc: "Hospital/Clinic",
             labelBirthWeight: "Birth Wt", labelBirthHeight: "Birth Ht", saveProfile: "💾 Save Profile", profileSaved: "✅ Profile saved!",
-            growthTitle: "📏 Add Growth Record", labelGrowthDate: "Record Date", labelHeight: "Height (cm)", labelWeight: "Weight (kg)", saveGrowth: "Save Growth",
+            growthTitle: "📏 Add Growth Record", labelGrowthDate: "Record Date", labelHeight: "Height (cm)", labelWeight: "Weight (kg)", labelHead: "Head Circ. (cm)", saveGrowth: "Save Growth",
             settingsTitle: "⚙️ Set Baby Name", firstBaby: "First Baby", secondBaby: "Second Baby", thirdBaby: "Third Baby",
             settingsPlaceholder1: "e.g., Baby 1", settingsPlaceholder2: "e.g., Baby 2", settingsPlaceholder3: "e.g., Baby 3", saveSettingsBtn: "💾 Save (Sync)", cancelBtn: "Cancel",
             alertSettingsSaved: "✅ Saved to cloud!", saving: "Saving...", alertSuccess: "✅ Saved", alertError: "❌ Error: ",
@@ -824,8 +842,8 @@ const firebaseConfig = {
             deleteConfirm: "Delete this record?", emptyHistory: "No records in the last 24 hours!",
             range7: "Last 7 Days", range14: "Last 14 Days", range30: "Last 1 Month", range90: "Last 3 Months", range180: "Last 6 Months", range365: "Last 1 Year",
             chartTitleMilk: "🍼 Daily Total Milk", chartTitleDirect: "🤱 Daily Nursing (mins)", chartTitlePump: "🍼 Daily Pump Vol (ml)", chartTitleSleep: "💤 Daily Sleep (Hours)", chartTitleDiaper: "🧻 Daily Diapers",
-            chartTitleRash: "🔴 Diaper Rash Severity", chartTitleHeight: "📏 Height Trend (cm)", chartTitleWeight: "⚖️ Weight Trend (kg)", chartTitleTummy: "🐢 Daily Tummy Time (mins)",
-            lblFormula: "Formula", lblBreast: "Breastmilk", lblDirect: "Nursing", lblPump: "Pump", lblTimeMin: "Time(min)", lblMilkMl: "Vol(ml)", lblHours: "Hours", lblHeight: "Height(cm)", lblWeight: "Weight(kg)", lblL: "L", lblR: "R"
+            chartTitleRash: "🔴 Diaper Rash Severity", chartTitleHeight: "📏 Height Trend (cm)", chartTitleWeight: "⚖️ Weight Trend (kg)", chartTitleGrowth: "📈 Growth Trend (Height/Weight/Head)", growthChartHint: "Click legend items to show/hide Height, Weight, and Head Circ. data.", chartTitleTummy: "🐢 Daily Tummy Time (mins)",
+            lblFormula: "Formula", lblBreast: "Breastmilk", lblDirect: "Nursing", lblPump: "Pump", lblTimeMin: "Time(min)", lblMilkMl: "Vol(ml)", lblHours: "Hours", lblHeight: "Height(cm)", lblWeight: "Weight(kg)", lblHead: "Head(cm)", lblL: "L", lblR: "R"
         }
     };
 
@@ -833,7 +851,7 @@ const firebaseConfig = {
     let babies = { baby1: "", baby2: "", baby3: "" };
     let babyProfiles = { baby1: {}, baby2: {}, baby3: {} };
     let currentBabyId = "baby1";
-    let historyCharts = { milk: null, direct: null, pump: null, diaper: null, sleep: null, temp: null, tummy: null, rash: null, height: null, weight: null }; 
+    let historyCharts = { milk: null, direct: null, pump: null, diaper: null, sleep: null, temp: null, tummy: null, rash: null, growth: null }; 
     let isManualMode = { feeding: false, diaper: false, sleep: false, temp: false, bath: false, tummy: false }; 
     let nextFeedCountdownTarget = null;
 
@@ -938,6 +956,19 @@ const firebaseConfig = {
         updateProfileUI();
         initSleepStatusListener();
         if(document.getElementById('log-card').classList.contains('active') || document.getElementById('history-card').classList.contains('active')) loadDashboardData();
+    }
+
+    function openAIWeeklyReport() {
+        let params = new URLSearchParams({
+            babyId: currentBabyId,
+            babyName: babies[currentBabyId] || '',
+            lang: currentLang
+        });
+        const configuredApiBase = (window.BABY_AI_API_BASE || '').trim();
+        if (configuredApiBase) {
+            params.set('apiBase', configuredApiBase);
+        }
+        window.location.href = `./ai_weekly_report.html?${params.toString()}`;
     }
 
     function openSettingsModal() {
@@ -1597,8 +1628,13 @@ function toggleManualMode(cat) {
             dataToSave.durationMins = Number(document.getElementById('manual-tummy-duration').value) || null;
             if(!dataToSave.durationMins) { submitBtn.innerText = originalText; submitBtn.disabled = false; return alert(currentLang==='zh'?"請輸入趴撐時長！":"Please enter duration!"); }
         } else if (category === 'growth') {
-            dataToSave.height = Number(document.getElementById('growth-height').value) || null; dataToSave.weight = Number(document.getElementById('growth-weight').value) || null;
-            if(!dataToSave.height && !dataToSave.weight) { submitBtn.innerText = originalText; submitBtn.disabled = false; return alert(currentLang==='zh'?"請至少填寫身高或體重！":"Please enter height or weight!"); }
+            dataToSave.height = Number(document.getElementById('growth-height').value) || null;
+            dataToSave.weight = Number(document.getElementById('growth-weight').value) || null;
+            dataToSave.headCircumference = Number(document.getElementById('growth-head').value) || null;
+            if(!dataToSave.height && !dataToSave.weight && !dataToSave.headCircumference) {
+                submitBtn.innerText = originalText; submitBtn.disabled = false;
+                return alert(currentLang==='zh'?"請至少填寫身高、體重或頭圍！":"Please enter height, weight, or head circumference!");
+            }
         }
 
         try {
@@ -1633,7 +1669,7 @@ function toggleManualMode(cat) {
             let d = new Date(); d.setDate(d.getDate() - i);
             let k = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
             labels.push(k.slice(5)); 
-            dailyStats[k] = { formula: 0, breastmilk: 0, directLeft: 0, directRight: 0, pumpLeft: 0, pumpRight: 0, diaper: 0, rash: 0, temp: null, sleepMins: 0, tummyMins: 0, height: null, weight: null };
+            dailyStats[k] = { formula: 0, breastmilk: 0, directLeft: 0, directRight: 0, pumpLeft: 0, pumpRight: 0, diaper: 0, rash: 0, temp: null, sleepMins: 0, tummyMins: 0, height: null, weight: null, headCircumference: null };
         }
 
         try {
@@ -1719,6 +1755,7 @@ function toggleManualMode(cat) {
                     if (r.category === 'growth') {
                         if (r.height) dailyStats[rDate].height = r.height;
                         if (r.weight) dailyStats[rDate].weight = r.weight;
+                        if (r.headCircumference) dailyStats[rDate].headCircumference = r.headCircumference;
                     }
                 }
 
@@ -1775,6 +1812,7 @@ function toggleManualMode(cat) {
                         icon = '📏'; let arr = [];
                         if (r.height) arr.push(`${translations[currentLang].lblHeight}: ${r.height}cm`);
                         if (r.weight) arr.push(`${translations[currentLang].lblWeight}: ${r.weight}kg`);
+                        if (r.headCircumference) arr.push(`${translations[currentLang].lblHead}: ${r.headCircumference}cm`);
                         desc = arr.join(', '); h = '--'; m = '--'; 
                     }
 
@@ -1831,8 +1869,13 @@ function toggleManualMode(cat) {
                 renderSingleBarChart('diaperChart', 'diaper', labels, Object.values(dailyStats).map(d => d.diaper), '#B8833A', translations[currentLang].unitTimes);
                 
                 renderLineChart('rashChart', 'rash', labels, Object.values(dailyStats).map(d => d.rash), '#A14A3E', 'Severity (0-3)');
-                renderLineChart('weightChart', 'weight', labels, Object.values(dailyStats).map(d => d.weight), '#7C5D6C', 'kg');
-                renderLineChart('heightChart', 'height', labels, Object.values(dailyStats).map(d => d.height), '#5F7F73', 'cm');
+                renderGrowthCombinedChart(
+                    'growthChart',
+                    labels,
+                    Object.values(dailyStats).map(d => d.height),
+                    Object.values(dailyStats).map(d => d.weight),
+                    Object.values(dailyStats).map(d => d.headCircumference)
+                );
             }
 
         } catch(e) { console.error(e); if(isLogTab) listDiv.innerHTML = "Error loading"; }
@@ -1875,7 +1918,9 @@ function toggleManualMode(cat) {
                     else detail = r.tummyStatus === 'start_tummy' ? translations[currentLang].tummyStart : translations[currentLang].tummyEnd;
                 } else if(r.category === 'growth') {
                     let hStr = r.height ? (currentLang==='zh'?'身高:':'H:') + r.height + 'cm' : '';
-                    let wStr = r.weight ? (currentLang==='zh'?'體重:':'W:') + r.weight + 'kg' : ''; detail = `${hStr} ${wStr}`.trim();
+                    let wStr = r.weight ? (currentLang==='zh'?'體重:':'W:') + r.weight + 'kg' : '';
+                    let headStr = r.headCircumference ? (currentLang==='zh'?'頭圍:':'Head:') + r.headCircumference + 'cm' : '';
+                    detail = `${hStr} ${wStr} ${headStr}`.trim();
                 }
                 csv += `${dateStr},${timeStr},${r.babyName || ''},${cat},"${detail.trim()}"\n`;
             });
@@ -1912,6 +1957,83 @@ function toggleManualMode(cat) {
         historyCharts[chartKey] = new Chart(ctx, {
             type: 'line', data: { labels: labels, datasets: [{ data: data, borderColor: color, backgroundColor: color + '33', borderWidth: 2, pointBackgroundColor: color, pointRadius: 4, fill: true, spanGaps: true }] },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { color: textColor, maxTicksLimit: 15 } }, y: { beginAtZero: false, grid: { color: gridColor }, ticks: { color: textColor }, title: { display: true, text: yTitle, color: textColor } } } }
+        });
+    }
+
+    function renderGrowthCombinedChart(canvasId, labels, heightData, weightData, headData) {
+        const ctx = document.getElementById(canvasId).getContext('2d');
+        if(historyCharts.growth) historyCharts.growth.destroy();
+        let isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        let textColor = isDark ? '#aaaaaa' : '#666666';
+        let gridColor = isDark ? '#444444' : '#eeeeee';
+
+        historyCharts.growth = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: translations[currentLang].lblHeight || 'Height(cm)',
+                        data: heightData,
+                        borderColor: '#5F7F73',
+                        backgroundColor: '#5F7F7333',
+                        borderWidth: 2,
+                        pointRadius: 4,
+                        spanGaps: true,
+                        yAxisID: 'yCm'
+                    },
+                    {
+                        label: translations[currentLang].lblWeight || 'Weight(kg)',
+                        data: weightData,
+                        borderColor: '#7C5D6C',
+                        backgroundColor: '#7C5D6C33',
+                        borderWidth: 2,
+                        pointRadius: 4,
+                        spanGaps: true,
+                        yAxisID: 'yKg'
+                    },
+                    {
+                        label: translations[currentLang].lblHead || 'Head(cm)',
+                        data: headData,
+                        borderColor: '#4F6B82',
+                        backgroundColor: '#4F6B8233',
+                        borderWidth: 2,
+                        pointRadius: 4,
+                        spanGaps: true,
+                        yAxisID: 'yCm'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        labels: { color: textColor }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: textColor, maxTicksLimit: 15 }
+                    },
+                    yCm: {
+                        type: 'linear',
+                        position: 'left',
+                        grid: { color: gridColor },
+                        ticks: { color: textColor },
+                        title: { display: true, text: 'cm', color: textColor }
+                    },
+                    yKg: {
+                        type: 'linear',
+                        position: 'right',
+                        grid: { drawOnChartArea: false },
+                        ticks: { color: textColor },
+                        title: { display: true, text: 'kg', color: textColor }
+                    }
+                }
+            }
         });
     }
 

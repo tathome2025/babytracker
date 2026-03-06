@@ -442,13 +442,12 @@ async function generateReport() {
         });
 
         if (!resp.ok) {
-            let errMsg = '';
+            const rawBody = await resp.text();
+            let errMsg = rawBody;
             try {
-                const errJson = await resp.json();
-                errMsg = errJson.error || JSON.stringify(errJson);
-            } catch (_) {
-                errMsg = await resp.text();
-            }
+                const errJson = JSON.parse(rawBody);
+                errMsg = errJson.error || rawBody;
+            } catch (_) {}
             throw new Error(`伺服器 API 錯誤 (${resp.status}): ${errMsg}`);
         }
 

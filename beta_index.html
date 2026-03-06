@@ -187,6 +187,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="./app_config.js"></script>
 </head>
 <body>
 
@@ -964,6 +965,10 @@ const firebaseConfig = {
             babyName: babies[currentBabyId] || '',
             lang: currentLang
         });
+        const configuredApiBase = (window.BABY_AI_API_BASE || '').trim();
+        if (configuredApiBase) {
+            params.set('apiBase', configuredApiBase);
+        }
         window.location.href = `./ai_weekly_report.html?${params.toString()}`;
     }
 

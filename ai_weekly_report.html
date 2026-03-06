@@ -139,6 +139,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+    <script src="./app_config.js"></script>
 </head>
 <body>
 <div class="page">
@@ -224,12 +225,26 @@ function toJsDate(input) {
 }
 
 function getApiCandidates(path) {
+    const qs = new URLSearchParams(window.location.search);
+    const queryBase = (qs.get('apiBase') || '').trim();
+    const globalBase = (window.BABY_AI_API_BASE || '').trim();
+    const configuredBase = queryBase || globalBase;
+
+    const normalize = (base, p) => `${base.replace(/\/+$/, '')}${p}`;
     const localUrl = `http://localhost:8787${path}`;
+
+    // For hosted static pages (e.g. GitHub Pages), always prefer configured backend URL.
+    if (configuredBase) {
+        return [normalize(configuredBase, path)];
+    }
+
     if (window.location.protocol === 'file:') {
         return [localUrl];
     }
+
     const candidates = [path];
-    if (window.location.origin !== 'http://localhost:8787') {
+    // Only try localhost fallback on http pages to avoid browser mixed-content blocking on https.
+    if (window.location.protocol === 'http:' && window.location.origin !== 'http://localhost:8787') {
         candidates.push(localUrl);
     }
     return Array.from(new Set(candidates));

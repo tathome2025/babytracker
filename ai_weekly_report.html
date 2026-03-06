@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AI 本週健康報告</title>
+    <title>AI 健康報告</title>
     <style>
         :root {
             --bg-color: #f4efe6;
@@ -114,10 +114,9 @@
             line-height: 1.55;
             min-height: 220px;
         }
-        .summary-list {
-            margin: 0;
-            padding-left: 20px;
-            line-height: 1.6;
+        .date-input {
+            max-width: 220px;
+            min-width: 160px;
         }
         .disclaimer {
             margin-top: 14px;
@@ -132,6 +131,7 @@
         @media (max-width: 850px) {
             .title-wrap h1 { font-size: 1.25rem; }
             .input { min-width: 100%; }
+            .date-input { max-width: none; }
             .btn { width: 100%; }
             .topbar { align-items: flex-start; flex-direction: column; }
         }
@@ -145,22 +145,22 @@
     <div class="topbar">
         <button class="back-btn" onclick="goBack()">← 返回主頁</button>
         <div class="title-wrap">
-            <h1 id="page-title">🤖 AI 本週健康報告</h1>
-            <div id="period-text" class="subtitle">載入近 7 天資料中...</div>
+            <h1 id="page-title">🤖 AI 健康報告</h1>
+            <div id="period-text" class="subtitle">預設為過去 7 天，可自行調整分析區間</div>
         </div>
     </div>
 
     <div class="card">
         <h2>AI 報告生成</h2>
+        <div class="row" style="margin-bottom: 10px;">
+            <input id="start-date" type="date" class="input date-input" onchange="onDateRangeChange()">
+            <span style="color: var(--text-muted); font-weight: 700;">至</span>
+            <input id="end-date" type="date" class="input date-input" onchange="onDateRangeChange()">
+        </div>
         <div class="row">
             <button id="generate-btn" class="btn primary" onclick="generateReport()">生成 AI 報告</button>
         </div>
-        <p class="hint">OpenAI API Key 由伺服器端 `.env` 管理，前端用戶無需也不可自行設定。</p>
-    </div>
-
-    <div class="card">
-        <h2>近 7 天數據摘要</h2>
-        <ul id="summary-list" class="summary-list"></ul>
+        <div class="disclaimer">⚠️ 本AI報告只作參考，不是專業醫學報告，如果疑問，請向家庭醫生查詢。</div>
     </div>
 
     <div class="card">
@@ -169,7 +169,6 @@
         <div id="report" class="report">尚未生成報告。</div>
     </div>
 
-    <div class="disclaimer">⚠️ 本AI報告只作參考，不是專業醫學報告，如果疑問，請向家庭醫生查詢。</div>
 </div>
 
 <script>
@@ -231,9 +230,49 @@ function getApiUrl(path) {
     return path;
 }
 
-async function loadSevenDayRecords(userId) {
-    const now = new Date();
-    const from = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+function toDateInputValue(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+}
+
+function parseDateInput(value, isEndOfDay) {
+    if (!value) return null;
+    const parts = value.split('-').map(Number);
+    if (parts.length !== 3 || parts.some(Number.isNaN)) return null;
+    const [y, m, d] = parts;
+    if (isEndOfDay) return new Date(y, m - 1, d, 23, 59, 59, 999);
+    return new Date(y, m - 1, d, 0, 0, 0, 0);
+}
+
+function initDefaultDateRange() {
+    const end = new Date();
+    const start = new Date();
+    start.setDate(end.getDate() - 6);
+    document.getElementById('start-date').value = toDateInputValue(start);
+    document.getElementById('end-date').value = toDateInputValue(end);
+}
+
+function getSelectedRange() {
+    const startVal = document.getElementById('start-date').value;
+    const endVal = document.getElementById('end-date').value;
+    const startDate = parseDateInput(startVal, false);
+    const endDate = parseDateInput(endVal, true);
+
+    if (!startDate || !endDate) throw new Error('請先選擇開始與結束日期。');
+    if (startDate > endDate) throw new Error('開始日期不能晚於結束日期。');
+    return { startDate, endDate };
+}
+
+function onDateRangeChange() {
+    try {
+        const { startDate, endDate } = getSelectedRange();
+        document.getElementById('period-text').innerText = `分析區間：${formatDate(startDate)} 至 ${formatDate(endDate)}`;
+    } catch (_) {}
+}
+
+async function loadRecordsInRange(userId, startDate, endDate) {
     const snapshot = await db.collection('baby_records')
         .where('userId', '==', userId)
         .where('babyId', '==', babyId)
@@ -244,12 +283,12 @@ async function loadSevenDayRecords(userId) {
         const data = doc.data();
         const time = toJsDate(data.recordTime);
         if (!time) return;
-        if (time < from || time > now) return;
+        if (time < startDate || time > endDate) return;
         records.push({ ...data, time });
     });
 
     records.sort((a, b) => a.time - b.time);
-    return { records, from, now };
+    return { records, from: startDate, to: endDate };
 }
 
 function summarizeRecords(records) {
@@ -333,52 +372,27 @@ function summarizeRecords(records) {
     return summary;
 }
 
-function renderSummary(summary, from, now, recordsCount) {
-    const ul = document.getElementById('summary-list');
-    const sleepAvg = (summary.sleep.totalMins / 7).toFixed(1);
-    const tummyAvg = (summary.tummy.totalMins / 7).toFixed(1);
-    const tempRange = summary.temp.max == null
-        ? '無體溫紀錄'
-        : `${summary.temp.min.toFixed(1)}°C - ${summary.temp.max.toFixed(1)}°C（>=38°C 次數: ${summary.temp.feverCount}）`;
-
-    const growthWeightTrend = summary.growth.firstWeight != null && summary.growth.lastWeight != null
-        ? `${summary.growth.firstWeight.toFixed(2)}kg → ${summary.growth.lastWeight.toFixed(2)}kg`
-        : '不足以判斷';
-
-    ul.innerHTML = `
-        <li>分析期間：${formatDate(from)} 至 ${formatDate(now)}</li>
-        <li>近 7 天有效紀錄數：${recordsCount}</li>
-        <li>吃奶：配方奶 ${summary.feeding.formulaMl}ml、人奶(樽) ${summary.feeding.breastmilkMl}ml、親餵 ${summary.feeding.directMins}分鐘、泵奶 ${summary.feeding.pumpMl}ml（共 ${summary.feeding.totalCount} 筆）</li>
-        <li>尿片：共 ${summary.diaper.total} 次（小便 ${summary.diaper.pee} 次、大便 ${summary.diaper.poo} 次、最高尿布疹等級 ${summary.diaper.rashMax}）</li>
-        <li>睡眠：總計 ${summary.sleep.totalMins} 分鐘，平均每日 ${sleepAvg} 分鐘</li>
-        <li>體溫：${tempRange}</li>
-        <li>沖涼：${summary.bath.count} 次</li>
-        <li>趴撐：總計 ${summary.tummy.totalMins} 分鐘，平均每日 ${tummyAvg} 分鐘</li>
-        <li>成長：最新身高 ${summary.growth.latestHeight ?? '無'} cm；最新體重 ${summary.growth.latestWeight ?? '無'} kg；體重趨勢 ${growthWeightTrend}</li>
-    `;
-}
-
-function buildPrompt(summary, from, now, recordsCount) {
+function buildPrompt(summary, from, to, recordsCount) {
     const langHint = pageLang === 'en'
         ? 'Please write in English.'
         : '請用繁體中文（香港用語）撰寫。';
 
     return `${langHint}
-你是一位兒科健康助理，請根據以下 7 天摘要提供家庭照顧分析。
+你是一位兒科健康助理，請根據以下指定期間摘要提供家庭照顧分析。
 
 寶寶名稱：${babyName}
-分析期間：${formatDate(from)} 至 ${formatDate(now)}
+分析期間：${formatDate(from)} 至 ${formatDate(to)}
 紀錄總數：${recordsCount}
 
 資料摘要（JSON）：
 ${JSON.stringify(summary, null, 2)}
 
 請輸出以下段落：
-1) 本週整體健康評估
+1) 該期間整體健康評估
 2) 成長趨勢判讀（如資料不足要明確指出）
 3) 飲食、排泄、睡眠、體溫、趴撐的重點觀察
 4) 需要家長留意的風險訊號（由高到低）
-5) 下週可執行的照顧建議（條列）
+5) 接下來可執行的照顧建議（條列）
 6) 何時應盡快向醫生求助
 7) 最後一段必須逐字包含：本AI報告只作參考，不是專業醫學報告，如果疑問，請向家庭醫生查詢
 
@@ -400,20 +414,22 @@ async function generateReport() {
     generateBtn.innerText = '生成中...';
 
     try {
-        setStatus('讀取近 7 天紀錄中...');
-        const { records, from, now } = await loadSevenDayRecords(user.uid);
+        const { startDate, endDate } = getSelectedRange();
+        document.getElementById('period-text').innerText = `分析區間：${formatDate(startDate)} 至 ${formatDate(endDate)}`;
+
+        setStatus('讀取所選區間紀錄中...');
+        const { records, from, to } = await loadRecordsInRange(user.uid, startDate, endDate);
         lastFetchedCount = records.length;
         latestSummary = summarizeRecords(records);
-        renderSummary(latestSummary, from, now, records.length);
 
         if (records.length === 0) {
-            document.getElementById('report').innerText = '近 7 天沒有任何紀錄，暫時無法生成有效分析。';
+            document.getElementById('report').innerText = '所選區間沒有任何紀錄，暫時無法生成有效分析。';
             setStatus('沒有可用資料。');
             return;
         }
 
-        setStatus('呼叫伺服器 AI API 生成報告中...');
-        const prompt = buildPrompt(latestSummary, from, now, records.length);
+        setStatus('正在生成分析報告...');
+        const prompt = buildPrompt(latestSummary, from, to, records.length);
 
         const resp = await fetch(getApiUrl('/api/ai-weekly-report'), {
             method: 'POST',
@@ -443,7 +459,7 @@ async function generateReport() {
         }
 
         document.getElementById('report').innerText = reportText;
-        setStatus(`完成：已分析 ${lastFetchedCount} 筆近 7 天紀錄。`);
+        setStatus(`完成：已分析 ${lastFetchedCount} 筆紀錄。`);
     } catch (err) {
         console.error(err);
         setStatus('生成失敗。');
@@ -455,29 +471,16 @@ async function generateReport() {
 }
 
 async function initPage(user) {
-    const now = new Date();
-    const from = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-    document.getElementById('page-title').innerText = `🤖 ${babyName} - AI 本週健康報告`;
-    document.getElementById('period-text').innerText = `分析區間：${formatDate(from)} 至 ${formatDate(now)}`;
+    initDefaultDateRange();
+    onDateRangeChange();
+    document.getElementById('page-title').innerText = `🤖 ${babyName} - AI 健康報告`;
 
     if (!user) {
         setStatus('未登入。請先返回主系統登入，再使用本頁。');
         return;
     }
 
-    setStatus('已登入，準備讀取資料。');
-    try {
-        const { records, from: startAt, now: endAt } = await loadSevenDayRecords(user.uid);
-        lastFetchedCount = records.length;
-        latestSummary = summarizeRecords(records);
-        renderSummary(latestSummary, startAt, endAt, records.length);
-
-        setStatus('點擊「生成 AI 報告」開始分析。');
-    } catch (err) {
-        console.error(err);
-        setStatus('讀取資料失敗。');
-        document.getElementById('report').innerText = `發生錯誤：${err.message}`;
-    }
+    setStatus('已登入，請確認日期區間後點擊「生成 AI 報告」。');
 }
 
 auth.onAuthStateChanged((user) => {

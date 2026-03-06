@@ -218,6 +218,13 @@
             background: #fff;
             min-height: 74px;
         }
+        .book-item.is-clickable {
+            cursor: pointer;
+        }
+        .book-item.is-clickable:focus-visible {
+            outline: 2px solid var(--theme-color);
+            outline-offset: 1px;
+        }
         .book-cover {
             width: 44px;
             height: 60px;
@@ -702,6 +709,24 @@ function renderBookList(containerEl, books) {
     books.forEach((book, index) => {
         const item = document.createElement('div');
         item.className = 'book-item';
+        const productUrl = typeof book.productUrl === 'string' ? book.productUrl.trim() : '';
+        if (productUrl) {
+            const openBook = () => window.open(productUrl, '_blank', 'noopener,noreferrer');
+            item.classList.add('is-clickable');
+            item.setAttribute('role', 'link');
+            item.tabIndex = 0;
+            item.addEventListener('click', (event) => {
+                const target = event.target instanceof Element ? event.target : null;
+                if (target && target.closest('a')) return;
+                openBook();
+            });
+            item.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    openBook();
+                }
+            });
+        }
 
         const img = document.createElement('img');
         img.className = 'book-cover';
@@ -720,7 +745,7 @@ function renderBookList(containerEl, books) {
 
         const link = document.createElement('a');
         link.className = 'book-link';
-        link.href = book.productUrl || '#';
+        link.href = productUrl || '#';
         link.target = '_blank';
         link.rel = 'noopener noreferrer';
         link.innerText = book.title || '';

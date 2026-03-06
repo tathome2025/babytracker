@@ -127,6 +127,13 @@
             padding: 6px;
             min-height: 72px;
         }
+        .bestseller-item.is-clickable {
+            cursor: pointer;
+        }
+        .bestseller-item.is-clickable:focus-visible {
+            outline: 2px solid var(--theme-color);
+            outline-offset: 1px;
+        }
         .bestseller-cover {
             width: 42px;
             height: 58px;
@@ -1032,6 +1039,24 @@ const firebaseConfig = {
         bestsellerBooks.slice(0, 4).forEach((book) => {
             const item = document.createElement('div');
             item.className = 'bestseller-item';
+            const productUrl = typeof book.productUrl === 'string' ? book.productUrl.trim() : '';
+            if (productUrl) {
+                const openBook = () => window.open(productUrl, '_blank', 'noopener,noreferrer');
+                item.classList.add('is-clickable');
+                item.setAttribute('role', 'link');
+                item.tabIndex = 0;
+                item.addEventListener('click', (event) => {
+                    const target = event.target instanceof Element ? event.target : null;
+                    if (target && target.closest('a')) return;
+                    openBook();
+                });
+                item.addEventListener('keydown', (event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        openBook();
+                    }
+                });
+            }
 
             const img = document.createElement('img');
             img.className = 'bestseller-cover';
@@ -1052,7 +1077,7 @@ const firebaseConfig = {
 
             const link = document.createElement('a');
             link.className = 'bestseller-link';
-            link.href = book.productUrl || '#';
+            link.href = productUrl || '#';
             link.target = '_blank';
             link.rel = 'noopener noreferrer';
             const fullTitle = String(book.title || '');

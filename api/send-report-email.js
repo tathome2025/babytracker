@@ -19,10 +19,10 @@ function getBody(req) {
   return body;
 }
 
-function parseImageDataUrl(dataUrl) {
-  const match = /^data:(image\/[a-zA-Z0-9.+-]+);base64,([a-zA-Z0-9+/=]+)$/.exec(dataUrl || '');
+function parsePdfDataUrl(dataUrl) {
+  const match = /^data:application\/pdf(?:;[^,]*)?,([a-zA-Z0-9+/=]+)$/.exec(dataUrl || '');
   if (!match) return null;
-  return { mimeType: match[1], base64: match[2] };
+  return { base64: match[1] };
 }
 
 function isValidEmail(email) {
@@ -66,7 +66,7 @@ module.exports = async (req, res) => {
     const babyName = typeof body.babyName === 'string' ? body.babyName.trim() : 'Baby';
     const lang = typeof body.lang === 'string' ? body.lang.trim() : 'zh';
     const reportText = typeof body.reportText === 'string' ? body.reportText : '';
-    const reportImageDataUrl = typeof body.reportImageDataUrl === 'string' ? body.reportImageDataUrl : '';
+    const reportPdfDataUrl = typeof body.reportPdfDataUrl === 'string' ? body.reportPdfDataUrl : '';
 
     if (!isValidEmail(toEmail)) {
       return res.status(400).json({ error: 'Invalid recipient email' });
@@ -77,9 +77,9 @@ module.exports = async (req, res) => {
     if (!reportText.trim()) {
       return res.status(400).json({ error: 'Missing report text' });
     }
-    const parsedImage = parseImageDataUrl(reportImageDataUrl);
-    if (!parsedImage) {
-      return res.status(400).json({ error: 'Invalid report image data' });
+    const parsedPdf = parsePdfDataUrl(reportPdfDataUrl);
+    if (!parsedPdf) {
+      return res.status(400).json({ error: 'Invalid report PDF data' });
     }
 
     const isEn = String(lang).toLowerCase().startsWith('en');
@@ -87,10 +87,9 @@ module.exports = async (req, res) => {
     const safeBabyName = escapeHtml(babyName);
     const safePeriod = escapeHtml(periodText);
     const safeReport = escapeHtml(reportText);
-    const imageExt = parsedImage.mimeType.includes('png') ? 'png' : 'jpg';
     const intro = isEn
-      ? '<p style="margin:0 0 12px;">Your report is attached as a print-style image and is also shown below.</p>'
-      : '<p style="margin:0 0 12px;">你的報告已附上列印格式圖片，並同步顯示於下方。</p>';
+      ? '<p style="margin:0 0 12px;">Your report is attached as a print-ready PDF preserving the same visual layout.</p>'
+      : '<p style="margin:0 0 12px;">你的報告已附上可列印 PDF，並保留與頁面一致的視覺版面。</p>';
     const periodRow = safePeriod
       ? `<p style="margin:0 0 12px;"><strong>${isEn ? 'Analysis range:' : '分析區間：'}</strong> ${safePeriod}</p>`
       : '';
@@ -103,7 +102,6 @@ module.exports = async (req, res) => {
           <p style="margin:0 0 8px;"><strong>${isEn ? 'Baby:' : '寶寶：'}</strong> ${safeBabyName}</p>
           ${periodRow}
           ${intro}
-          <img src="${reportImageDataUrl}" alt="report" style="width:100%;height:auto;border:1px solid #d8cfbf;border-radius:10px;" />
           <h3 style="margin:14px 0 8px;color:#A45A3F;">${textHeading}</h3>
           <pre style="white-space:pre-wrap;line-height:1.55;margin:0;background:#fff;border:1px dashed #d8cfbf;border-radius:10px;padding:12px;">${safeReport}</pre>
         </div>
@@ -123,8 +121,8 @@ module.exports = async (req, res) => {
         html,
         attachments: [
           {
-            filename: `baby-health-report.${imageExt}`,
-            content: parsedImage.base64
+            filename: 'baby-health-report.pdf',
+            content: parsedPdf.base64
           }
         ]
       })

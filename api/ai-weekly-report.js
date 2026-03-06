@@ -39,6 +39,22 @@ function getPrompt(req) {
   return typeof body.prompt === 'string' ? body.prompt.trim() : '';
 }
 
+function getLang(req) {
+  const body = req.body;
+  let value = '';
+  if (typeof body === 'string') {
+    try {
+      const parsed = JSON.parse(body);
+      value = typeof parsed.lang === 'string' ? parsed.lang.trim().toLowerCase() : '';
+    } catch (_) {
+      value = '';
+    }
+  } else {
+    value = typeof body?.lang === 'string' ? body.lang.trim().toLowerCase() : '';
+  }
+  return value.startsWith('en') ? 'en' : 'zh';
+}
+
 module.exports = async (req, res) => {
   setCors(res);
 
@@ -63,6 +79,11 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: 'Missing prompt' });
     }
 
+    const lang = getLang(req);
+    const systemPrompt = lang === 'en'
+      ? 'You are a careful and gentle pediatric health assistant. Provide reference guidance only, no diagnosis. Acknowledge parents effort first, then give practical and gentle suggestions. Always respond in English.'
+      : '你是謹慎且溫柔的兒科健康分析助理。你只能提供參考建議，不能診斷疾病。請先肯定家長努力，再以溫柔語氣給建議與提醒。請一律以繁體中文（香港用語）回覆。';
+
     const openaiResp = await fetch('https://api.openai.com/v1/responses', {
       method: 'POST',
       headers: {
@@ -75,7 +96,7 @@ module.exports = async (req, res) => {
         input: [
           {
             role: 'system',
-            content: '你是謹慎且溫柔的兒科健康分析助理。你只能提供參考建議，不能診斷疾病。請先肯定家長努力，再以溫柔語氣給建議與提醒。可加入多一點emoji以增加親切感及令用戶更清晰讀取。'
+            content: systemPrompt
           },
           {
             role: 'user',

@@ -29,9 +29,13 @@
         .topbar {
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: flex-start;
             gap: 12px;
             margin-bottom: 14px;
+        }
+        .title-wrap {
+            margin-left: auto;
+            text-align: right;
         }
         .back-btn {
             border: 1px solid var(--border-color);
@@ -51,6 +55,7 @@
             margin-top: 4px;
             color: var(--text-muted);
             font-size: 0.95rem;
+            text-align: right;
         }
         .card {
             background: var(--card-bg);
@@ -128,46 +133,76 @@
             font-size: 0.95rem;
             font-weight: 700;
         }
+        .email-status {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+        .email-status.success {
+            color: #2f7c47;
+        }
+        .email-status.error {
+            color: #a23d2a;
+        }
         @media (max-width: 850px) {
             .title-wrap h1 { font-size: 1.25rem; }
             .input { min-width: 100%; }
             .date-input { max-width: none; }
             .btn { width: 100%; }
             .topbar { align-items: flex-start; flex-direction: column; }
+            .title-wrap {
+                width: 100%;
+                margin-left: 0;
+                text-align: right;
+            }
         }
     </style>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <script src="./app_config.js"></script>
 </head>
 <body>
 <div class="page">
+    <div id="report-capture-area">
     <div class="topbar">
-        <button class="back-btn" onclick="goBack()">← 返回主頁</button>
+        <button class="back-btn" id="back-btn" onclick="goBack()">← 返回主頁</button>
         <div class="title-wrap">
             <h1 id="page-title">🤖 AI 健康報告</h1>
             <div id="period-text" class="subtitle">預設為過去 7 天，可自行調整分析區間</div>
         </div>
+        <button class="back-btn" id="lang-toggle-btn" onclick="toggleLanguage()">🌐 EN</button>
     </div>
 
     <div class="card">
-        <h2>AI 報告生成</h2>
+        <h2 id="generate-title">AI 報告生成</h2>
         <div class="row" style="margin-bottom: 10px;">
             <input id="start-date" type="date" class="input date-input" onchange="onDateRangeChange()">
-            <span style="color: var(--text-muted); font-weight: 700;">至</span>
+            <span id="to-label" style="color: var(--text-muted); font-weight: 700;">至</span>
             <input id="end-date" type="date" class="input date-input" onchange="onDateRangeChange()">
         </div>
         <div class="row">
             <button id="generate-btn" class="btn primary" onclick="generateReport()">生成 AI 報告</button>
         </div>
-        <div class="disclaimer">⚠️ 本AI報告只作參考，不是專業醫學報告，如果疑問，請向家庭醫生查詢。</div>
+        <div id="disclaimer-text" class="disclaimer">⚠️ 本AI報告只作參考，不是專業醫學報告，如果疑問，請向家庭醫生查詢。</div>
     </div>
 
     <div class="card">
-        <h2>AI 分析結果</h2>
+        <h2 id="result-title">AI 分析結果</h2>
         <div id="status" class="status">等待資料中...</div>
         <div id="report" class="report">尚未生成報告。</div>
+    </div>
+    </div>
+
+    <div class="card">
+        <h2 id="email-title">發送報告到電郵</h2>
+        <div class="row">
+            <input id="email-input" type="email" class="input" placeholder="請輸入收件電郵">
+            <button id="send-email-btn" class="btn" onclick="sendReportEmail()">發送報告</button>
+        </div>
+        <div id="email-status" class="email-status">先生成 AI 報告，再發送電郵。</div>
     </div>
 
 </div>
@@ -192,10 +227,189 @@ const auth = firebase.auth();
 const qs = new URLSearchParams(window.location.search);
 const babyId = qs.get('babyId') || 'baby1';
 const babyName = qs.get('babyName') || '寶寶';
-const pageLang = qs.get('lang') === 'en' ? 'en' : 'zh';
+let currentLang = (() => {
+    const langFromQuery = (qs.get('lang') || '').toLowerCase();
+    if (langFromQuery === 'en' || langFromQuery.startsWith('en-')) return 'en';
+    if (langFromQuery === 'zh' || langFromQuery.startsWith('zh-')) return 'zh';
+    const saved = (localStorage.getItem('appLang') || 'zh').toLowerCase();
+    return (saved === 'en' || saved.startsWith('en-')) ? 'en' : 'zh';
+})();
+
+const uiText = {
+    zh: {
+        backBtn: '← 返回主頁',
+        pageTitle: (name) => `🤖 ${name} - AI 健康報告`,
+        periodDefault: '預設為過去 7 天，可自行調整分析區間',
+        periodRange: (from, to) => `分析區間：${from} 至 ${to}`,
+        generateTitle: 'AI 報告生成',
+        toLabel: '至',
+        generateBtn: '生成 AI 報告',
+        generateBtnAgain: '重新生成報告',
+        generateBtnLoading: '生成中...',
+        disclaimer: '⚠️ 本AI報告只作參考，不是專業醫學報告，如果疑問，請向家庭醫生查詢。',
+        resultTitle: 'AI 分析結果',
+        emailTitle: '發送報告到電郵',
+        emailPlaceholder: '請輸入收件電郵',
+        emailBtn: '發送報告',
+        emailBtnSending: '發送中...',
+        emailHint: '先生成 AI 報告，再發送電郵。',
+        emailSending: '正在把報告製作成列印頁面並發送...',
+        emailSuccess: '已成功發送到電郵，可直接列印附件或內文圖片。',
+        statusWaiting: '等待資料中...',
+        reportPlaceholder: '尚未生成報告。',
+        statusNeedLogin: '未登入。請先返回主系統登入，再使用本頁。',
+        statusReady: '已登入，請確認日期區間後點擊「生成 AI 報告」。',
+        statusReading: '讀取所選區間紀錄中...',
+        statusNoData: '所選區間沒有任何紀錄，暫時無法生成有效分析。',
+        statusGenerating: '正在生成分析報告...',
+        statusDone: (count) => `完成：已分析 ${count} 筆紀錄。`,
+        statusFailed: '生成失敗。',
+        errorPrefix: '發生錯誤：',
+        errorNeedLogin: '請先登入主系統後再生成報告。',
+        errorSelectDate: '請先選擇開始與結束日期。',
+        errorDateOrder: '開始日期不能晚於結束日期。',
+        errorNoReportText: 'API 回應沒有可讀取的文字內容。',
+        errorNeedApiBase: '目前無法連線到 AI 服務，請稍後再試。',
+        errorApiRouteMismatch: (url, code) => `API 路徑在 ${url} 不可用（${code}）`,
+        errorApiServer: (code, msg) => `伺服器 API 錯誤 (${code}): ${msg}`,
+        errorConnect: (url, msg) => `連線失敗（${url}）：${msg}`,
+        errorNoService: (tried) => `無法連線 AI 服務。已嘗試：${tried}`,
+        errorNeedGeneratedReport: '請先生成 AI 報告，再發送電郵。',
+        errorNeedEmail: '請輸入收件電郵。',
+        errorInvalidEmail: '電郵格式不正確，請重新輸入。',
+        errorEmailService: (code, msg) => `電郵服務錯誤 (${code}): ${msg}`,
+        errorEmailConnect: (url, msg) => `連線電郵服務失敗（${url}）：${msg}`,
+        errorEmailNoService: (tried) => `無法連線電郵服務。已嘗試：${tried}`,
+        errorHtml2canvasMissing: '無法載入列印轉換工具，請重新整理頁面再試。',
+        emailSubject: (name, period) => `${name} 健康報告（${period}）`,
+        langToggle: '🌐 EN'
+    },
+    en: {
+        backBtn: '← Back to Home',
+        pageTitle: (name) => `🤖 ${name} - AI Health Report`,
+        periodDefault: 'Default is the past 7 days. You can change the date range.',
+        periodRange: (from, to) => `Range: ${from} to ${to}`,
+        generateTitle: 'Generate AI Report',
+        toLabel: 'to',
+        generateBtn: 'Generate AI Report',
+        generateBtnAgain: 'Regenerate Report',
+        generateBtnLoading: 'Generating...',
+        disclaimer: '⚠️ This AI report is for reference only and is not a professional medical report. If you have questions, please consult your family doctor.',
+        resultTitle: 'AI Analysis Result',
+        emailTitle: 'Send Report by Email',
+        emailPlaceholder: 'Enter recipient email',
+        emailBtn: 'Send Report',
+        emailBtnSending: 'Sending...',
+        emailHint: 'Generate the AI report first, then send by email.',
+        emailSending: 'Preparing print-style report and sending email...',
+        emailSuccess: 'Email sent successfully. You can print from the attached image or email body.',
+        statusWaiting: 'Waiting for data...',
+        reportPlaceholder: 'No report generated yet.',
+        statusNeedLogin: 'Not logged in. Please return to the main system and log in first.',
+        statusReady: 'Logged in. Please confirm the date range, then click "Generate AI Report".',
+        statusReading: 'Loading records for selected range...',
+        statusNoData: 'No records in the selected range. Unable to generate analysis.',
+        statusGenerating: 'Generating analysis report...',
+        statusDone: (count) => `Done: analyzed ${count} record(s).`,
+        statusFailed: 'Generation failed.',
+        errorPrefix: 'Error: ',
+        errorNeedLogin: 'Please log in before generating the report.',
+        errorSelectDate: 'Please select both start and end dates.',
+        errorDateOrder: 'Start date cannot be later than end date.',
+        errorNoReportText: 'No readable text was returned by the API.',
+        errorNeedApiBase: 'AI service is currently unavailable. Please try again later.',
+        errorApiRouteMismatch: (url, code) => `API route not available on ${url} (${code})`,
+        errorApiServer: (code, msg) => `Server API error (${code}): ${msg}`,
+        errorConnect: (url, msg) => `Connection failed (${url}): ${msg}`,
+        errorNoService: (tried) => `Unable to reach AI service. Tried: ${tried}`,
+        errorNeedGeneratedReport: 'Please generate an AI report before sending email.',
+        errorNeedEmail: 'Please enter the recipient email.',
+        errorInvalidEmail: 'Invalid email format. Please check and try again.',
+        errorEmailService: (code, msg) => `Email service error (${code}): ${msg}`,
+        errorEmailConnect: (url, msg) => `Email service connection failed (${url}): ${msg}`,
+        errorEmailNoService: (tried) => `Unable to reach email service. Tried: ${tried}`,
+        errorHtml2canvasMissing: 'Unable to load print renderer. Please refresh and try again.',
+        emailSubject: (name, period) => `${name} Health Report (${period})`,
+        langToggle: '🌐 中文'
+    }
+};
+
+function t(key, ...args) {
+    const value = uiText[currentLang][key];
+    if (typeof value === 'function') return value(...args);
+    return value;
+}
 
 let latestSummary = null;
 let lastFetchedCount = 0;
+let latestGeneratedReport = '';
+
+function toggleLanguage() {
+    currentLang = currentLang === 'zh' ? 'en' : 'zh';
+    localStorage.setItem('appLang', currentLang);
+    applyLanguage();
+    onDateRangeChange();
+}
+
+function applyLanguage() {
+    document.documentElement.lang = currentLang === 'zh' ? 'zh-HK' : 'en';
+    document.title = currentLang === 'zh' ? 'AI 健康報告' : 'AI Health Report';
+    document.getElementById('back-btn').innerText = t('backBtn');
+    document.getElementById('page-title').innerText = t('pageTitle', babyName);
+    document.getElementById('generate-title').innerText = t('generateTitle');
+    document.getElementById('to-label').innerText = t('toLabel');
+    document.getElementById('result-title').innerText = t('resultTitle');
+    document.getElementById('disclaimer-text').innerText = t('disclaimer');
+    document.getElementById('lang-toggle-btn').innerText = t('langToggle');
+    document.getElementById('email-title').innerText = t('emailTitle');
+    document.getElementById('email-input').placeholder = t('emailPlaceholder');
+
+    const statusEl = document.getElementById('status');
+    const reportEl = document.getElementById('report');
+    const periodEl = document.getElementById('period-text');
+    const emailStatusEl = document.getElementById('email-status');
+    const generateBtn = document.getElementById('generate-btn');
+    const sendEmailBtn = document.getElementById('send-email-btn');
+    if (generateBtn && !generateBtn.disabled) {
+        generateBtn.innerText = t('generateBtn');
+    }
+    if (sendEmailBtn && !sendEmailBtn.disabled) {
+        sendEmailBtn.innerText = t('emailBtn');
+    }
+
+    if (!periodEl.innerText.trim()) {
+        periodEl.innerText = t('periodDefault');
+    }
+
+    const statusPlaceholders = [
+        uiText.zh.statusWaiting, uiText.en.statusWaiting,
+        uiText.zh.statusNeedLogin, uiText.en.statusNeedLogin,
+        uiText.zh.statusReady, uiText.en.statusReady
+    ];
+    if (statusPlaceholders.includes(statusEl.innerText.trim())) {
+        statusEl.innerText = auth.currentUser ? t('statusReady') : t('statusNeedLogin');
+    }
+
+    const reportPlaceholders = [uiText.zh.reportPlaceholder, uiText.en.reportPlaceholder];
+    if (reportPlaceholders.includes(reportEl.innerText.trim())) {
+        reportEl.innerText = t('reportPlaceholder');
+    }
+
+    const emailText = emailStatusEl.innerText.trim();
+    if ([uiText.zh.emailHint, uiText.en.emailHint].includes(emailText)) {
+        emailStatusEl.innerText = t('emailHint');
+    } else if ([uiText.zh.emailSuccess, uiText.en.emailSuccess].includes(emailText)) {
+        emailStatusEl.innerText = t('emailSuccess');
+    } else if ([uiText.zh.errorNeedGeneratedReport, uiText.en.errorNeedGeneratedReport].includes(emailText)) {
+        emailStatusEl.innerText = t('errorNeedGeneratedReport');
+    } else if ([uiText.zh.errorNeedEmail, uiText.en.errorNeedEmail].includes(emailText)) {
+        emailStatusEl.innerText = t('errorNeedEmail');
+    } else if ([uiText.zh.errorInvalidEmail, uiText.en.errorInvalidEmail].includes(emailText)) {
+        emailStatusEl.innerText = t('errorInvalidEmail');
+    } else if ([uiText.zh.emailSending, uiText.en.emailSending].includes(emailText)) {
+        emailStatusEl.innerText = t('emailSending');
+    }
+}
 
 function goBack() {
     if (document.referrer) {
@@ -207,6 +421,19 @@ function goBack() {
 
 function setStatus(text) {
     document.getElementById('status').innerText = text;
+}
+
+function setEmailStatus(text, type = '') {
+    const el = document.getElementById('email-status');
+    el.innerText = text;
+    el.classList.remove('success', 'error');
+    if (type === 'success' || type === 'error') {
+        el.classList.add(type);
+    }
+}
+
+function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
 function formatDate(date) {
@@ -279,21 +506,136 @@ async function requestAiReport(prompt) {
             const contentType = (resp.headers.get('content-type') || '').toLowerCase();
             const isRouteMismatch = resp.status === 404 || resp.status === 405 || contentType.includes('text/html');
             if (isRouteMismatch && !isLast) {
-                lastError = new Error(`API route not available on ${url} (${resp.status})`);
+                lastError = new Error(t('errorApiRouteMismatch', url, resp.status));
                 continue;
             }
 
-            throw new Error(`伺服器 API 錯誤 (${resp.status}): ${errMsg}`);
+            lastError = new Error(t('errorApiServer', resp.status, errMsg));
+            throw lastError;
         } catch (error) {
+            if (lastError && error === lastError) {
+                throw lastError;
+            }
             const baseMsg = error && error.message ? error.message : String(error);
-            lastError = new Error(`連線失敗（${url}）：${baseMsg}`);
+            lastError = new Error(t('errorConnect', url, baseMsg));
             if (!isLast) continue;
             throw lastError;
         }
     }
 
     const tried = urls.join(', ');
-    throw lastError || new Error(`無法連線 AI 服務。已嘗試：${tried}`);
+    throw lastError || new Error(t('errorNoService', tried));
+}
+
+async function requestSendReportEmail(payload) {
+    const urls = getApiCandidates('/api/send-report-email');
+    let lastError = null;
+
+    for (let i = 0; i < urls.length; i++) {
+        const url = urls[i];
+        const isLast = i === urls.length - 1;
+
+        try {
+            const resp = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (resp.ok) {
+                return await resp.json();
+            }
+
+            const rawBody = await resp.text();
+            let errMsg = rawBody;
+            try {
+                const errJson = JSON.parse(rawBody);
+                errMsg = errJson.error || rawBody;
+            } catch (_) {}
+
+            const contentType = (resp.headers.get('content-type') || '').toLowerCase();
+            const isRouteMismatch = resp.status === 404 || resp.status === 405 || contentType.includes('text/html');
+            if (isRouteMismatch && !isLast) {
+                lastError = new Error(t('errorApiRouteMismatch', url, resp.status));
+                continue;
+            }
+
+            lastError = new Error(t('errorEmailService', resp.status, errMsg));
+            throw lastError;
+        } catch (error) {
+            if (lastError && error === lastError) {
+                throw lastError;
+            }
+            const baseMsg = error && error.message ? error.message : String(error);
+            lastError = new Error(t('errorEmailConnect', url, baseMsg));
+            if (!isLast) continue;
+            throw lastError;
+        }
+    }
+
+    const tried = urls.join(', ');
+    throw lastError || new Error(t('errorEmailNoService', tried));
+}
+
+async function createReportSnapshotDataUrl() {
+    if (typeof window.html2canvas !== 'function') {
+        throw new Error(t('errorHtml2canvasMissing'));
+    }
+
+    const captureArea = document.getElementById('report-capture-area');
+    const canvas = await window.html2canvas(captureArea, {
+        backgroundColor: '#f4efe6',
+        useCORS: true,
+        scale: 1,
+        logging: false
+    });
+    return canvas.toDataURL('image/jpeg', 0.82);
+}
+
+async function sendReportEmail() {
+    if (!latestGeneratedReport.trim()) {
+        setEmailStatus(t('errorNeedGeneratedReport'), 'error');
+        return;
+    }
+
+    const inputEl = document.getElementById('email-input');
+    const email = (inputEl.value || '').trim();
+    if (!email) {
+        setEmailStatus(t('errorNeedEmail'), 'error');
+        return;
+    }
+    if (!isValidEmail(email)) {
+        setEmailStatus(t('errorInvalidEmail'), 'error');
+        return;
+    }
+
+    const sendBtn = document.getElementById('send-email-btn');
+    sendBtn.disabled = true;
+    sendBtn.innerText = t('emailBtnSending');
+    setEmailStatus(t('emailSending'));
+
+    try {
+        const imageDataUrl = await createReportSnapshotDataUrl();
+        const periodText = (document.getElementById('period-text').innerText || '').trim();
+        const payload = {
+            toEmail: email,
+            subject: t('emailSubject', babyName, periodText || t('periodDefault')),
+            periodText,
+            babyName,
+            lang: currentLang,
+            reportText: latestGeneratedReport,
+            reportImageDataUrl: imageDataUrl
+        };
+
+        await requestSendReportEmail(payload);
+        setEmailStatus(t('emailSuccess'), 'success');
+    } catch (error) {
+        const errMsg = error && error.message ? error.message : String(error);
+        setEmailStatus(`${t('errorPrefix')}${errMsg}`, 'error');
+    } finally {
+        sendBtn.disabled = false;
+        sendBtn.innerText = t('emailBtn');
+    }
 }
 
 function toDateInputValue(date) {
@@ -326,15 +668,15 @@ function getSelectedRange() {
     const startDate = parseDateInput(startVal, false);
     const endDate = parseDateInput(endVal, true);
 
-    if (!startDate || !endDate) throw new Error('請先選擇開始與結束日期。');
-    if (startDate > endDate) throw new Error('開始日期不能晚於結束日期。');
+    if (!startDate || !endDate) throw new Error(t('errorSelectDate'));
+    if (startDate > endDate) throw new Error(t('errorDateOrder'));
     return { startDate, endDate };
 }
 
 function onDateRangeChange() {
     try {
         const { startDate, endDate } = getSelectedRange();
-        document.getElementById('period-text').innerText = `分析區間：${formatDate(startDate)} 至 ${formatDate(endDate)}`;
+        document.getElementById('period-text').innerText = t('periodRange', formatDate(startDate), formatDate(endDate));
     } catch (_) {}
 }
 
@@ -453,11 +795,35 @@ function summarizeRecords(records) {
 }
 
 function buildPrompt(summary, from, to, recordsCount) {
-    const langHint = pageLang === 'en'
-        ? 'Please write in English.'
-        : '請用繁體中文（香港用語）撰寫。';
+    if (currentLang === 'en') {
+        return `You are a pediatric health assistant. Based on the following summary, provide family care analysis for the selected period.
 
-    return `${langHint}
+Baby name: ${babyName}
+Period: ${formatDate(from)} to ${formatDate(to)}
+Record count: ${recordsCount}
+
+Summary (JSON):
+${JSON.stringify(summary, null, 2)}
+
+Please structure the report with:
+1) Overall health assessment for this period
+2) Growth trend interpretation (explicitly state if data is insufficient)
+3) Key observations on feeding, diaper, sleep, temperature, and tummy time
+4) Risk signals parents should watch (high to low priority)
+5) Practical next-step care suggestions (bullet list)
+6) When to seek medical help promptly
+7) Final paragraph must include exactly:
+This AI report is for reference only, not a professional medical report. If you have questions, please consult your family doctor.
+
+Requirements:
+- Do not make any diagnosis.
+- If data is insufficient, clearly list missing data and what to track next.
+- Use language that parents can easily understand.
+- Use a gentle, supportive, reassuring tone: affirm parents' efforts first, then give suggestions.
+- For risks or gaps, use gentle reminders and avoid blame or fear-inducing wording.`;
+    }
+
+    return `請用繁體中文（香港用語）撰寫。
 你是一位兒科健康助理，請根據以下指定期間摘要提供家庭照顧分析。
 
 寶寶名稱：${babyName}
@@ -487,66 +853,82 @@ ${JSON.stringify(summary, null, 2)}
 async function generateReport() {
     const user = auth.currentUser;
     if (!user) {
-        setStatus('請先登入主系統後再生成報告。');
+        setStatus(t('errorNeedLogin'));
         return;
     }
 
     const generateBtn = document.getElementById('generate-btn');
     generateBtn.disabled = true;
-    generateBtn.innerText = '生成中...';
+    generateBtn.innerText = t('generateBtnLoading');
 
     try {
         const { startDate, endDate } = getSelectedRange();
-        document.getElementById('period-text').innerText = `分析區間：${formatDate(startDate)} 至 ${formatDate(endDate)}`;
+        document.getElementById('period-text').innerText = t('periodRange', formatDate(startDate), formatDate(endDate));
 
-        setStatus('讀取所選區間紀錄中...');
+        setStatus(t('statusReading'));
         const { records, from, to } = await loadRecordsInRange(user.uid, startDate, endDate);
         lastFetchedCount = records.length;
         latestSummary = summarizeRecords(records);
 
         if (records.length === 0) {
-            document.getElementById('report').innerText = '所選區間沒有任何紀錄，暫時無法生成有效分析。';
-            setStatus('沒有可用資料。');
+            latestGeneratedReport = '';
+            document.getElementById('report').innerText = t('statusNoData');
+            setStatus(t('statusNoData'));
+            setEmailStatus(t('errorNeedGeneratedReport'), 'error');
             return;
         }
 
-        setStatus('正在生成分析報告...');
+        setStatus(t('statusGenerating'));
         const prompt = buildPrompt(latestSummary, from, to, records.length);
         const isGitHubPages = window.location.hostname.includes('github.io');
         const hasConfiguredBase = Boolean((window.BABY_AI_API_BASE || '').trim() || (new URLSearchParams(window.location.search).get('apiBase') || '').trim());
         if (isGitHubPages && !hasConfiguredBase) {
-            throw new Error('偵測到 GitHub Pages。請先在 app_config.js 設定 window.BABY_AI_API_BASE 為你的 Vercel 網址。');
+            throw new Error(t('errorNeedApiBase'));
         }
 
         const data = await requestAiReport(prompt);
         const reportText = (data.report || '').trim();
         if (!reportText) {
-            throw new Error('API 回應沒有可讀取的文字內容。');
+            throw new Error(t('errorNoReportText'));
         }
 
         document.getElementById('report').innerText = reportText;
-        setStatus(`完成：已分析 ${lastFetchedCount} 筆紀錄。`);
+        latestGeneratedReport = reportText;
+        setStatus(t('statusDone', lastFetchedCount));
+        setEmailStatus(t('emailHint'));
     } catch (err) {
         console.error(err);
-        setStatus('生成失敗。');
-        document.getElementById('report').innerText = `發生錯誤：${err.message}`;
+        setStatus(t('statusFailed'));
+        latestGeneratedReport = '';
+        document.getElementById('report').innerText = `${t('errorPrefix')}${err.message}`;
+        setEmailStatus(t('errorNeedGeneratedReport'), 'error');
     } finally {
         generateBtn.disabled = false;
-        generateBtn.innerText = '重新生成報告';
+        generateBtn.innerText = t('generateBtnAgain');
     }
 }
 
 async function initPage(user) {
+    localStorage.setItem('appLang', currentLang);
     initDefaultDateRange();
+    applyLanguage();
     onDateRangeChange();
-    document.getElementById('page-title').innerText = `🤖 ${babyName} - AI 健康報告`;
+    if (!document.getElementById('status').innerText.trim()) {
+        setStatus(t('statusWaiting'));
+    }
+    if (!document.getElementById('report').innerText.trim()) {
+        document.getElementById('report').innerText = t('reportPlaceholder');
+    }
+    if (!document.getElementById('email-status').innerText.trim()) {
+        setEmailStatus(t('emailHint'));
+    }
 
     if (!user) {
-        setStatus('未登入。請先返回主系統登入，再使用本頁。');
+        setStatus(t('statusNeedLogin'));
         return;
     }
 
-    setStatus('已登入，請確認日期區間後點擊「生成 AI 報告」。');
+    setStatus(t('statusReady'));
 }
 
 auth.onAuthStateChanged((user) => {

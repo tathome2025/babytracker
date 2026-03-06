@@ -3,6 +3,10 @@
 const path = require('path');
 const express = require('express');
 const dotenv = require('dotenv');
+const {
+  getEsliteBestsellers,
+  getViewerCountryFromHeaders
+} = require('./lib/eslite-bestsellers');
 
 dotenv.config({ path: path.join(__dirname, '.env') });
 
@@ -226,6 +230,22 @@ app.post('/api/send-report-email', async (req, res) => {
     });
 
     return res.json({ ok: true, id: result.id || null });
+  } catch (error) {
+    return res.status(500).json({
+      error: error && error.message ? error.message : 'Server error'
+    });
+  }
+});
+
+app.get('/api/eslite-bestsellers', async (req, res) => {
+  try {
+    const forceRefresh = String(req.query?.refresh || '') === '1';
+    const viewerCountry = getViewerCountryFromHeaders(req.headers || {});
+    const payload = await getEsliteBestsellers({
+      forceRefresh,
+      viewerCountry
+    });
+    return res.json(payload);
   } catch (error) {
     return res.status(500).json({
       error: error && error.message ? error.message : 'Server error'

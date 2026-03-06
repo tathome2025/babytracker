@@ -145,6 +145,67 @@
         .email-status.error {
             color: #a23d2a;
         }
+        .book-subtitle {
+            margin: 4px 0 8px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        .book-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px 12px;
+            margin-top: 10px;
+        }
+        .book-block-title {
+            margin: 12px 0 8px;
+            color: var(--theme-color);
+            font-size: 0.96rem;
+            font-weight: 700;
+        }
+        .book-item {
+            display: flex;
+            gap: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 8px;
+            background: #fff;
+            min-height: 104px;
+        }
+        .book-cover {
+            width: 64px;
+            height: 88px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            object-fit: cover;
+            background: #f4efe6;
+            flex-shrink: 0;
+        }
+        .book-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 0;
+        }
+        .book-rank {
+            color: var(--theme-color);
+            font-weight: 800;
+            font-size: 0.86rem;
+        }
+        .book-link {
+            color: #8B3A2E;
+            text-decoration: none;
+            font-weight: 700;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+        .book-link:hover {
+            text-decoration: underline;
+        }
+        .book-empty {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin: 2px 0 0;
+        }
         @media (max-width: 850px) {
             .title-wrap h1 { font-size: 1.25rem; }
             .input { min-width: 100%; }
@@ -155,6 +216,9 @@
                 width: 100%;
                 margin-left: 0;
                 text-align: right;
+            }
+            .book-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -186,6 +250,18 @@
             <button id="generate-btn" class="btn primary" onclick="generateReport()">生成 AI 報告</button>
         </div>
         <div id="disclaimer-text" class="disclaimer">⚠️ 本AI報告只作參考，不是專業醫學報告，如果疑問，請向家庭醫生查詢。</div>
+    </div>
+
+    <div class="card" id="books-card">
+        <h2 id="books-title">誠品熱賣書推薦</h2>
+        <div id="books-subtitle" class="book-subtitle">正在載入地區資料...</div>
+        <div id="books-status" class="status">載入中...</div>
+
+        <div id="books-toddler-title" class="book-block-title">幼兒類 Top 2</div>
+        <div id="books-toddler-list" class="book-grid"></div>
+
+        <div id="books-parent-title" class="book-block-title">家長類 Top 2</div>
+        <div id="books-parent-list" class="book-grid"></div>
     </div>
 
     <div class="card">
@@ -246,6 +322,16 @@ const uiText = {
         generateBtnAgain: '重新生成報告',
         generateBtnLoading: '生成中...',
         disclaimer: '⚠️ 本AI報告只作參考，不是專業醫學報告，如果疑問，請向家庭醫生查詢。',
+        booksTitle: '誠品熱賣書推薦',
+        booksSubtitle: (region) => `以下為${region}誠品熱賣書（每日更新）`,
+        booksStatusLoading: '載入中...',
+        booksStatusLoaded: (time) => `最近更新：${time}`,
+        booksStatusError: (msg) => `熱賣書載入失敗：${msg}`,
+        booksToddlerTitle: '幼兒類 Top 2',
+        booksParentTitle: '家長類 Top 2',
+        booksRegionHK: '香港',
+        booksRegionTW: '台灣',
+        booksEmpty: '暫時沒有可顯示資料。',
         resultTitle: 'AI 分析結果',
         emailTitle: '發送報告到電郵',
         emailPlaceholder: '請輸入收件電郵',
@@ -293,6 +379,16 @@ const uiText = {
         generateBtnAgain: 'Regenerate Report',
         generateBtnLoading: 'Generating...',
         disclaimer: '⚠️ This AI report is for reference only and is not a professional medical report. If you have questions, please consult your family doctor.',
+        booksTitle: 'Eslite Bestseller Picks',
+        booksSubtitle: (region) => `Showing daily picks from Eslite ${region}`,
+        booksStatusLoading: 'Loading...',
+        booksStatusLoaded: (time) => `Last updated: ${time}`,
+        booksStatusError: (msg) => `Failed to load bestseller books: ${msg}`,
+        booksToddlerTitle: 'Toddler Top 2',
+        booksParentTitle: 'Parenting Top 2',
+        booksRegionHK: 'Hong Kong',
+        booksRegionTW: 'Taiwan',
+        booksEmpty: 'No data available right now.',
         resultTitle: 'AI Analysis Result',
         emailTitle: 'Send Report by Email',
         emailPlaceholder: 'Enter recipient email',
@@ -340,6 +436,9 @@ function t(key, ...args) {
 let latestSummary = null;
 let lastFetchedCount = 0;
 let latestGeneratedReport = '';
+let bestsellerPayload = null;
+let bestsellerRegion = 'tw';
+let bestsellerError = '';
 
 function toggleLanguage() {
     currentLang = currentLang === 'zh' ? 'en' : 'zh';
@@ -355,6 +454,9 @@ function applyLanguage() {
     document.getElementById('page-title').innerText = t('pageTitle', babyName);
     document.getElementById('generate-title').innerText = t('generateTitle');
     document.getElementById('to-label').innerText = t('toLabel');
+    document.getElementById('books-title').innerText = t('booksTitle');
+    document.getElementById('books-toddler-title').innerText = t('booksToddlerTitle');
+    document.getElementById('books-parent-title').innerText = t('booksParentTitle');
     document.getElementById('result-title').innerText = t('resultTitle');
     document.getElementById('disclaimer-text').innerText = t('disclaimer');
     document.getElementById('lang-toggle-btn').innerText = t('langToggle');
@@ -406,6 +508,8 @@ function applyLanguage() {
     } else if ([uiText.zh.emailSending, uiText.en.emailSending].includes(emailText)) {
         emailStatusEl.innerText = t('emailSending');
     }
+
+    renderBestsellerCard();
 }
 
 function goBack() {
@@ -413,7 +517,7 @@ function goBack() {
         window.history.back();
         return;
     }
-    window.location.href = './index.html';
+    window.location.href = './beta_index.html';
 }
 
 function setStatus(text) {
@@ -472,6 +576,177 @@ function getApiCandidates(path) {
         candidates.push(localUrl);
     }
     return Array.from(new Set(candidates));
+}
+
+function clearChildren(el) {
+    while (el && el.firstChild) {
+        el.removeChild(el.firstChild);
+    }
+}
+
+function formatDateTime(value) {
+    if (!value) return '';
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return '';
+    return `${formatDate(d)} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+}
+
+function regionFromCountry(countryCode) {
+    const code = String(countryCode || '').trim().toUpperCase();
+    if (code === 'HK' || code === 'CN' || code === 'MO') return 'hk';
+    if (code === 'TW' || code === 'JP') return 'tw';
+    return '';
+}
+
+function regionFromTimezone() {
+    const zone = String(Intl.DateTimeFormat().resolvedOptions().timeZone || '');
+    if (zone === 'Asia/Hong_Kong' || zone === 'Asia/Shanghai' || zone === 'Asia/Chongqing' || zone === 'Asia/Macau') {
+        return 'hk';
+    }
+    if (zone === 'Asia/Taipei' || zone === 'Asia/Tokyo') {
+        return 'tw';
+    }
+    return 'tw';
+}
+
+function resolveRegionFromPayload(payload) {
+    const byServerCountry = regionFromCountry(payload?.viewerCountry);
+    if (byServerCountry) return byServerCountry;
+    const byRecommended = String(payload?.recommendedRegion || '').toLowerCase();
+    if (byRecommended === 'hk' || byRecommended === 'tw') return byRecommended;
+    return regionFromTimezone();
+}
+
+function renderBookList(containerEl, books) {
+    clearChildren(containerEl);
+    const fallbackCover = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"64\" height=\"88\"><rect width=\"64\" height=\"88\" fill=\"#f4efe6\"/></svg>');
+
+    if (!Array.isArray(books) || books.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'book-empty';
+        empty.innerText = t('booksEmpty');
+        containerEl.appendChild(empty);
+        return;
+    }
+
+    books.forEach((book, index) => {
+        const item = document.createElement('div');
+        item.className = 'book-item';
+
+        const img = document.createElement('img');
+        img.className = 'book-cover';
+        img.loading = 'lazy';
+        img.src = book.imageUrl || fallbackCover;
+        img.alt = book.title || `book-${index + 1}`;
+        item.appendChild(img);
+
+        const meta = document.createElement('div');
+        meta.className = 'book-meta';
+
+        const rank = document.createElement('div');
+        rank.className = 'book-rank';
+        rank.innerText = `#${book.rank || index + 1}`;
+        meta.appendChild(rank);
+
+        const link = document.createElement('a');
+        link.className = 'book-link';
+        link.href = book.productUrl || '#';
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.innerText = book.title || '';
+        meta.appendChild(link);
+
+        item.appendChild(meta);
+        containerEl.appendChild(item);
+    });
+}
+
+function renderBestsellerCard() {
+    const subtitleEl = document.getElementById('books-subtitle');
+    const statusEl = document.getElementById('books-status');
+    const toddlerListEl = document.getElementById('books-toddler-list');
+    const parentListEl = document.getElementById('books-parent-list');
+    const regionLabel = bestsellerRegion === 'hk' ? t('booksRegionHK') : t('booksRegionTW');
+
+    if (bestsellerError) {
+        clearChildren(toddlerListEl);
+        clearChildren(parentListEl);
+        subtitleEl.innerText = t('booksSubtitle', regionLabel);
+        statusEl.innerText = t('booksStatusError', bestsellerError);
+        return;
+    }
+
+    if (!bestsellerPayload) {
+        clearChildren(toddlerListEl);
+        clearChildren(parentListEl);
+        subtitleEl.innerText = t('booksSubtitle', regionLabel);
+        statusEl.innerText = t('booksStatusLoading');
+        return;
+    }
+
+    const regions = bestsellerPayload.regions || {};
+    const regionData = regions[bestsellerRegion] || regions.tw || regions.hk || {};
+    subtitleEl.innerText = t('booksSubtitle', regionLabel);
+    statusEl.innerText = t('booksStatusLoaded', formatDateTime(bestsellerPayload.updatedAt));
+
+    renderBookList(toddlerListEl, regionData.toddler || []);
+    renderBookList(parentListEl, regionData.parent || []);
+}
+
+async function requestBestsellers() {
+    const urls = getApiCandidates('/api/eslite-bestsellers');
+    let lastError = null;
+
+    for (let i = 0; i < urls.length; i++) {
+        const url = urls[i];
+        const isLast = i === urls.length - 1;
+        try {
+            const resp = await fetch(url, { method: 'GET' });
+            if (resp.ok) return await resp.json();
+
+            const rawBody = await resp.text();
+            let errMsg = rawBody;
+            try {
+                const errJson = JSON.parse(rawBody);
+                errMsg = errJson.error || rawBody;
+            } catch (_) {}
+
+            const contentType = (resp.headers.get('content-type') || '').toLowerCase();
+            const isRouteMismatch = resp.status === 404 || resp.status === 405 || contentType.includes('text/html');
+            if (isRouteMismatch && !isLast) {
+                lastError = new Error(t('errorApiRouteMismatch', url, resp.status));
+                continue;
+            }
+
+            lastError = new Error(t('errorApiServer', resp.status, errMsg));
+            throw lastError;
+        } catch (error) {
+            if (lastError && error === lastError) throw lastError;
+            const baseMsg = error && error.message ? error.message : String(error);
+            lastError = new Error(t('errorConnect', url, baseMsg));
+            if (!isLast) continue;
+            throw lastError;
+        }
+    }
+
+    throw lastError || new Error(t('booksStatusLoading'));
+}
+
+async function loadBestsellers() {
+    bestsellerError = '';
+    bestsellerPayload = null;
+    bestsellerRegion = regionFromTimezone();
+    renderBestsellerCard();
+
+    try {
+        const data = await requestBestsellers();
+        bestsellerPayload = data;
+        bestsellerRegion = resolveRegionFromPayload(data);
+        renderBestsellerCard();
+    } catch (error) {
+        bestsellerError = error && error.message ? error.message : String(error);
+        renderBestsellerCard();
+    }
 }
 
 async function requestAiReport(prompt, lang) {
@@ -893,6 +1168,7 @@ async function initPage(user) {
     initDefaultDateRange();
     applyLanguage();
     onDateRangeChange();
+    loadBestsellers();
     if (!document.getElementById('status').innerText.trim()) {
         setStatus(t('statusWaiting'));
     }

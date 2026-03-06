@@ -1,0 +1,14 @@
+{
+  "functions": {
+    "api/**/*.js": {
+      "runtime": "nodejs20.x",
+      "maxDuration": 30
+    }
+  },
+  "crons": [
+    {
+      "path": "/api/eslite-bestsellers",
+      "schedule": "0 1 * * *"
+    }
+  ]
+}

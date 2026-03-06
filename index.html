@@ -158,6 +158,18 @@
         .bestseller-link:hover {
             text-decoration: underline;
         }
+        [data-theme="dark"] .bestseller-title,
+        [data-theme="dark"] .bestseller-refresh-btn,
+        [data-theme="dark"] .bestseller-category {
+            color: #f6d8bf;
+        }
+        [data-theme="dark"] .bestseller-hint,
+        [data-theme="dark"] .bestseller-status {
+            color: #dcccb8;
+        }
+        [data-theme="dark"] .bestseller-link {
+            color: #ffe6d3;
+        }
 
         .card { background: var(--card-bg); padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-top: 5px solid var(--theme-color); transition: 0.3s; flex: 1; flex-direction: column; display: none; margin-bottom: 20px; }
         .card.active { display: flex; }
@@ -264,6 +276,7 @@
             .baby-header-row { flex-direction: column; align-items: stretch; gap: 8px; }
             .ai-report-btn { width: 100%; margin-left: 0; }
             .bestseller-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .bestseller-grid .bestseller-item:nth-child(n + 3) { display: none; }
             .global-sleep-banner { left: 12px; right: 12px; bottom: 12px; }
             .row { flex-direction: column; gap: 12px; }
             .split-divider { border-right: none; padding-right: 0; border-bottom: 2px dashed var(--border-color); padding-bottom: 12px; }
@@ -350,7 +363,7 @@
 <div class="main-content">
     <div id="bestseller-widget" class="bestseller-widget">
         <div class="bestseller-headline">
-            <h3 class="bestseller-title" data-i18n="booksWidgetTitle">誠品熱賣書推薦</h3>
+            <h3 class="bestseller-title" data-i18n="booksWidgetTitle">誠品親子熱賣書推薦</h3>
             <button id="bestseller-refresh-btn" class="bestseller-refresh-btn" onclick="refreshBestsellerWidget()" data-i18n="booksWidgetRefresh">更新書單</button>
         </div>
         <p id="bestseller-hint" class="bestseller-hint" data-i18n="booksWidgetHint">每次更新會顯示週榜上的其他書籍</p>
@@ -883,7 +896,7 @@ const firebaseConfig = {
             btnLogin: "Email 登入", btnRegister: "註冊新帳號", orText: "或", btnGoogleLogin: "使用 Google 登入",
             navLog: "📅 24h 日誌", navGrowth: "📏 成長紀錄", navFeeding: "🍼 吃奶", navDiaper: "🧻 尿片", navSleep: "💤 睡眠", navTemp: "🌡️ 體溫紀錄", navBath: "🛀 沖涼", navTummy: "🐢 趴撐練習", navHistory: "📊 趨勢圖表", navRedPacket: "🧧 利是紀錄",
             btnExportCSV: "📥 匯出完整紀錄", btnSettings: "⚙️ 設定寶寶名稱", btnLogout: "🚪 登出帳號", btnThemeDark: "🌙 切換夜間", btnThemeLight: "☀️ 切換日間", btnAIWeeklyReport: "🤖 AI 分析本週健康報告",
-            booksWidgetTitle: "誠品熱賣書推薦", booksWidgetHint: "每次更新會顯示週榜上的其他書籍", booksWidgetRefresh: "更新書單", booksWidgetRefreshing: "更新中...", booksWidgetLoading: "載入中...", booksWidgetEmpty: "暫時沒有可顯示資料。", booksWidgetErrorPrefix: "熱賣書載入失敗：", booksWidgetCategoryToddler: "幼兒類", booksWidgetCategoryParent: "家長類",
+            booksWidgetTitle: "誠品親子熱賣書推薦", booksWidgetHint: "每次更新會顯示週榜上的其他書籍", booksWidgetRefresh: "更新書單", booksWidgetRefreshing: "更新中...", booksWidgetLoading: "載入中...", booksWidgetEmpty: "暫時沒有可顯示資料。", booksWidgetErrorPrefix: "熱賣書載入失敗：", booksWidgetCategoryToddler: "幼兒類", booksWidgetCategoryParent: "家長類",
             tabBaby1: "大寶", tabBaby2: "二寶", tabBaby3: "三寶",
             currentTime: "現在時間：", lblLeft: "左胸 (L)", lblRight: "右胸 (R)", yes: "有 ✅", no: "無 ❌",
             feedingTitle: "🍼 吃奶紀錄", labelTimeAdjust: "記錄時間微調", now: "現在",
@@ -921,7 +934,7 @@ const firebaseConfig = {
             btnLogin: "Login", btnRegister: "Register", orText: "OR", btnGoogleLogin: "Google Login",
             navLog: "📅 24h Log", navGrowth: "📏 Growth", navFeeding: "🍼 Feeding", navDiaper: "🧻 Diaper", navSleep: "💤 Sleep", navTemp: "🌡️ Temp", navBath: "🛀 Bath", navTummy: "🐢 Tummy Time", navHistory: "📊 Charts", navRedPacket: "🧧 Red Packet",
             btnExportCSV: "📥 Export Full Records", btnSettings: "⚙️ Set Baby Name", btnLogout: "🚪 Logout", btnThemeDark: "🌙 Dark", btnThemeLight: "☀️ Light", btnAIWeeklyReport: "🤖 AI Weekly Health Report",
-            booksWidgetTitle: "Eslite Bestseller Picks", booksWidgetHint: "Each refresh shows another set from the weekly chart.", booksWidgetRefresh: "Refresh List", booksWidgetRefreshing: "Refreshing...", booksWidgetLoading: "Loading...", booksWidgetEmpty: "No data available right now.", booksWidgetErrorPrefix: "Failed to load bestseller books: ", booksWidgetCategoryToddler: "Toddler", booksWidgetCategoryParent: "Parenting",
+            booksWidgetTitle: "Eslite Parenting Bestsellers", booksWidgetHint: "Each refresh shows another set from the weekly chart.", booksWidgetRefresh: "Refresh List", booksWidgetRefreshing: "Refreshing...", booksWidgetLoading: "Loading...", booksWidgetEmpty: "No data available right now.", booksWidgetErrorPrefix: "Failed to load bestseller books: ", booksWidgetCategoryToddler: "Toddler", booksWidgetCategoryParent: "Parenting",
             tabBaby1: "Baby 1", tabBaby2: "Baby 2", tabBaby3: "Baby 3",
             currentTime: "Time: ", lblLeft: "Left (L)", lblRight: "Right (R)", yes: "Yes ✅", no: "No ❌",
             feedingTitle: "🍼 Feeding", labelTimeAdjust: "Time", now: "Now",
@@ -1042,7 +1055,9 @@ const firebaseConfig = {
             link.href = book.productUrl || '#';
             link.target = '_blank';
             link.rel = 'noopener noreferrer';
-            link.innerText = book.title || '';
+            const fullTitle = String(book.title || '');
+            link.innerText = fullTitle.length > 16 ? `${fullTitle.slice(0, 16)}...` : fullTitle;
+            link.title = fullTitle;
             meta.appendChild(link);
 
             item.appendChild(meta);
@@ -1211,7 +1226,8 @@ const firebaseConfig = {
         let params = new URLSearchParams({
             babyId: currentBabyId,
             babyName: babies[currentBabyId] || '',
-            lang: currentLang
+            lang: currentLang,
+            theme: (document.documentElement.getAttribute('data-theme') || 'light')
         });
         const configuredApiBase = (window.BABY_AI_API_BASE || '').trim();
         if (configuredApiBase) {
@@ -1262,9 +1278,22 @@ const firebaseConfig = {
         else { sidebar.classList.add('open'); overlay.style.display = 'block'; setTimeout(() => overlay.style.opacity = '1', 10); }
     }
 
-    function initTheme() { let h = new Date().getHours(); applyTheme((h >= 18 || h < 6) ? 'dark' : 'light'); }
+    function initTheme() {
+        const savedTheme = (localStorage.getItem('appTheme') || '').toLowerCase();
+        if (savedTheme === 'dark' || savedTheme === 'light') {
+            applyTheme(savedTheme);
+            return;
+        }
+        let h = new Date().getHours();
+        applyTheme((h >= 18 || h < 6) ? 'dark' : 'light');
+    }
     function toggleTheme() { applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
-    function applyTheme(t) { document.documentElement.setAttribute('data-theme', t); if(historyCharts.milk) loadDashboardData(); }
+    function applyTheme(t) {
+        const theme = t === 'dark' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('appTheme', theme);
+        if(historyCharts.milk) loadDashboardData();
+    }
 
     function setLocalDate(inputId) {
         let tzoffset = (new Date()).getTimezoneOffset() * 60000;

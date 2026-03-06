@@ -14,6 +14,14 @@
             --theme-color: #A45A3F;
             --theme-light: rgba(164, 90, 63, 0.12);
         }
+        :root[data-theme="dark"] {
+            --bg-color: #1e1a17;
+            --card-bg: #2a241f;
+            --text-color: #f4e9dc;
+            --text-muted: #cdbca9;
+            --border-color: #5a4d40;
+            --theme-light: rgba(228, 188, 160, 0.16);
+        }
         body {
             margin: 0;
             font-family: 'Segoe UI', Tahoma, sans-serif;
@@ -226,6 +234,27 @@
             font-size: 0.9rem;
             margin: 2px 0 0;
         }
+        :root[data-theme="dark"] .back-btn,
+        :root[data-theme="dark"] .input,
+        :root[data-theme="dark"] .report,
+        :root[data-theme="dark"] .book-item {
+            color: var(--text-color);
+            background: #241f1b;
+        }
+        :root[data-theme="dark"] .book-link {
+            color: #ffd9bf;
+        }
+        :root[data-theme="dark"] .disclaimer {
+            background: #4a2f2a;
+            color: #ffe0d8;
+            border-color: #855d56;
+        }
+        :root[data-theme="dark"] .status,
+        :root[data-theme="dark"] .subtitle,
+        :root[data-theme="dark"] .book-subtitle,
+        :root[data-theme="dark"] .email-status {
+            color: var(--text-muted);
+        }
         @media (max-width: 850px) {
             .title-wrap h1 { font-size: 1.25rem; }
             .input { min-width: 100%; }
@@ -243,10 +272,13 @@
             .book-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
+            .book-grid .book-item:nth-child(n + 3) {
+                display: none;
+            }
         }
         @media (max-width: 560px) {
             .book-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
             }
         }
     </style>
@@ -281,7 +313,7 @@
     </div>
 
     <div class="card" id="books-card">
-        <h2 id="books-title">誠品熱賣書推薦</h2>
+        <h2 id="books-title">誠品親子熱賣書推薦</h2>
         <div class="book-headline">
             <div id="books-subtitle" class="book-subtitle">每次更新會顯示週榜上的其他書籍</div>
             <button id="books-refresh-btn" class="book-refresh-link" onclick="refreshBestsellers()">更新書單</button>
@@ -335,6 +367,16 @@ let currentLang = (() => {
     const saved = (localStorage.getItem('appLang') || 'zh').toLowerCase();
     return (saved === 'en' || saved.startsWith('en-')) ? 'en' : 'zh';
 })();
+let currentTheme = (() => {
+    const queryTheme = (qs.get('theme') || '').toLowerCase();
+    if (queryTheme === 'dark' || queryTheme === 'light') return queryTheme;
+    const htmlTheme = (document.documentElement.getAttribute('data-theme') || '').toLowerCase();
+    if (htmlTheme === 'dark' || htmlTheme === 'light') return htmlTheme;
+    const savedTheme = (localStorage.getItem('appTheme') || '').toLowerCase();
+    if (savedTheme === 'dark' || savedTheme === 'light') return savedTheme;
+    const h = new Date().getHours();
+    return (h >= 18 || h < 6) ? 'dark' : 'light';
+})();
 
 const uiText = {
     zh: {
@@ -348,7 +390,7 @@ const uiText = {
         generateBtnAgain: '重新生成報告',
         generateBtnLoading: '生成中...',
         disclaimer: '⚠️ 本AI報告只作參考，不是專業醫學報告，如果疑問，請向家庭醫生查詢。',
-        booksTitle: '誠品熱賣書推薦',
+        booksTitle: '誠品親子熱賣書推薦',
         booksSubtitle: '每次更新會顯示週榜上的其他書籍',
         booksRefreshBtn: '更新書單',
         booksRefreshBtnLoading: '更新中...',
@@ -403,7 +445,7 @@ const uiText = {
         generateBtnAgain: 'Regenerate Report',
         generateBtnLoading: 'Generating...',
         disclaimer: '⚠️ This AI report is for reference only and is not a professional medical report. If you have questions, please consult your family doctor.',
-        booksTitle: 'Eslite Bestseller Picks',
+        booksTitle: 'Eslite Parenting Bestsellers',
         booksSubtitle: 'Each refresh shows a different set from the weekly chart.',
         booksRefreshBtn: 'Refresh List',
         booksRefreshBtnLoading: 'Refreshing...',
@@ -453,6 +495,14 @@ function t(key, ...args) {
     const value = uiText[currentLang][key];
     if (typeof value === 'function') return value(...args);
     return value;
+}
+
+function applyThemeMode(theme) {
+    currentTheme = theme === 'dark' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', currentTheme);
+    try {
+        localStorage.setItem('appTheme', currentTheme);
+    } catch (_) {}
 }
 
 let latestSummary = null;
@@ -1166,6 +1216,7 @@ async function generateReport() {
 
 async function initPage(user) {
     localStorage.setItem('appLang', currentLang);
+    applyThemeMode(currentTheme);
     initDefaultDateRange();
     applyLanguage();
     onDateRangeChange();
@@ -1190,6 +1241,14 @@ async function initPage(user) {
 
 auth.onAuthStateChanged((user) => {
     initPage(user);
+});
+
+window.addEventListener('storage', (event) => {
+    if (event.key !== 'appTheme') return;
+    const nextTheme = (event.newValue || '').toLowerCase();
+    if (nextTheme === 'dark' || nextTheme === 'light') {
+        applyThemeMode(nextTheme);
+    }
 });
 </script>
 </body>

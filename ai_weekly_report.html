@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI 本週健康報告</title>
+    <style>
+        :root {
+            --bg-color: #f4efe6;
+            --card-bg: #fffdf9;
+            --text-color: #3f372d;
+            --text-muted: #6f665a;
+            --border-color: #d8cfbf;
+            --theme-color: #A45A3F;
+            --theme-light: rgba(164, 90, 63, 0.12);
+        }
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+        .page {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 18px;
+            box-sizing: border-box;
+        }
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        .back-btn {
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            color: var(--text-color);
+            padding: 8px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+        .title-wrap h1 {
+            margin: 0;
+            color: var(--theme-color);
+            font-size: 1.5rem;
+        }
+        .subtitle {
+            margin-top: 4px;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 16px;
+            margin-top: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+        .card h2 {
+            margin: 0 0 10px;
+            font-size: 1.1rem;
+            color: var(--theme-color);
+        }
+        .row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .input {
+            flex: 1;
+            min-width: 260px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: #fff;
+            color: var(--text-color);
+            box-sizing: border-box;
+        }
+        .btn {
+            border: 1px solid var(--theme-color);
+            background: var(--theme-light);
+            color: var(--theme-color);
+            font-weight: 800;
+            border-radius: 10px;
+            padding: 10px 12px;
+            cursor: pointer;
+        }
+        .btn.primary {
+            background: var(--theme-color);
+            color: #fff;
+        }
+        .hint {
+            margin: 8px 0 0;
+            color: var(--text-muted);
+            font-size: 0.88rem;
+        }
+        .status {
+            margin: 0 0 8px;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+        .report {
+            background: #fff;
+            border: 1px dashed var(--border-color);
+            border-radius: 10px;
+            padding: 14px;
+            white-space: pre-wrap;
+            line-height: 1.55;
+            min-height: 220px;
+        }
+        .summary-list {
+            margin: 0;
+            padding-left: 20px;
+            line-height: 1.6;
+        }
+        .disclaimer {
+            margin-top: 14px;
+            background: #f7ebe7;
+            color: #8B3A2E;
+            border: 1px solid #e5c4ba;
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+        @media (max-width: 850px) {
+            .title-wrap h1 { font-size: 1.25rem; }
+            .input { min-width: 100%; }
+            .btn { width: 100%; }
+            .topbar { align-items: flex-start; flex-direction: column; }
+        }
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+<div class="page">
+    <div class="topbar">
+        <button class="back-btn" onclick="goBack()">← 返回主頁</button>
+        <div class="title-wrap">
+            <h1 id="page-title">🤖 AI 本週健康報告</h1>
+            <div id="period-text" class="subtitle">載入近 7 天資料中...</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>AI 報告生成</h2>
+        <div class="row">
+            <button id="generate-btn" class="btn primary" onclick="generateReport()">生成 AI 報告</button>
+        </div>
+        <p class="hint">OpenAI API Key 由伺服器端 `.env` 管理，前端用戶無需也不可自行設定。</p>
+    </div>
+
+    <div class="card">
+        <h2>近 7 天數據摘要</h2>
+        <ul id="summary-list" class="summary-list"></ul>
+    </div>
+
+    <div class="card">
+        <h2>AI 分析結果</h2>
+        <div id="status" class="status">等待資料中...</div>
+        <div id="report" class="report">尚未生成報告。</div>
+    </div>
+
+    <div class="disclaimer">⚠️ 本AI報告只作參考，不是專業醫學報告，如果疑問，請向家庭醫生查詢。</div>
+</div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyBAExf2aDgBP8UrCMKlpB4C8US-fCuf4Xg",
+  authDomain: "babytrackerweb-c6a26.firebaseapp.com",
+  projectId: "babytrackerweb-c6a26",
+  storageBucket: "babytrackerweb-c6a26.firebasestorage.app",
+  messagingSenderId: "297032381661",
+  appId: "1:297032381661:web:a583efe8c9abb1f68dd734",
+  measurementId: "G-YRLJW2P55F"
+};
+
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+const db = firebase.firestore();
+const auth = firebase.auth();
+
+const qs = new URLSearchParams(window.location.search);
+const babyId = qs.get('babyId') || 'baby1';
+const babyName = qs.get('babyName') || '寶寶';
+const pageLang = qs.get('lang') === 'en' ? 'en' : 'zh';
+
+let latestSummary = null;
+let lastFetchedCount = 0;
+
+function goBack() {
+    if (document.referrer) {
+        window.history.back();
+        return;
+    }
+    window.location.href = './beta_index.html';
+}
+
+function setStatus(text) {
+    document.getElementById('status').innerText = text;
+}
+
+function formatDate(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+}
+
+function toJsDate(input) {
+    if (!input) return null;
+    if (input instanceof Date) return input;
+    if (typeof input.toDate === 'function') return input.toDate();
+    const d = new Date(input);
+    return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function getApiUrl(path) {
+    if (window.location.protocol === 'file:') {
+        return `http://localhost:8787${path}`;
+    }
+    return path;
+}
+
+async function loadSevenDayRecords(userId) {
+    const now = new Date();
+    const from = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const snapshot = await db.collection('baby_records')
+        .where('userId', '==', userId)
+        .where('babyId', '==', babyId)
+        .get();
+
+    const records = [];
+    snapshot.forEach((doc) => {
+        const data = doc.data();
+        const time = toJsDate(data.recordTime);
+        if (!time) return;
+        if (time < from || time > now) return;
+        records.push({ ...data, time });
+    });
+
+    records.sort((a, b) => a.time - b.time);
+    return { records, from, now };
+}
+
+function summarizeRecords(records) {
+    const summary = {
+        feeding: { formulaMl: 0, breastmilkMl: 0, directMins: 0, pumpMl: 0, totalCount: 0 },
+        diaper: { total: 0, pee: 0, poo: 0, rashMax: 0 },
+        sleep: { totalMins: 0, sessions: 0 },
+        temp: { max: null, min: null, feverCount: 0 },
+        bath: { count: 0 },
+        tummy: { totalMins: 0, sessions: 0 },
+        growth: { latestHeight: null, latestWeight: null, firstWeight: null, lastWeight: null }
+    };
+
+    const growthWeights = [];
+
+    for (const r of records) {
+        if (r.category === 'feeding') {
+            summary.feeding.totalCount += 1;
+            if (r.feedingType === 'formula') summary.feeding.formulaMl += Number(r.volumeML) || 0;
+            if (r.feedingType === 'breastmilk') summary.feeding.breastmilkMl += Number(r.volumeML) || 0;
+            if (r.feedingType === 'direct') {
+                let left = Number(r.directLeft) || 0;
+                let right = Number(r.directRight) || 0;
+                if (!left && !right && r.durationMins) left = Number(r.durationMins) || 0;
+                summary.feeding.directMins += left + right;
+            }
+            if (r.feedingType === 'pump') {
+                let left = Number(r.pumpLeft) || 0;
+                let right = Number(r.pumpRight) || 0;
+                if (!left && !right && r.volumeML) left = Number(r.volumeML) || 0;
+                summary.feeding.pumpMl += left + right;
+            }
+        }
+
+        if (r.category === 'diaper') {
+            summary.diaper.total += 1;
+            if (r.hasPee) summary.diaper.pee += 1;
+            if (r.hasPoo) summary.diaper.poo += 1;
+            summary.diaper.rashMax = Math.max(summary.diaper.rashMax, Number(r.rash) || 0);
+        }
+
+        if (r.category === 'sleep' && r.durationMins) {
+            summary.sleep.totalMins += Number(r.durationMins) || 0;
+            summary.sleep.sessions += 1;
+        }
+
+        if (r.category === 'temp' && r.temp != null) {
+            const t = Number(r.temp);
+            if (!Number.isNaN(t)) {
+                summary.temp.max = summary.temp.max == null ? t : Math.max(summary.temp.max, t);
+                summary.temp.min = summary.temp.min == null ? t : Math.min(summary.temp.min, t);
+                if (t >= 38) summary.temp.feverCount += 1;
+            }
+        }
+
+        if (r.category === 'bath') summary.bath.count += 1;
+
+        if (r.category === 'tummy' && r.durationMins) {
+            summary.tummy.totalMins += Number(r.durationMins) || 0;
+            summary.tummy.sessions += 1;
+        }
+
+        if (r.category === 'growth') {
+            if (r.height != null) summary.growth.latestHeight = Number(r.height) || summary.growth.latestHeight;
+            if (r.weight != null) {
+                const w = Number(r.weight);
+                if (!Number.isNaN(w)) {
+                    summary.growth.latestWeight = w;
+                    growthWeights.push({ time: r.time, weight: w });
+                }
+            }
+        }
+    }
+
+    growthWeights.sort((a, b) => a.time - b.time);
+    if (growthWeights.length > 0) {
+        summary.growth.firstWeight = growthWeights[0].weight;
+        summary.growth.lastWeight = growthWeights[growthWeights.length - 1].weight;
+    }
+
+    return summary;
+}
+
+function renderSummary(summary, from, now, recordsCount) {
+    const ul = document.getElementById('summary-list');
+    const sleepAvg = (summary.sleep.totalMins / 7).toFixed(1);
+    const tummyAvg = (summary.tummy.totalMins / 7).toFixed(1);
+    const tempRange = summary.temp.max == null
+        ? '無體溫紀錄'
+        : `${summary.temp.min.toFixed(1)}°C - ${summary.temp.max.toFixed(1)}°C（>=38°C 次數: ${summary.temp.feverCount}）`;
+
+    const growthWeightTrend = summary.growth.firstWeight != null && summary.growth.lastWeight != null
+        ? `${summary.growth.firstWeight.toFixed(2)}kg → ${summary.growth.lastWeight.toFixed(2)}kg`
+        : '不足以判斷';
+
+    ul.innerHTML = `
+        <li>分析期間：${formatDate(from)} 至 ${formatDate(now)}</li>
+        <li>近 7 天有效紀錄數：${recordsCount}</li>
+        <li>吃奶：配方奶 ${summary.feeding.formulaMl}ml、人奶(樽) ${summary.feeding.breastmilkMl}ml、親餵 ${summary.feeding.directMins}分鐘、泵奶 ${summary.feeding.pumpMl}ml（共 ${summary.feeding.totalCount} 筆）</li>
+        <li>尿片：共 ${summary.diaper.total} 次（小便 ${summary.diaper.pee} 次、大便 ${summary.diaper.poo} 次、最高尿布疹等級 ${summary.diaper.rashMax}）</li>
+        <li>睡眠：總計 ${summary.sleep.totalMins} 分鐘，平均每日 ${sleepAvg} 分鐘</li>
+        <li>體溫：${tempRange}</li>
+        <li>沖涼：${summary.bath.count} 次</li>
+        <li>趴撐：總計 ${summary.tummy.totalMins} 分鐘，平均每日 ${tummyAvg} 分鐘</li>
+        <li>成長：最新身高 ${summary.growth.latestHeight ?? '無'} cm；最新體重 ${summary.growth.latestWeight ?? '無'} kg；體重趨勢 ${growthWeightTrend}</li>
+    `;
+}
+
+function buildPrompt(summary, from, now, recordsCount) {
+    const langHint = pageLang === 'en'
+        ? 'Please write in English.'
+        : '請用繁體中文（香港用語）撰寫。';
+
+    return `${langHint}
+你是一位兒科健康助理，請根據以下 7 天摘要提供家庭照顧分析。
+
+寶寶名稱：${babyName}
+分析期間：${formatDate(from)} 至 ${formatDate(now)}
+紀錄總數：${recordsCount}
+
+資料摘要（JSON）：
+${JSON.stringify(summary, null, 2)}
+
+請輸出以下段落：
+1) 本週整體健康評估
+2) 成長趨勢判讀（如資料不足要明確指出）
+3) 飲食、排泄、睡眠、體溫、趴撐的重點觀察
+4) 需要家長留意的風險訊號（由高到低）
+5) 下週可執行的照顧建議（條列）
+6) 何時應盡快向醫生求助
+7) 最後一段必須逐字包含：本AI報告只作參考，不是專業醫學報告，如果疑問，請向家庭醫生查詢
+
+要求：
+- 不要作出確診。
+- 若資料不足，請明確列出欠缺資料和建議補充紀錄項目。
+- 用家長容易理解的語言。`;
+}
+
+async function generateReport() {
+    const user = auth.currentUser;
+    if (!user) {
+        setStatus('請先登入主系統後再生成報告。');
+        return;
+    }
+
+    const generateBtn = document.getElementById('generate-btn');
+    generateBtn.disabled = true;
+    generateBtn.innerText = '生成中...';
+
+    try {
+        setStatus('讀取近 7 天紀錄中...');
+        const { records, from, now } = await loadSevenDayRecords(user.uid);
+        lastFetchedCount = records.length;
+        latestSummary = summarizeRecords(records);
+        renderSummary(latestSummary, from, now, records.length);
+
+        if (records.length === 0) {
+            document.getElementById('report').innerText = '近 7 天沒有任何紀錄，暫時無法生成有效分析。';
+            setStatus('沒有可用資料。');
+            return;
+        }
+
+        setStatus('呼叫伺服器 AI API 生成報告中...');
+        const prompt = buildPrompt(latestSummary, from, now, records.length);
+
+        const resp = await fetch(getApiUrl('/api/ai-weekly-report'), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                prompt
+            })
+        });
+
+        if (!resp.ok) {
+            let errMsg = '';
+            try {
+                const errJson = await resp.json();
+                errMsg = errJson.error || JSON.stringify(errJson);
+            } catch (_) {
+                errMsg = await resp.text();
+            }
+            throw new Error(`伺服器 API 錯誤 (${resp.status}): ${errMsg}`);
+        }
+
+        const data = await resp.json();
+        const reportText = (data.report || '').trim();
+        if (!reportText) {
+            throw new Error('API 回應沒有可讀取的文字內容。');
+        }
+
+        document.getElementById('report').innerText = reportText;
+        setStatus(`完成：已分析 ${lastFetchedCount} 筆近 7 天紀錄。`);
+    } catch (err) {
+        console.error(err);
+        setStatus('生成失敗。');
+        document.getElementById('report').innerText = `發生錯誤：${err.message}`;
+    } finally {
+        generateBtn.disabled = false;
+        generateBtn.innerText = '重新生成報告';
+    }
+}
+
+async function initPage(user) {
+    const now = new Date();
+    const from = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    document.getElementById('page-title').innerText = `🤖 ${babyName} - AI 本週健康報告`;
+    document.getElementById('period-text').innerText = `分析區間：${formatDate(from)} 至 ${formatDate(now)}`;
+
+    if (!user) {
+        setStatus('未登入。請先返回主系統登入，再使用本頁。');
+        return;
+    }
+
+    setStatus('已登入，準備讀取資料。');
+    try {
+        const { records, from: startAt, now: endAt } = await loadSevenDayRecords(user.uid);
+        lastFetchedCount = records.length;
+        latestSummary = summarizeRecords(records);
+        renderSummary(latestSummary, startAt, endAt, records.length);
+
+        setStatus('點擊「生成 AI 報告」開始分析。');
+    } catch (err) {
+        console.error(err);
+        setStatus('讀取資料失敗。');
+        document.getElementById('report').innerText = `發生錯誤：${err.message}`;
+    }
+}
+
+auth.onAuthStateChanged((user) => {
+    initPage(user);
+});
+</script>
+</body>
+</html>

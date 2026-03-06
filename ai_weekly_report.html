@@ -110,6 +110,9 @@
             font-size: 0.95rem;
             font-weight: 700;
         }
+        .status:empty {
+            display: none;
+        }
         .report {
             background: #fff;
             border: 1px dashed var(--border-color);
@@ -148,32 +151,79 @@
         .book-subtitle {
             margin: 4px 0 8px;
             color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        .book-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px 12px;
+            flex-wrap: wrap;
+            margin-bottom: 4px;
+        }
+        .book-region-links {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .book-region-link {
+            border: 0;
+            background: transparent;
+            color: #8B3A2E;
             font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: underline;
+            padding: 0;
+        }
+        .book-region-link.active {
+            color: var(--theme-color);
+            text-decoration: none;
+        }
+        .book-refresh-link {
+            border: 0;
+            background: transparent;
+            color: var(--theme-color);
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: underline;
+            padding: 0;
+        }
+        .book-refresh-link[disabled] {
+            opacity: 0.5;
+            cursor: default;
+        }
+        .book-sections {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 8px;
         }
         .book-grid {
             display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 10px 12px;
-            margin-top: 10px;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            margin-top: 6px;
         }
-        .book-block-title {
-            margin: 12px 0 8px;
+        .book-section-title {
+            margin: 0;
             color: var(--theme-color);
-            font-size: 0.96rem;
+            font-size: 0.85rem;
             font-weight: 700;
         }
         .book-item {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             border: 1px solid var(--border-color);
             border-radius: 10px;
-            padding: 8px;
+            padding: 7px;
             background: #fff;
-            min-height: 104px;
+            min-height: 90px;
         }
         .book-cover {
-            width: 64px;
-            height: 88px;
+            width: 54px;
+            height: 74px;
             border-radius: 6px;
             border: 1px solid var(--border-color);
             object-fit: cover;
@@ -189,13 +239,14 @@
         .book-rank {
             color: var(--theme-color);
             font-weight: 800;
-            font-size: 0.86rem;
+            font-size: 0.8rem;
         }
         .book-link {
             color: #8B3A2E;
             text-decoration: none;
+            font-size: 0.86rem;
             font-weight: 700;
-            line-height: 1.4;
+            line-height: 1.3;
             word-break: break-word;
         }
         .book-link:hover {
@@ -216,6 +267,12 @@
                 width: 100%;
                 margin-left: 0;
                 text-align: right;
+            }
+            .book-controls {
+                align-items: flex-start;
+            }
+            .book-sections {
+                grid-template-columns: 1fr;
             }
             .book-grid {
                 grid-template-columns: 1fr;
@@ -254,23 +311,27 @@
 
     <div class="card" id="books-card">
         <h2 id="books-title">誠品熱賣書推薦</h2>
-        <div class="row" style="margin-bottom: 8px;">
-            <span id="books-region-label" style="color: var(--text-muted); font-weight: 700;">顯示地區：</span>
-            <select id="books-region-select" class="input date-input" onchange="onBooksRegionChange()">
-                <option value="auto">自動</option>
-                <option value="hk">香港</option>
-                <option value="tw">台灣</option>
-            </select>
-            <button id="books-refresh-btn" class="btn" onclick="refreshBestsellers()">更新書單</button>
+        <div class="book-controls">
+            <div class="book-region-links">
+                <span id="books-region-label" style="color: var(--text-muted); font-weight: 700;">地區：</span>
+                <button id="books-region-hk" class="book-region-link" onclick="setBooksRegion('hk')">香港</button>
+                <button id="books-region-tw" class="book-region-link" onclick="setBooksRegion('tw')">台灣</button>
+            </div>
+            <button id="books-refresh-btn" class="book-refresh-link" onclick="refreshBestsellers()">更新書單</button>
         </div>
         <div id="books-subtitle" class="book-subtitle">正在載入地區資料...</div>
         <div id="books-status" class="status">載入中...</div>
 
-        <div id="books-toddler-title" class="book-block-title">幼兒類 Top 2</div>
-        <div id="books-toddler-list" class="book-grid"></div>
-
-        <div id="books-parent-title" class="book-block-title">家長類 Top 2</div>
-        <div id="books-parent-list" class="book-grid"></div>
+        <div class="book-sections">
+            <div>
+                <div id="books-toddler-title" class="book-section-title">幼兒類</div>
+                <div id="books-toddler-list" class="book-grid"></div>
+            </div>
+            <div>
+                <div id="books-parent-title" class="book-section-title">家長類</div>
+                <div id="books-parent-list" class="book-grid"></div>
+            </div>
+        </div>
     </div>
 
     <div class="card">
@@ -332,16 +393,15 @@ const uiText = {
         generateBtnLoading: '生成中...',
         disclaimer: '⚠️ 本AI報告只作參考，不是專業醫學報告，如果疑問，請向家庭醫生查詢。',
         booksTitle: '誠品熱賣書推薦',
-        booksRegionLabel: '顯示地區：',
-        booksRegionAuto: '自動',
+        booksRegionLabel: '地區：',
         booksSubtitle: (region) => `以下為${region}誠品熱賣書（每日更新）`,
         booksRefreshBtn: '更新書單',
         booksRefreshBtnLoading: '更新中...',
         booksStatusLoading: '載入中...',
-        booksStatusLoaded: (time) => `最近更新：${time}`,
+        booksStatusLoaded: '',
         booksStatusError: (msg) => `熱賣書載入失敗：${msg}`,
-        booksToddlerTitle: '幼兒類 Top 2',
-        booksParentTitle: '家長類 Top 2',
+        booksToddlerTitle: '幼兒類',
+        booksParentTitle: '家長類',
         booksRegionHK: '香港',
         booksRegionTW: '台灣',
         booksEmpty: '暫時沒有可顯示資料。',
@@ -394,15 +454,14 @@ const uiText = {
         disclaimer: '⚠️ This AI report is for reference only and is not a professional medical report. If you have questions, please consult your family doctor.',
         booksTitle: 'Eslite Bestseller Picks',
         booksRegionLabel: 'Region:',
-        booksRegionAuto: 'Auto',
         booksSubtitle: (region) => `Showing daily picks from Eslite ${region}`,
         booksRefreshBtn: 'Refresh List',
         booksRefreshBtnLoading: 'Refreshing...',
         booksStatusLoading: 'Loading...',
-        booksStatusLoaded: (time) => `Last updated: ${time}`,
+        booksStatusLoaded: '',
         booksStatusError: (msg) => `Failed to load bestseller books: ${msg}`,
-        booksToddlerTitle: 'Toddler Top 2',
-        booksParentTitle: 'Parenting Top 2',
+        booksToddlerTitle: 'Toddler',
+        booksParentTitle: 'Parenting',
         booksRegionHK: 'Hong Kong',
         booksRegionTW: 'Taiwan',
         booksEmpty: 'No data available right now.',
@@ -493,7 +552,8 @@ function applyLanguage() {
     const emailStatusEl = document.getElementById('email-status');
     const generateBtn = document.getElementById('generate-btn');
     const sendEmailBtn = document.getElementById('send-email-btn');
-    const booksRegionSelect = document.getElementById('books-region-select');
+    const booksRegionHkBtn = document.getElementById('books-region-hk');
+    const booksRegionTwBtn = document.getElementById('books-region-tw');
     const booksRefreshBtn = document.getElementById('books-refresh-btn');
     if (generateBtn && !generateBtn.disabled) {
         generateBtn.innerText = t('generateBtn');
@@ -505,15 +565,8 @@ function applyLanguage() {
         booksRefreshBtn.innerText = booksLoading ? t('booksRefreshBtnLoading') : t('booksRefreshBtn');
         booksRefreshBtn.disabled = booksLoading;
     }
-    if (booksRegionSelect) {
-        const optionAuto = booksRegionSelect.querySelector('option[value="auto"]');
-        const optionHk = booksRegionSelect.querySelector('option[value="hk"]');
-        const optionTw = booksRegionSelect.querySelector('option[value="tw"]');
-        if (optionAuto) optionAuto.innerText = t('booksRegionAuto');
-        if (optionHk) optionHk.innerText = t('booksRegionHK');
-        if (optionTw) optionTw.innerText = t('booksRegionTW');
-        booksRegionSelect.value = manualBookRegion;
-    }
+    if (booksRegionHkBtn) booksRegionHkBtn.innerText = t('booksRegionHK');
+    if (booksRegionTwBtn) booksRegionTwBtn.innerText = t('booksRegionTW');
 
     if (!periodEl.innerText.trim()) {
         periodEl.innerText = t('periodDefault');
@@ -623,13 +676,6 @@ function clearChildren(el) {
     }
 }
 
-function formatDateTime(value) {
-    if (!value) return '';
-    const d = new Date(value);
-    if (Number.isNaN(d.getTime())) return '';
-    return `${formatDate(d)} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-}
-
 function regionFromCountry(countryCode) {
     const code = String(countryCode || '').trim().toUpperCase();
     if (code === 'HK' || code === 'CN' || code === 'MO') return 'hk';
@@ -715,14 +761,14 @@ function renderBestsellerCard() {
     const statusEl = document.getElementById('books-status');
     const toddlerListEl = document.getElementById('books-toddler-list');
     const parentListEl = document.getElementById('books-parent-list');
-    const regionSelect = document.getElementById('books-region-select');
+    const regionHkBtn = document.getElementById('books-region-hk');
+    const regionTwBtn = document.getElementById('books-region-tw');
     const refreshBtn = document.getElementById('books-refresh-btn');
     bestsellerRegion = getActiveBooksRegion(bestsellerPayload);
     const regionLabel = bestsellerRegion === 'hk' ? t('booksRegionHK') : t('booksRegionTW');
 
-    if (regionSelect) {
-        regionSelect.value = manualBookRegion;
-    }
+    if (regionHkBtn) regionHkBtn.classList.toggle('active', bestsellerRegion === 'hk');
+    if (regionTwBtn) regionTwBtn.classList.toggle('active', bestsellerRegion === 'tw');
     if (refreshBtn) {
         refreshBtn.innerText = booksLoading ? t('booksRefreshBtnLoading') : t('booksRefreshBtn');
         refreshBtn.disabled = booksLoading;
@@ -747,7 +793,7 @@ function renderBestsellerCard() {
     const regions = bestsellerPayload.regions || {};
     const regionData = regions[bestsellerRegion] || regions.tw || regions.hk || {};
     subtitleEl.innerText = t('booksSubtitle', regionLabel);
-    statusEl.innerText = t('booksStatusLoaded', formatDateTime(bestsellerPayload.updatedAt));
+    statusEl.innerText = booksLoading ? t('booksStatusLoading') : t('booksStatusLoaded');
 
     renderBookList(toddlerListEl, regionData.toddler || []);
     renderBookList(parentListEl, regionData.parent || []);
@@ -793,11 +839,10 @@ async function requestBestsellers(forceRefresh = false) {
     throw lastError || new Error(t('booksStatusLoading'));
 }
 
-function onBooksRegionChange() {
-    const value = String(document.getElementById('books-region-select').value || 'auto').toLowerCase();
-    manualBookRegion = (value === 'hk' || value === 'tw') ? value : 'auto';
+async function setBooksRegion(region) {
+    manualBookRegion = region === 'hk' ? 'hk' : 'tw';
     localStorage.setItem('booksRegion', manualBookRegion);
-    renderBestsellerCard();
+    await loadBestsellers(true);
 }
 
 async function refreshBestsellers() {

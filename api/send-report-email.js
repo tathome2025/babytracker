@@ -19,45 +19,6 @@ function getBody(req) {
   return body;
 }
 
-function parsePdfDataUrl(dataUrl) {
-  if (typeof dataUrl !== 'string') return null;
-  const raw = dataUrl.trim();
-  if (!raw) return null;
-
-  const commaIndex = raw.indexOf(',');
-  if (commaIndex < 0) return null;
-
-  const header = raw.slice(0, commaIndex).toLowerCase();
-  if (!header.startsWith('data:application/pdf')) return null;
-
-  let base64 = raw.slice(commaIndex + 1).trim();
-  if (!base64) return null;
-
-  try {
-    if (/%[0-9a-f]{2}/i.test(base64)) {
-      base64 = decodeURIComponent(base64);
-    }
-  } catch (_) {}
-
-  base64 = base64.replace(/\s+/g, '');
-  if (!/^[A-Za-z0-9+/=]+$/.test(base64)) return null;
-  return { base64 };
-}
-
-function normalizeBase64(value) {
-  if (typeof value !== 'string') return null;
-  let base64 = value.trim();
-  if (!base64) return null;
-  try {
-    if (/%[0-9a-f]{2}/i.test(base64)) {
-      base64 = decodeURIComponent(base64);
-    }
-  } catch (_) {}
-  base64 = base64.replace(/\s+/g, '');
-  if (!/^[A-Za-z0-9+/=]+$/.test(base64)) return null;
-  return base64;
-}
-
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email || '');
 }
@@ -99,8 +60,6 @@ module.exports = async (req, res) => {
     const babyName = typeof body.babyName === 'string' ? body.babyName.trim() : 'Baby';
     const lang = typeof body.lang === 'string' ? body.lang.trim() : 'zh';
     const reportText = typeof body.reportText === 'string' ? body.reportText : '';
-    const reportPdfDataUrl = typeof body.reportPdfDataUrl === 'string' ? body.reportPdfDataUrl : '';
-    const reportPdfBase64 = typeof body.reportPdfBase64 === 'string' ? body.reportPdfBase64 : '';
 
     if (!isValidEmail(toEmail)) {
       return res.status(400).json({ error: 'Invalid recipient email' });
@@ -111,14 +70,6 @@ module.exports = async (req, res) => {
     if (!reportText.trim()) {
       return res.status(400).json({ error: 'Missing report text' });
     }
-    if (!reportPdfDataUrl && !reportPdfBase64) {
-      return res.status(400).json({ error: 'Missing report PDF' });
-    }
-    const normalized = normalizeBase64(reportPdfBase64);
-    const parsedPdf = normalized ? { base64: normalized } : parsePdfDataUrl(reportPdfDataUrl);
-    if (!parsedPdf) {
-      return res.status(400).json({ error: 'Invalid report PDF data' });
-    }
 
     const isEn = String(lang).toLowerCase().startsWith('en');
     const safeSubject = escapeHtml(subject);
@@ -126,8 +77,8 @@ module.exports = async (req, res) => {
     const safePeriod = escapeHtml(periodText);
     const safeReport = escapeHtml(reportText);
     const intro = isEn
-      ? '<p style="margin:0 0 12px;">Your report is attached as a print-ready PDF preserving the same visual layout.</p>'
-      : '<p style="margin:0 0 12px;">你的報告已附上可列印 PDF，並保留與頁面一致的視覺版面。</p>';
+      ? '<p style="margin:0 0 12px;">Here is your text report.</p>'
+      : '<p style="margin:0 0 12px;">以下是文字版報告。</p>';
     const periodRow = safePeriod
       ? `<p style="margin:0 0 12px;"><strong>${isEn ? 'Analysis range:' : '分析區間：'}</strong> ${safePeriod}</p>`
       : '';
@@ -156,13 +107,7 @@ module.exports = async (req, res) => {
         from: mailFrom,
         to: [toEmail],
         subject,
-        html,
-        attachments: [
-          {
-            filename: 'baby-health-report.pdf',
-            content: parsedPdf.base64
-          }
-        ]
+        html
       })
     });
 

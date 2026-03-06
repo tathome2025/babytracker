@@ -44,6 +44,11 @@ function extractResponseText(payload) {
   return lines.join('\n').trim();
 }
 
+function normalizeLang(value) {
+  const lang = typeof value === 'string' ? value.trim().toLowerCase() : '';
+  return lang.startsWith('en') ? 'en' : 'zh';
+}
+
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email || '');
 }
@@ -138,6 +143,11 @@ app.post('/api/ai-weekly-report', async (req, res) => {
       return res.status(400).json({ error: 'Missing prompt' });
     }
 
+    const lang = normalizeLang(req.body?.lang);
+    const systemPrompt = lang === 'en'
+      ? 'You are a careful and gentle pediatric health assistant. Provide reference guidance only, no diagnosis. Acknowledge parents effort first, then give practical and gentle suggestions. Always respond in English.'
+      : '你是謹慎且溫柔的兒科健康分析助理。你只能提供參考建議，不能診斷疾病。請先肯定家長努力，再以溫柔語氣給建議與提醒。請一律以繁體中文（香港用語）回覆。';
+
     const openaiResp = await fetch('https://api.openai.com/v1/responses', {
       method: 'POST',
       headers: {
@@ -150,7 +160,7 @@ app.post('/api/ai-weekly-report', async (req, res) => {
         input: [
           {
             role: 'system',
-            content: '你是謹慎且溫柔的兒科健康分析助理。你只能提供參考建議，不能診斷疾病。請先肯定家長努力，再以溫柔語氣給建議與提醒。'
+            content: systemPrompt
           },
           {
             role: 'user',

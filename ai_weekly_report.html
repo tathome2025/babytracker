@@ -413,7 +413,7 @@ function goBack() {
         window.history.back();
         return;
     }
-    window.location.href = './index.html';
+    window.location.href = './beta_index.html';
 }
 
 function setStatus(text) {
@@ -474,7 +474,7 @@ function getApiCandidates(path) {
     return Array.from(new Set(candidates));
 }
 
-async function requestAiReport(prompt) {
+async function requestAiReport(prompt, lang) {
     const urls = getApiCandidates('/api/ai-weekly-report');
     let lastError = null;
 
@@ -486,7 +486,7 @@ async function requestAiReport(prompt) {
             const resp = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt })
+                body: JSON.stringify({ prompt, lang })
             });
 
             if (resp.ok) {
@@ -866,7 +866,7 @@ async function generateReport() {
             throw new Error(t('errorNeedApiBase'));
         }
 
-        const data = await requestAiReport(prompt);
+        const data = await requestAiReport(prompt, currentLang);
         const reportText = (data.report || '').trim();
         if (!reportText) {
             throw new Error(t('errorNoReportText'));

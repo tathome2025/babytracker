@@ -223,11 +223,60 @@ function toJsDate(input) {
     return Number.isNaN(d.getTime()) ? null : d;
 }
 
-function getApiUrl(path) {
+function getApiCandidates(path) {
+    const localUrl = `http://localhost:8787${path}`;
     if (window.location.protocol === 'file:') {
-        return `http://localhost:8787${path}`;
+        return [localUrl];
     }
-    return path;
+    const candidates = [path];
+    if (window.location.origin !== 'http://localhost:8787') {
+        candidates.push(localUrl);
+    }
+    return Array.from(new Set(candidates));
+}
+
+async function requestAiReport(prompt) {
+    const urls = getApiCandidates('/api/ai-weekly-report');
+    let lastError = null;
+
+    for (let i = 0; i < urls.length; i++) {
+        const url = urls[i];
+        const isLast = i === urls.length - 1;
+
+        try {
+            const resp = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt })
+            });
+
+            if (resp.ok) {
+                return await resp.json();
+            }
+
+            const rawBody = await resp.text();
+            let errMsg = rawBody;
+            try {
+                const errJson = JSON.parse(rawBody);
+                errMsg = errJson.error || rawBody;
+            } catch (_) {}
+
+            const contentType = (resp.headers.get('content-type') || '').toLowerCase();
+            const isRouteMismatch = resp.status === 404 || resp.status === 405 || contentType.includes('text/html');
+            if (isRouteMismatch && !isLast) {
+                lastError = new Error(`API route not available on ${url} (${resp.status})`);
+                continue;
+            }
+
+            throw new Error(`伺服器 API 錯誤 (${resp.status}): ${errMsg}`);
+        } catch (error) {
+            lastError = error;
+            if (!isLast) continue;
+            throw lastError;
+        }
+    }
+
+    throw lastError || new Error('無法連線 AI 服務。');
 }
 
 function toDateInputValue(date) {
@@ -431,27 +480,7 @@ async function generateReport() {
         setStatus('正在生成分析報告...');
         const prompt = buildPrompt(latestSummary, from, to, records.length);
 
-        const resp = await fetch(getApiUrl('/api/ai-weekly-report'), {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                prompt
-            })
-        });
-
-        if (!resp.ok) {
-            const rawBody = await resp.text();
-            let errMsg = rawBody;
-            try {
-                const errJson = JSON.parse(rawBody);
-                errMsg = errJson.error || rawBody;
-            } catch (_) {}
-            throw new Error(`伺服器 API 錯誤 (${resp.status}): ${errMsg}`);
-        }
-
-        const data = await resp.json();
+        const data = await requestAiReport(prompt);
         const reportText = (data.report || '').trim();
         if (!reportText) {
             throw new Error('API 回應沒有可讀取的文字內容。');

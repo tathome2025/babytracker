@@ -215,6 +215,9 @@
         .top-bath-box { grid-column: span 2; }
         .summary-title { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px; }
         .summary-value { font-size: 1.3rem; font-weight: bold; color: var(--theme-color); }
+        .summary-metrics { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; text-align: left; }
+        .summary-metric { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: 0.82rem; color: var(--text-muted); }
+        .summary-metric-value { color: var(--theme-color); font-size: 0.95rem; font-weight: 800; text-align: right; }
         .history-list { display: flex; flex-direction: column; gap: 10px; }
         .history-item { background: var(--btn-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; display: flex; justify-content: space-between; align-items: center; }
         .history-info { display: flex; flex-direction: column; gap: 4px; }
@@ -368,16 +371,6 @@
 </div>
 
 <div class="main-content">
-    <div id="bestseller-widget" class="bestseller-widget">
-        <div class="bestseller-headline">
-            <h3 class="bestseller-title" data-i18n="booksWidgetTitle">誠品親子熱賣書推薦</h3>
-            <button id="bestseller-refresh-btn" class="bestseller-refresh-btn" onclick="refreshBestsellerWidget()" data-i18n="booksWidgetRefresh">更新書單</button>
-        </div>
-        <p id="bestseller-hint" class="bestseller-hint" data-i18n="booksWidgetHint">每次更新會顯示週榜上的其他書籍</p>
-        <p id="bestseller-status" class="bestseller-status" data-i18n="booksWidgetLoading">載入中...</p>
-        <div id="bestseller-grid" class="bestseller-grid"></div>
-    </div>
-
     <div class="baby-header-row">
         <div class="baby-selector" id="baby-selector">
             <button class="baby-tab active" id="tab-baby1" onclick="switchBaby('baby1')">👶 大寶</button>
@@ -402,6 +395,15 @@
     <div id="log-card" class="card active">
         <h2><span data-i18n="timelineTitle">📅 24小時日誌</span></h2>
         <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: -10px;" data-i18n="logDesc">顯示從此刻起，往前推算 24 小時內的所有紀錄。</p>
+        <div id="bestseller-widget" class="bestseller-widget">
+            <div class="bestseller-headline">
+                <h3 class="bestseller-title" data-i18n="booksWidgetTitle">誠品親子熱賣書推薦</h3>
+                <button id="bestseller-refresh-btn" class="bestseller-refresh-btn" onclick="refreshBestsellerWidget()" data-i18n="booksWidgetRefresh">更新書單</button>
+            </div>
+            <p id="bestseller-hint" class="bestseller-hint" data-i18n="booksWidgetHint">每次更新會顯示週榜上的其他書籍</p>
+            <p id="bestseller-status" class="bestseller-status" data-i18n="booksWidgetLoading">載入中...</p>
+            <div id="bestseller-grid" class="bestseller-grid"></div>
+        </div>
 
         <div class="summary-grid">
             <div class="summary-box top-feed-box" style="border-color: #5C7890; background: #e7ecef;">
@@ -426,20 +428,60 @@
             </div>
 
             <div class="summary-box">
-                <div class="summary-title" data-i18n="sumFed12h">12h內吃奶量</div>
-                <div class="summary-value"><span id="sum-milk-val">0</span> <span style="font-size: 0.8rem">ml</span></div>
+                <div class="summary-title" data-i18n="sumMilk24h">24h吃奶 (配方奶/人奶樽)</div>
+                <div class="summary-metrics">
+                    <div class="summary-metric">
+                        <span data-i18n="sumFeedCount">吃奶次數</span>
+                        <span class="summary-metric-value"><span id="sum-milk-count-val">0</span> <span data-i18n="unitTimes">次</span></span>
+                    </div>
+                    <div class="summary-metric">
+                        <span data-i18n="sumAvgMl">平均每次</span>
+                        <span class="summary-metric-value"><span id="sum-milk-avg-val">0</span> ml</span>
+                    </div>
+                    <div class="summary-metric">
+                        <span data-i18n="sumTotalMl24h">24h總量</span>
+                        <span class="summary-metric-value"><span id="sum-milk-total-val">0</span> ml</span>
+                    </div>
+                </div>
             </div>
             <div class="summary-box">
-                <div class="summary-title" data-i18n="sumDirect12h">12h內總親餵時間</div>
-                <div class="summary-value"><span id="sum-direct12h-val">0</span> <span style="font-size: 0.8rem" data-i18n="unitMins">分鐘</span></div>
+                <div class="summary-title" data-i18n="sumDirect24h">24h親餵</div>
+                <div class="summary-metrics">
+                    <div class="summary-metric">
+                        <span data-i18n="sumDirectCount">親餵次數</span>
+                        <span class="summary-metric-value"><span id="sum-direct-count-val">0</span> <span data-i18n="unitTimes">次</span></span>
+                    </div>
+                    <div class="summary-metric">
+                        <span data-i18n="sumAvgMins">平均每次</span>
+                        <span class="summary-metric-value"><span id="sum-direct-avg-val">0</span> <span data-i18n="unitMins">分鐘</span></span>
+                    </div>
+                </div>
             </div>
             <div class="summary-box">
-                <div class="summary-title" data-i18n="sumPumped">總泵奶量</div>
-                <div class="summary-value"><span id="sum-pump-val">0</span> <span style="font-size: 0.8rem">ml</span></div>
+                <div class="summary-title" data-i18n="sumPump24h">24h泵奶</div>
+                <div class="summary-metrics">
+                    <div class="summary-metric">
+                        <span data-i18n="sumPumpCount">泵奶次數</span>
+                        <span class="summary-metric-value"><span id="sum-pump-count-val">0</span> <span data-i18n="unitTimes">次</span></span>
+                    </div>
+                    <div class="summary-metric">
+                        <span data-i18n="sumAvgMl">平均每次</span>
+                        <span class="summary-metric-value"><span id="sum-pump-avg-val">0</span> ml</span>
+                    </div>
+                </div>
             </div>
             <div class="summary-box">
-                <div class="summary-title" data-i18n="sumDiaper">換尿片</div>
-                <div class="summary-value"><span id="sum-diaper-val">0</span> <span style="font-size: 0.8rem" data-i18n="unitTimes">次</span></div>
+                <div class="summary-title" data-i18n="sumDiaper24h">24h尿片</div>
+                <div class="summary-metrics">
+                    <div class="summary-metric">
+                        <span data-i18n="sumPeeCount">小便次數</span>
+                        <span class="summary-metric-value"><span id="sum-diaper-pee-val">0</span> <span data-i18n="unitTimes">次</span></span>
+                    </div>
+                    <div class="summary-metric">
+                        <span data-i18n="sumPooCount">大便次數</span>
+                        <span class="summary-metric-value"><span id="sum-diaper-poo-val">0</span> <span data-i18n="unitTimes">次</span></span>
+                    </div>
+                </div>
             </div>
             <div class="summary-box">
                 <div class="summary-title" data-i18n="sumSleep">睡眠時數</div>
@@ -928,7 +970,7 @@ const firebaseConfig = {
             settingsTitle: "⚙️ 設定寶寶名稱", firstBaby: "第一位寶寶", secondBaby: "第二位寶寶", thirdBaby: "第三位寶寶",
             settingsPlaceholder1: "例如：大寶", settingsPlaceholder2: "例如：二寶", settingsPlaceholder3: "例如：三寶", saveSettingsBtn: "💾 儲存 (同步雲端)", cancelBtn: "取消",
             alertSettingsSaved: "✅ 設定已同步到雲端！", saving: "儲存中...", alertSuccess: "✅ 成功儲存", alertError: "❌ 錯誤：",
-            historyTitle: "📊 統計趨勢圖表", sumFed12h: "12h內吃奶量", sumDirect12h: "12h內總親餵時間", sumPumped: "總泵奶量", sumDiaper: "換尿片", sumSleep: "睡眠時數", nextBath: "下次沖涼時間", overdueBath: "未沖涼 ⚠️", nextFeed: "🍼 下次餵奶時間參考", timelineTitle: "📅 24小時日誌",
+            historyTitle: "📊 統計趨勢圖表", sumMilk24h: "24h吃奶 (配方奶/人奶樽)", sumFeedCount: "吃奶次數", sumAvgMl: "平均每次", sumTotalMl24h: "24h總量", sumDirect24h: "24h親餵", sumDirectCount: "親餵次數", sumAvgMins: "平均每次", sumPump24h: "24h泵奶", sumPumpCount: "泵奶次數", sumDiaper24h: "24h尿片", sumPeeCount: "小便次數", sumPooCount: "大便次數", sumSleep: "睡眠時數", nextBath: "下次沖涼時間", overdueBath: "未沖涼 ⚠️", nextFeed: "🍼 下次餵奶時間參考", timelineTitle: "📅 24小時日誌",
             logDesc: "顯示從此刻起，往前推算 24 小時內的所有紀錄。", unitTimes: "次", unitHours: "小時", unitMins: "分鐘",
             deleteConfirm: "確定要刪除這筆紀錄嗎？", emptyHistory: "過去 24 小時內沒有任何紀錄喔！",
             range7: "最近 7 天", range14: "最近 14 天", range30: "最近 1 個月", range90: "最近 3 個月", range180: "最近半年", range365: "最近一年",
@@ -966,7 +1008,7 @@ const firebaseConfig = {
             settingsTitle: "⚙️ Set Baby Name", firstBaby: "First Baby", secondBaby: "Second Baby", thirdBaby: "Third Baby",
             settingsPlaceholder1: "e.g., Baby 1", settingsPlaceholder2: "e.g., Baby 2", settingsPlaceholder3: "e.g., Baby 3", saveSettingsBtn: "💾 Save (Sync)", cancelBtn: "Cancel",
             alertSettingsSaved: "✅ Saved to cloud!", saving: "Saving...", alertSuccess: "✅ Saved", alertError: "❌ Error: ",
-            historyTitle: "📊 History Trend", sumFed12h: "Fed in 12h", sumDirect12h: "Nursing in 12h", sumPumped: "Total Pumped", sumDiaper: "Diapers", sumSleep: "Sleep Duration", nextBath: "Next Bath Time", overdueBath: "Overdue ⚠️", nextFeed: "🍼 Next Feed", timelineTitle: "📅 24-Hour Log",
+            historyTitle: "📊 History Trend", sumMilk24h: "24h Bottle Feeds", sumFeedCount: "Feed count", sumAvgMl: "Avg / session", sumTotalMl24h: "24h total", sumDirect24h: "24h Nursing", sumDirectCount: "Nursing count", sumAvgMins: "Avg / session", sumPump24h: "24h Pumping", sumPumpCount: "Pump count", sumDiaper24h: "24h Diapers", sumPeeCount: "Pee count", sumPooCount: "Poo count", sumSleep: "Sleep Duration", nextBath: "Next Bath Time", overdueBath: "Overdue ⚠️", nextFeed: "🍼 Next Feed", timelineTitle: "📅 24-Hour Log",
             logDesc: "Showing all records within the past 24 hours from now.", unitTimes: "times", unitHours: "hrs", unitMins: "mins",
             deleteConfirm: "Delete this record?", emptyHistory: "No records in the last 24 hours!",
             range7: "Last 7 Days", range14: "Last 14 Days", range30: "Last 1 Month", range90: "Last 3 Months", range180: "Last 6 Months", range365: "Last 1 Year",
@@ -1398,6 +1440,36 @@ function toggleManualMode(cat) {
     setInterval(() => { ['feeding', 'diaper', 'sleep', 'temp', 'bath', 'tummy'].forEach(cat => { if (!isTimeFrozen[cat]) { recordTimes[cat] = new Date(); renderTimeDisplay(cat); }}); renderNextFeedCountdown(); }, 1000);
 
     function addVal(id, amt) { let el = document.getElementById(id); let curr = Number(el.value) || 0; el.value = curr + amt; }
+
+    function getBottleFeedVolume(record) {
+        if (!record || record.category !== 'feeding') return 0;
+        if (record.feedingType !== 'formula' && record.feedingType !== 'breastmilk') return 0;
+        return Number(record.volumeML) || 0;
+    }
+
+    function getDirectFeedMinutes(record) {
+        if (!record || record.category !== 'feeding' || record.feedingType !== 'direct') return 0;
+        const left = Number(record.directLeft) || 0;
+        const right = Number(record.directRight) || 0;
+        if (left || right) return left + right;
+        return Number(record.durationMins) || 0;
+    }
+
+    function getPumpSessionVolume(record) {
+        if (!record || record.category !== 'feeding' || record.feedingType !== 'pump') return 0;
+        const left = Number(record.pumpLeft) || 0;
+        const right = Number(record.pumpRight) || 0;
+        if (left || right) return left + right;
+        return Number(record.volumeML) || 0;
+    }
+
+    function formatSummaryMetric(value, decimals = 0) {
+        const safeValue = Number(value) || 0;
+        const rounded = decimals > 0
+            ? Math.round(safeValue * Math.pow(10, decimals)) / Math.pow(10, decimals)
+            : Math.round(safeValue);
+        return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(decimals);
+    }
     
     // 🔥 用於快捷鍵聯動 Slider
     function setSliderVal(sliderId, displayId, val) {
@@ -1964,7 +2036,6 @@ function toggleManualMode(cat) {
 
         const now = new Date();
         const past24h = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-        const past12h = new Date(now.getTime() - 12 * 60 * 60 * 1000);
 
         let labels = [];
         let dailyStats = {};
@@ -1987,7 +2058,11 @@ function toggleManualMode(cat) {
             allRecords.sort((a, b) => a.time - b.time);
             
             let lastSleepStart = null; let lastTummyStart = null;
-            let dayTotalFed12h = 0; let dayTotalDirect12hMins = 0; let dayTotalPump = 0; let dayDiaperCount = 0; let daySleepMins = 0; 
+            let dayBottleFeedCount = 0; let dayBottleFeedTotalMl = 0;
+            let dayDirectCount = 0; let dayDirectTotalMins = 0;
+            let dayPumpCount = 0; let dayPumpTotalMl = 0;
+            let dayPeeCount = 0; let dayPooCount = 0;
+            let daySleepMins = 0;
             let lastBathTime = null; 
             let lastFeedTime = null;
             let listHtml = '';
@@ -2072,24 +2147,28 @@ function toggleManualMode(cat) {
                         if(r.feedingType === 'direct') { 
                             let l = r.directLeft||0; let r_v = r.directRight||0; if(!l && !r_v && r.durationMins) l = r.durationMins;
                             desc = `${translations[currentLang].lblDirect} (${lblL}:${l}, ${lblR}:${r_v})`; 
-                            if(r.time >= past12h) { dayTotalDirect12hMins += (l + r_v); }
+                            dayDirectCount += 1;
+                            dayDirectTotalMins += getDirectFeedMinutes(r);
                         }
                         else if(r.feedingType === 'pump') { 
                             let l = r.pumpLeft||0; let r_v = r.pumpRight||0; if(!l && !r_v && r.volumeML) l = r.volumeML;
                             desc = `${translations[currentLang].lblPump} (${lblL}:${l}, ${lblR}:${r_v})`; 
-                            dayTotalPump += (l + r_v);
+                            dayPumpCount += 1;
+                            dayPumpTotalMl += getPumpSessionVolume(r);
                         }
                         else { 
                             desc = `${r.feedingType==='formula'?translations[currentLang].lblFormula:translations[currentLang].lblBreast} ${r.volumeML}ml`; 
                             if(r.brand && r.brand !== '未填寫') desc += ` [${r.brand}]`; 
-                            if(r.time >= past12h) { dayTotalFed12h += r.volumeML; }
+                            dayBottleFeedCount += 1;
+                            dayBottleFeedTotalMl += getBottleFeedVolume(r);
                         }
                     } 
                     else if (r.category === 'diaper') {
-                        icon = '🧻'; dayDiaperCount++; let arr = [];
+                        icon = '🧻'; let arr = [];
                         let txtPee = currentLang==='zh'?"小便":"Pee"; let txtPoo = currentLang==='zh'?"大便":"Poo"; let txtNoPoo = currentLang==='zh'?"沒大便":"No Poo";
-                        if(r.hasPee) arr.push(txtPee);
+                        if(r.hasPee) { arr.push(txtPee); dayPeeCount += 1; }
                         if(r.hasPoo) { let p = txtPoo; if(r.pooColor !== 'none') p += `(${r.pooColor}, ${r.pooAmount})`; arr.push(p); }
+                        if(r.hasPoo) dayPooCount += 1;
                         if(r.rash && r.rash > 0) { let rashMap = {1:translations[currentLang].rashMild, 2:translations[currentLang].rashMod, 3:translations[currentLang].rashSevere}; arr.push(`⚠️ ${translations[currentLang].labelRash}: ${rashMap[r.rash]}`); }
                         if(arr.length===0) arr.push(txtNoPoo); desc = arr.join(' / ');
                     } 
@@ -2133,10 +2212,15 @@ function toggleManualMode(cat) {
             if(isLogTab) {
                 if(listHtml === '') listDiv.innerHTML = `<div style="text-align:center; color: var(--text-muted); padding: 20px;">${translations[currentLang].emptyHistory}</div>`;
                 else listDiv.innerHTML = listHtml; 
-                document.getElementById('sum-milk-val').innerText = dayTotalFed12h;
-                document.getElementById('sum-direct12h-val').innerText = dayTotalDirect12hMins;
-                document.getElementById('sum-pump-val').innerText = dayTotalPump;
-                document.getElementById('sum-diaper-val').innerText = dayDiaperCount;
+                document.getElementById('sum-milk-count-val').innerText = dayBottleFeedCount;
+                document.getElementById('sum-milk-avg-val').innerText = formatSummaryMetric(dayBottleFeedCount ? (dayBottleFeedTotalMl / dayBottleFeedCount) : 0, 1);
+                document.getElementById('sum-milk-total-val').innerText = formatSummaryMetric(dayBottleFeedTotalMl);
+                document.getElementById('sum-direct-count-val').innerText = dayDirectCount;
+                document.getElementById('sum-direct-avg-val').innerText = formatSummaryMetric(dayDirectCount ? (dayDirectTotalMins / dayDirectCount) : 0, 1);
+                document.getElementById('sum-pump-count-val').innerText = dayPumpCount;
+                document.getElementById('sum-pump-avg-val').innerText = formatSummaryMetric(dayPumpCount ? (dayPumpTotalMl / dayPumpCount) : 0, 1);
+                document.getElementById('sum-diaper-pee-val').innerText = dayPeeCount;
+                document.getElementById('sum-diaper-poo-val').innerText = dayPooCount;
                 document.getElementById('sum-sleep-val').innerText = (daySleepMins / 60).toFixed(1);
                 
                 let bathDisplay = "--"; let bathStyle = "color: #4F7C78; font-size: 1.6rem; font-variant-numeric: tabular-nums;";
@@ -2375,10 +2459,15 @@ function startDemo() {
     document.getElementById('auth-overlay').style.display = 'none';
     
     // 注入 Sample Data 讓用戶預覽介面
-    if(document.getElementById('sum-milk-val')) document.getElementById('sum-milk-val').innerText = "380";
-    if(document.getElementById('sum-direct12h-val')) document.getElementById('sum-direct12h-val').innerText = "42";
-    if(document.getElementById('sum-pump-val')) document.getElementById('sum-pump-val').innerText = "250";
-    if(document.getElementById('sum-diaper-val')) document.getElementById('sum-diaper-val').innerText = "4";
+    if(document.getElementById('sum-milk-count-val')) document.getElementById('sum-milk-count-val').innerText = "4";
+    if(document.getElementById('sum-milk-avg-val')) document.getElementById('sum-milk-avg-val').innerText = "95";
+    if(document.getElementById('sum-milk-total-val')) document.getElementById('sum-milk-total-val').innerText = "380";
+    if(document.getElementById('sum-direct-count-val')) document.getElementById('sum-direct-count-val').innerText = "3";
+    if(document.getElementById('sum-direct-avg-val')) document.getElementById('sum-direct-avg-val').innerText = "14";
+    if(document.getElementById('sum-pump-count-val')) document.getElementById('sum-pump-count-val').innerText = "2";
+    if(document.getElementById('sum-pump-avg-val')) document.getElementById('sum-pump-avg-val').innerText = "125";
+    if(document.getElementById('sum-diaper-pee-val')) document.getElementById('sum-diaper-pee-val').innerText = "4";
+    if(document.getElementById('sum-diaper-poo-val')) document.getElementById('sum-diaper-poo-val').innerText = "2";
     if(document.getElementById('sum-sleep-val')) document.getElementById('sum-sleep-val').innerText = "6.5";
     
     // 注入假的時間軸紀錄
@@ -2433,10 +2522,15 @@ function showDemoRegisterPrompt() {
     if(document.getElementById('log-list')) document.getElementById('log-list').innerHTML = ''; 
     
     // 數據歸零
-    if(document.getElementById('sum-milk-val')) document.getElementById('sum-milk-val').innerText = "0";
-    if(document.getElementById('sum-direct12h-val')) document.getElementById('sum-direct12h-val').innerText = "0";
-    if(document.getElementById('sum-pump-val')) document.getElementById('sum-pump-val').innerText = "0";
-    if(document.getElementById('sum-diaper-val')) document.getElementById('sum-diaper-val').innerText = "0";
+    if(document.getElementById('sum-milk-count-val')) document.getElementById('sum-milk-count-val').innerText = "0";
+    if(document.getElementById('sum-milk-avg-val')) document.getElementById('sum-milk-avg-val').innerText = "0";
+    if(document.getElementById('sum-milk-total-val')) document.getElementById('sum-milk-total-val').innerText = "0";
+    if(document.getElementById('sum-direct-count-val')) document.getElementById('sum-direct-count-val').innerText = "0";
+    if(document.getElementById('sum-direct-avg-val')) document.getElementById('sum-direct-avg-val').innerText = "0";
+    if(document.getElementById('sum-pump-count-val')) document.getElementById('sum-pump-count-val').innerText = "0";
+    if(document.getElementById('sum-pump-avg-val')) document.getElementById('sum-pump-avg-val').innerText = "0";
+    if(document.getElementById('sum-diaper-pee-val')) document.getElementById('sum-diaper-pee-val').innerText = "0";
+    if(document.getElementById('sum-diaper-poo-val')) document.getElementById('sum-diaper-poo-val').innerText = "0";
     if(document.getElementById('sum-sleep-val')) document.getElementById('sum-sleep-val').innerText = "0";
 }
     
